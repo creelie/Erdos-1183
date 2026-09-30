@@ -1,0 +1,55 @@
+% The box spanned by two points of the grid {0,...,4}^3, as in the proof of the
+% supersaturation proposition.
+\begin{tikzpicture}[x={(1.2cm,0cm)}, y={(0.66cm,0.44cm)}, z={(0cm,1.1cm)},
+    dot/.style={circle, fill=black!22, inner sep=0pt, minimum size=2.3pt},
+    vtx/.style={circle, draw=teal!40!black, fill=teal!45, inner sep=0pt,
+      minimum size=7pt},
+    tip/.style={circle, draw=red!45!black, fill=red!70!black, inner sep=0pt,
+      minimum size=8pt},
+    lab/.style={font=\small, fill=white, fill opacity=0.85, text opacity=1,
+      inner sep=1.2pt, rounded corners=1pt}]
+  % the grid points of G^3
+  \foreach \a in {0,...,4}
+    \foreach \b in {0,...,4}
+      \foreach \c in {0,...,4}
+        \node[dot] at (\a,\b,\c) {};
+  % the bounding cube of the grid
+  \draw[black!18, line width=0.4pt] (4,0,0) -- (4,4,0) -- (0,4,0);
+  \draw[black!18, line width=0.4pt] (0,0,4) -- (4,0,4) -- (4,4,4) -- (0,4,4) -- cycle;
+  \draw[black!18, line width=0.4pt] (4,0,0) -- (4,0,4) (4,4,0) -- (4,4,4) (0,4,0) -- (0,4,4);
+  % axes and tick labels; the x_2 direction is marked along the edge x_1 = 4
+  \draw[-{Stealth[length=5pt]}, black!65, line width=0.6pt] (0,0,0) -- (4,0,0) -- (4.7,0,0);
+  \node[below right=0pt and 1pt, font=\small] at (4.7,0,0) {$x_1$};
+  \draw[-{Stealth[length=5pt]}, black!65, line width=0.6pt] (4,0,0) -- (4,4.8,0);
+  \node[right=2pt, font=\small] at (4,4.8,0) {$x_2$};
+  \draw[-{Stealth[length=5pt]}, black!65, line width=0.6pt] (0,0,0) -- (0,0,4.75);
+  \node[above, font=\small] at (0,0,4.75) {$x_3$};
+  \foreach \a in {0,...,4}
+    \node[below=2pt, font=\scriptsize, text=black!75] at (\a,0,0) {$\a$};
+  \foreach \c in {1,...,4}
+    \node[left=3pt, font=\scriptsize, text=black!75] at (0,0,\c) {$\c$};
+  \foreach \b in {1,...,4}
+    \node[right=3pt, font=\scriptsize, text=black!75] at (4,\b,0) {$\b$};
+  % hidden edges of the box, at the vertex (1,3,0)
+  \draw[teal!50!black, dashed, line width=0.6pt] (1,3,0) -- (3,3,0)
+    (1,3,0) -- (1,1,0) (1,3,0) -- (1,3,2);
+  % visible faces: front (x_2 = 1), top (x_3 = 2), right (x_1 = 3)
+  \fill[teal!30, opacity=0.35] (1,1,0) -- (3,1,0) -- (3,1,2) -- (1,1,2) -- cycle;
+  \fill[teal!45, opacity=0.35] (1,1,2) -- (3,1,2) -- (3,3,2) -- (1,3,2) -- cycle;
+  \fill[teal!60, opacity=0.35] (3,1,0) -- (3,3,0) -- (3,3,2) -- (3,1,2) -- cycle;
+  % visible edges
+  \draw[teal!40!black, line width=1.1pt]
+    (1,1,0) -- (3,1,0) -- (3,3,0) -- (3,3,2) -- (1,3,2) -- (1,1,2) -- cycle
+    (1,1,2) -- (3,1,2) -- (3,3,2) (3,1,0) -- (3,1,2);
+  % the eight vertices
+  \foreach \a in {1,3}
+    \foreach \b in {1,3}
+      \foreach \c in {0,2}
+        \node[vtx] at (\a,\b,\c) {};
+  \node[tip] (x) at (1,1,2) {};
+  \node[tip] (xp) at (3,3,0) {};
+  \node[lab, above left=1pt and 2pt] at (x) {$x$};
+  \node[lab, below right=1pt and 2pt] at (xp) {$x'$};
+  \node[lab, below right=1pt and 2pt] at (1,1,0) {$\ell$};
+  \node[lab, above right=1pt and 2pt] at (3,3,2) {$h$};
+\end{tikzpicture}

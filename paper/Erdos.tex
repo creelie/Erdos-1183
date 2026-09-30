@@ -1,7 +1,25 @@
-%% Resolution of the Erdos--Ulam conjectures on monochromatic union-closed families
+%% Resolving Erdos--Ulam monochromatic union-closed family conjectures
 \documentclass[reqno]{aomart}
 
 \usepackage{cmap}
+\input{glyphtounicode}
+\newcommand{\gtu}[2]{\pdfglyphtounicode{#1big}{#2}\pdfglyphtounicode{#1Big}{#2}%
+  \pdfglyphtounicode{#1bigg}{#2}\pdfglyphtounicode{#1Bigg}{#2}}
+\gtu{parenleft}{0028}\gtu{parenright}{0029}\gtu{bracketleft}{005B}
+\gtu{bracketright}{005D}\gtu{braceleft}{007B}\gtu{braceright}{007D}
+\gtu{floorleft}{230A}\gtu{floorright}{230B}\gtu{ceilingleft}{2308}
+\gtu{ceilingright}{2309}\gtu{angbracketleft}{27E8}\gtu{angbracketright}{27E9}
+\pdfglyphtounicode{vextendsingle}{007C}
+\pdfglyphtounicode{vextenddouble}{2016}
+\newcommand{\gtuop}[2]{\pdfglyphtounicode{#1text}{#2}\pdfglyphtounicode{#1display}{#2}}
+\gtuop{summation}{2211}\gtuop{product}{220F}\gtuop{coproduct}{2210}
+\gtuop{union}{22C3}\gtuop{intersection}{22C2}\gtuop{unionmulti}{228E}
+\gtuop{unionsq}{2294}\gtuop{logicaland}{22C0}\gtuop{logicalor}{22C1}
+\gtuop{integral}{222B}\gtuop{contintegral}{222E}\gtuop{circledot}{2A00}
+\gtuop{circleplus}{2A01}\gtuop{circlemultiply}{2A02}
+\gtu{radical}{221A}\gtu{slash}{002F}\gtu{backslash}{005C}
+\pdfglyphtounicode{Ccedilla}{0028}\pdfglyphtounicode{aring}{0029}
+\pdfgentounicode=1
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools}
 \usepackage{enumitem}
@@ -37,17 +55,13 @@
 \newcommand{\cP}{\mathcal{P}}
 \newcommand{\cS}{\mathcal{S}}
 \newcommand{\cY}{\mathcal{Y}}
-\newcommand{\cJ}{\mathcal{J}}
 \newcommand{\Ex}{\mathbb{E}}
 \newcommand{\eps}{\varepsilon}
-\DeclareMathOperator{\Down}{Down}
-\DeclareMathOperator{\wdt}{w}
 \DeclareMathOperator{\vc}{vc}
-\DeclareMathOperator{\ind}{ind}
-\newcommand{\zenododoi}{10.5281/zenodo.23050880}
+\newcommand{\zenododoi}{10.5281/zenodo.23050879}
 
-\title[The Erd\H{o}s--Ulam conjectures for union-closed families]{Resolution
-of the Erd\H{o}s--Ulam conjectures on monochromatic union-closed families}
+\title[Erd\H{o}s--Ulam union-closed family conjectures]{Resolving
+Erd\H{o}s--Ulam Monochromatic Union-Closed Family Conjectures}
 
 \author[Deep Bhattacharjee]{Deep Bhattacharjee\texorpdfstring{\textsuperscript{$\dagger$}}{}}
 \address{Formerly, Electro-Gravitational Space Propulsion Laboratory (EGSPL),
@@ -70,11 +84,11 @@ Deep Bhattacharjee and Priyabrata Mandal.}
 \email{rai.bhattacharya.in@gmail.com}
 \orcid{\href{https://orcid.org/0009-0002-2254-3914}{0009-0002-2254-3914}}
 
-\subjclass[2020]{Primary 05D10, 11B75; Secondary 05D05, 11B25, 68V20}
+\subjclass[2020]{Primary 11B75, 05D10; Secondary 05D05, 11B25, 68V20}
 \keyword{union-closed families}
 \keyword{Ramsey theory}
-\keyword{Hales--Jewett theorem}
 \keyword{Hilbert cubes}
+\keyword{box norm}
 \keyword{van der Waerden's theorem}
 \keyword{Sauer--Shelah lemma}
 \keyword{Lean}
@@ -85,18 +99,17 @@ Deep Bhattacharjee and Priyabrata Mandal.}
   \fancyhf{}%
   \cfoot{\footnotesize\thepage}}
 
+\pdfstringdefDisableCommands{\let\unskip\relax}
 \begin{document}
 \sloppy
 
 \begin{abstract}
-We prove the Erd\H{o}s--Ulam conjectures on monochromatic union-closed
-families, settling both questions of Erd\H{o}s Problem 1183. For every
-fixed exponent, each two-colouring of the subsets of a large finite set
-contains a monochromatic union-closed family larger than that power of
-the size of the set, while suitable colourings keep every such family
-subexponential. The lower bound combines a supersaturated Hales--Jewett
-theorem with chains of disjoint blocks; for cardinality colourings it
-concerns Hilbert cubes. Both proofs are checked in Lean.
+We prove both Erd\H{o}s--Ulam conjectures on monochromatic union-closed
+families. Every two-colouring of the subsets of a finite set contains a
+monochromatic union-closed family whose size grows faster than any fixed
+power of the size of the set, while suitable colourings admit no
+monochromatic union-closed family of exponential size. Both results hold for any number of colours
+and are verified in Lean.
 \end{abstract}
 
 \maketitle
@@ -105,31 +118,32 @@ concerns Hilbert cubes. Both proofs are checked in Lean.
 \section{Introduction}
 \label{sec:intro}
 
-Write $[n]=\{1,\dots,n\}$ and $2^{[n]}$ for the family of all subsets
-of $[n]$. A \emph{$2$-colouring} is a map $\chi:2^{[n]}\to\{0,1\}$, and a
-family $\cF\subseteq2^{[n]}$ is \emph{monochromatic} if $\chi$ is
-constant on it. We call $\cF$ \emph{union-closed} if $A\cup B\in\cF$
-whenever $A,B\in\cF$, and a \emph{sublattice} if it is closed under both
-union and intersection. Erd\H{o}s and Ulam asked how large a
-monochromatic family of either kind every colouring is forced to contain.
-Accordingly let
+Write $[n]=\{1,\dots,n\}$ and $2^{[n]}$ for the family of all subsets of
+$[n]$. For an integer $k\ge2$, a \emph{$k$-colouring} of $2^{[n]}$ is a
+map $\chi:2^{[n]}\to[k]$, and a family $\cF\subseteq2^{[n]}$ is
+\emph{monochromatic} if $\chi$ is constant on $\cF$. The family $\cF$ is
+\emph{union-closed} if $A\cup B\in\cF$ whenever $A,B\in\cF$, and it is a
+\emph{sublattice} if it is closed under both union and intersection.
+Erd\H{o}s and Ulam asked how large a monochromatic family of either kind
+a colouring is forced to contain. Accordingly let
 \begin{align*}
 f(n)&=\min_{\chi}\,\max\bigl\{|\cL|:\ \cL\subseteq2^{[n]}
   \text{ is a monochromatic sublattice}\bigr\},\\
-F(n)&=\min_{\chi}\,\max\bigl\{|\cF|:\ \cF\subseteq2^{[n]}
+F_k(n)&=\min_{\chi}\,\max\bigl\{|\cF|:\ \cF\subseteq2^{[n]}
   \text{ is a monochromatic union-closed family}\bigr\},
 \end{align*}
-the minima being taken over all $2$-colourings of $2^{[n]}$. A single set
-is a sublattice, and every sublattice is union-closed, so
-$1\le f(n)\le F(n)$. A maximal chain
-$\emptyset\subset\{1\}\subset\{1,2\}\subset\dots\subset[n]$ has $n+1$
-members, at least $\lceil(n+1)/2\rceil$ of them receive the same colour,
-and every subchain is a sublattice. Hence
+where the first minimum is over all $2$-colourings and the second over
+all $k$-colourings of $2^{[n]}$, and write $F=F_2$. A single set is a
+sublattice and every sublattice is union-closed, so $1\le f(n)\le F(n)$.
+A maximal chain $\emptyset\subset\{1\}\subset\{1,2\}\subset\dots\subset[n]$
+has $n+1$ members, at least $\lceil(n+1)/2\rceil$ of them receive the same
+colour under a $2$-colouring, and every subchain is a sublattice. Hence
 \begin{equation}
 \label{eq:trivial}
 F(n)\ \ge\ f(n)\ \ge\ \Bigl\lceil\frac{n+1}{2}\Bigr\rceil .
 \end{equation}
-Figure~\ref{fig:lattice} shows the smallest interesting case.
+A $2$-colouring is also a $k$-colouring, so $F_k(n)\le F(n)$ for every
+$k\ge2$. Figure~\ref{fig:lattice} shows the smallest interesting case.
 
 \begin{figure}[t]
 \centering
@@ -142,34 +156,38 @@ blue sets (squares) form a chain.}
 \end{figure}
 
 The question is Problem~1183 in Bloom's collection of Erd\H{o}s problems
-\cite{Bl26}, where it is listed as open. As recorded there, Erd\H{o}s
-wrote that they had no plausible conjecture for the true order of
-magnitude, but asked whether
+\cite{Bl26}, where it is listed as open. As recorded there, Erd\H{o}s had
+no plausible conjecture for the true order of magnitude of $F(n)$, but
+asked whether
 \begin{equation}
 \label{eq:conj}
 F(n)\ \ge\ n^{\omega(n)}\ \text{ for some }\omega(n)\to\infty,
 \qquad\text{and}\qquad
 F(n)\ <\ (1+o(1))^{n}.
 \end{equation}
-He also noted that Howorka had proved the first statement for colourings
-in which the colour of a set depends only on its size. We prove both
-statements in \eqref{eq:conj} for arbitrary colourings, so that both
-conjectures are settled in full.
+Erd\H{o}s also noted that Howorka had proved the first statement for
+colourings in which the colour of a set depends only on its
+size.\footnote{The problem page states Howorka's result without a
+reference, and we have not found Howorka's argument in print.
+Section~\ref{sec:card} gives a complete proof, with an explicit bound in
+terms of van der Waerden numbers.} We prove both statements in
+\eqref{eq:conj} for arbitrary colourings, and for any number of colours.
 
 \subsection{Results}
 
-The main result is a polynomial lower bound of every degree.
+The main result is a polynomial lower bound of every degree, with an
+explicit constant.
 
 \begin{theorem}
 \label{thm:lower}
-For every integer $t\ge1$ there is a constant $c_t>0$ such that every
-$2$-colouring of $2^{[n]}$ contains a monochromatic union-closed family
-with at least $c_t\,n^{t+1}$ members; that is,
+Let $k\ge2$ and $t\ge1$ be integers, put $M=t^{2}k^{2^{t}}$ and
 \[
-F(n)\ \ge\ c_t\,n^{t+1}\qquad(n\ge1).
+c_{k,t}=\Bigl(k^{2^{t}+1}\,t^{t}\,(4M^{2})^{t+1}\Bigr)^{-1}.
 \]
-One may take $c_t=\bigl(2\,t^{t}(t+2)^{M}(4M^{2})^{t+1}\bigr)^{-1}$,
-where $M=M(t)$ is the number defined in \eqref{eq:Mt}.
+Every $k$-colouring of $2^{[n]}$ contains a monochromatic union-closed
+family with at least $c_{k,t}\,n^{t+1}$ members; that is,
+$F_k(n)\ge c_{k,t}\,n^{t+1}$ for all $n\ge1$. For two colours,
+$F(n)\ge n^{t}$ whenever $\log_2n\ge(t+2)^{2}\,2^{t}$.
 \end{theorem}
 
 The upper bound comes from a random colouring and the Sauer--Shelah
@@ -177,68 +195,75 @@ lemma.
 
 \begin{theorem}
 \label{thm:upper}
-Let $n\ge1$, and let $d\ge1$ be an integer with $2^{d}>nd+2$. Then
+Let $d\ge1$ be an integer with $2^{d}>nd+2$. Then
 \[
 F(n)\ \le\ \sum_{j=0}^{d-1}\binom{n}{j}.
 \]
-In particular, for $n\ge32$,
+In particular, for $n\ge2$ and
+$d=\lfloor\log_2n\rfloor+\lfloor\log_2\lfloor\log_2n\rfloor\rfloor+3$,
 \[
-F(n)\ \le\ \bigl(\log_2n+\log_2\log_2n+2\bigr)\,
-n^{\log_2n+\log_2\log_2n+1}\ =\ n^{(1+o(1))\log_2n}.
+F(n)\ \le\ d\,n^{d-1}\ \le\ \bigl(\log_2n+\log_2\log_2n+3\bigr)\,
+n^{\log_2n+\log_2\log_2n+2}.
 \]
 \end{theorem}
 
-Together they settle both parts of \eqref{eq:conj}, and they show that
-the exponent $\omega(n)$ can never exceed $(1+o(1))\log_2n$.
+Together the two theorems settle both parts of \eqref{eq:conj}, and they
+locate the exponent: the largest $\omega(n)$ with $F(n)\ge n^{\omega(n)}$
+lies between $(1-o(1))\log_2\log_2n$ and $(1+o(1))\log_2n$.
 
 \begin{corollary}[The Erd\H{o}s--Ulam conjectures]
 \label{cor:conj}
 Both statements in \eqref{eq:conj} hold, in the following form.
 \begin{enumerate}[label=\textup{(\roman*)},leftmargin=2em]
-\item There is a function $\omega:\mathbb{N}\to\mathbb{R}$ with
-$\omega(n)\to\infty$ such that $F(n)\ge n^{\omega(n)}$ for every
-$n\ge1$.
+\item For every $n\ge2$ we have $F(n)\ge n^{\omega(n)}$, where
+\[
+\omega(n)=\ell-2\log_2(\ell+2)-1,\qquad \ell=\log_2\log_2n ,
+\]
+and $\omega(n)\to\infty$.
 \item There is a function $\eps:\mathbb{N}\to\mathbb{R}$ with
 $\eps(n)\to0$ such that $F(n)<(1+\eps(n))^{n}$ for every $n\ge1$.
-\item Every function $\omega$ as in \textup{(i)} satisfies
-$\omega(n)\le(1+o(1))\log_2n$.
+\item If $\omega:\mathbb{N}\to\mathbb{R}$ satisfies $F(n)\ge
+n^{\omega(n)}$ for every $n$, then for every $\eps>0$ we have
+$\omega(n)\le(1+\eps)\log_2n$ for all large $n$.
+\item For every $k\ge2$ there are functions $\omega_k(n)\to\infty$ and
+$\eps_k(n)\to0$ such that $n^{\omega_k(n)}\le F_k(n)<(1+\eps_k(n))^{n}$
+for every $n\ge1$.
 \end{enumerate}
 \end{corollary}
 
-Parts (i) and (ii) are exactly the two statements of \eqref{eq:conj},
-with the term $o(1)$ written out as a function $\eps(n)\to0$, so
+Parts (i) and (ii) are the two statements of \eqref{eq:conj}, with the
+term $o(1)$ written out as a function $\eps(n)\to0$, so
 Corollary~\ref{cor:conj} answers both questions of Problem~1183 in the
-affirmative, and in this form both parts are checked
-in Lean (Section~\ref{sec:lean}). The same holds for any fixed number of
-colours (Proposition~\ref{prop:colours}).
+affirmative. Since $\log_2(\ell+2)=o(\ell)$, the exponent in (i) is
+$(1-o(1))\log_2\log_2n$. This is also, to first order, the size of the
+monochromatic union-closed families that we can exhibit in a uniformly
+random colouring (Proposition~\ref{prop:random}), so a better lower bound
+for $F(n)$ would have to say something new about random colourings as
+well. In the other direction, Proposition~\ref{prop:count} reduces an
+upper bound for the random colouring to counting union-closed families.
 
 The two functions of Erd\H{o}s and Ulam turn out to be of quite
 different sizes. For sublattices the trivial bound \eqref{eq:trivial} is
-correct up to a factor of order $(\log n)^2$.
+correct up to a factor of order $(\log n)^{2}$.
 
 \begin{theorem}
 \label{thm:f}
-For every $n\ge1$,
+For every $n\ge1$, with $L=\lfloor\log_2n\rfloor+1$,
 \[
-\Bigl\lceil\frac{n+1}{2}\Bigr\rceil\ \le\ f(n)\ \le\ n^{2}+n+1
-\qquad\text{and}\qquad
-f(n)\ <\ 12\,n\,\bigl(\log_2(n+2)\bigr)^{2}.
+\Bigl\lceil\frac{n+1}{2}\Bigr\rceil\ \le\ f(n)\ \le\
+\min\bigl\{\,n^{2}+n+1,\ \ nL(3L+2)+2n+3L+3\,\bigr\}.
 \]
-Thus $f(n)=n^{1+o(1)}$, whereas $F(n)/n^{C}\to\infty$ for every
-constant $C$.
+Thus $f(n)\le(3+o(1))\,n(\log_2n)^{2}$, whereas $F(n)/n^{C}\to\infty$ for
+every constant $C$.
 \end{theorem}
 
-For small $n$ we have computed both functions exactly; $f(n)=\lceil
-(n+1)/2\rceil$ for $n\le10$, and the values $F(1),\dots,F(7)$ are
-$1,2,2,3,4,5,7$ (Section~\ref{sec:small}).
-
-\subsection{Colourings by cardinality and Hilbert cubes}
+\subsection{Colourings by cardinality, Hilbert cubes and progressions}
 
 Howorka's case of the problem is arithmetic in nature. Call $\chi$ a
 \emph{cardinality colouring} if $\chi(S)=g(|S|)$ for some
-$g:\{0,1,\dots,n\}\to\{0,1\}$. The building blocks of our families are
-the \emph{$t$-cubes} $\{U\cup X_I:\ I\subseteq[t]\}$, where
-$U,X_1,\dots,X_t$ are pairwise disjoint, the $X_i$ are nonempty and
+$g:\{0,1,\dots,n\}\to[k]$. The building blocks of our families are the
+\emph{$t$-cubes} $\{U\cup X_I:\ I\subseteq[t]\}$, where $U,X_1,\dots,X_t$
+are pairwise disjoint, the $X_i$ are nonempty and
 $X_I=\bigcup_{i\in I}X_i$. The sizes of the members of such a cube form
 the \emph{Hilbert cube}
 \[
@@ -247,73 +272,81 @@ H(u;a_1,\dots,a_t)=\Bigl\{u+\sum_{i\in I}a_i:\ I\subseteq[t]\Bigr\},
 \]
 so a cube is monochromatic under a cardinality colouring exactly when $g$
 is constant on the corresponding Hilbert cube. Hilbert's lemma
-\cite{Hi1892}, usually regarded as the first result of Ramsey theory,
-says that every finite colouring of the positive integers has
-monochromatic Hilbert cubes of every dimension. Read through this dictionary, the proof
-of Theorem~\ref{thm:lower} produces many monochromatic Hilbert cubes
-spread along a single sequence of bounded steps.
+\cite{Hi1892}, proved in the course of Hilbert's work on the
+irreducibility of polynomials with integer coefficients and usually
+regarded as the first theorem of Ramsey theory, says that every finite
+colouring of the positive integers has monochromatic Hilbert cubes of
+every dimension. Our argument gives it with an explicit window
+(Corollary~\ref{cor:hilbertlemma}): every $k$-colouring of
+$\{r,r+1,\dots,r+t^{2}k^{2^{t}}\}$ is constant on a $t$-dimensional
+Hilbert cube inside this interval. Read through the dictionary between
+cubes of sets and cubes of integers, the proof of Theorem~\ref{thm:lower}
+produces many monochromatic Hilbert cubes spread along a single sequence
+of bounded steps.
 
 \begin{theorem}
 \label{thm:hilbert}
-Let $t\ge1$ and $M=M(t)$, let $n\ge4M(t+1)$, and put
-$m=\lfloor(n-1)/M\rfloor$ and $s=\lfloor m/2\rfloor$. For every
-$g:\{0,1,\dots,n\}\to\{0,1\}$ there are integers
-$\beta_1,\dots,\beta_m\in\{1,\dots,M\}$ and a colour $c$ with the
-following property. For at least
+Let $k\ge2$ and $t\ge1$, put $M=t^{2}k^{2^{t}}$, let $n\ge4M(t+1)$, and
+put $m=\lfloor(n-1)/M\rfloor$ and $s=\lfloor m/2\rfloor$. For every
+$g:\{0,1,\dots,n\}\to[k]$ there are integers
+$\beta_1,\dots,\beta_m\in[M]$ with $\beta_1+\dots+\beta_m<n$ and a colour
+$c$ with the following property. For at least
 \[
-\frac{n^{t+1}}{2\,t^{t}\,(4M^{2})^{t+1}}
+\frac{n^{t+1}}{k\,t^{t}\,(4M^{2})^{t+1}}
 \]
-of the pairs $(j,A)$ with $s<j\le m$, $A\subseteq\{1,\dots,s\}$ and
-$|A|=t$, the function $g$ takes the value $c$ at every point of the
-Hilbert cube
+of the pairs $(j,A)$ with $s<j\le m$, $A\subseteq[s]$ and $|A|=t$, the
+function $g$ takes the value $c$ at every point of the Hilbert cube
 \[
 H_\beta(j,A)=\Bigl\{\beta_1+\beta_2+\dots+\beta_j-\sum_{b\in B}\beta_b:\
 B\subseteq A\Bigr\}.
 \]
 \end{theorem}
 
-Different pairs $(j,A)$ may give the same set of integers; there are at
-most $(n+1)M^{t}$ Hilbert cubes $H(u;a_1,\dots,a_t)$ in
-$\{0,\dots,n\}$ with all $a_i\le M$. What
-Theorem~\ref{thm:hilbert} provides is one sequence $\beta$ for which a
-fixed proportion of the cubes indexed by the pairs $(j,A)$ have a common
-colour, all of them hanging from the partial sums
-$\beta_1+\dots+\beta_j$. This is the structure that lets the
-corresponding families of sets be glued into one union-closed family. Section~\ref{sec:card} also gives a short
-proof of Howorka's theorem from van der Waerden's theorem.
+Different pairs $(j,A)$ may give the same set of integers, and there are
+at most $(n+1)M^{t}$ Hilbert cubes $H(u;a_1,\dots,a_t)$ in
+$\{0,\dots,n\}$ with all $a_i\le M$. What Theorem~\ref{thm:hilbert}
+provides is one sequence $\beta$ for which a fixed proportion of the cubes
+indexed by the pairs $(j,A)$ have a common colour, all of them hanging
+from the partial sums $\beta_1+\dots+\beta_j$. This is the structure that
+lets the corresponding families of sets be glued into one union-closed
+family. Section~\ref{sec:card} also shows that a monochromatic arithmetic
+progression of sizes yields a large monochromatic union-closed family and
+a monochromatic sublattice, and derives Howorka's theorem from van der
+Waerden's theorem with an explicit bound (Theorem~\ref{thm:howorka}).
 
 \subsection{The idea of the proof of Theorem~\ref{thm:lower}}
 
 Chains and cubes are monochromatic union-closed families that are easy to
-find, but neither is large. A chain has at most $n+1$ members, and a
-count of cubes shows that a random colouring has no monochromatic cube
-with more than $O(n\log\log n)$ members. The families we build are unions of many cubes that
-fit together. Take pairwise disjoint nonempty blocks $Y_1,\dots,Y_m$, put
-$C_j=Y_1\cup\dots\cup Y_j$, and for $j>s$ and $A\subseteq[s]$ consider the
-cube $Q(j,A)=\{C_j\setminus Y_B:\ B\subseteq A\}$. The union of a member
-of $Q(j,A)$ and a member of $Q(j',A')$ with $j\le j'$ is again a member of
-$Q(j',A')$, so the union of any collection of cubes $Q(j,A)$ that are
-monochromatic in a common colour is union-closed. There are about
-$m^{t+1}$ pairs $(j,A)$ with $|A|=t$, and it is therefore enough to make
-a fixed proportion of these cubes monochromatic.
+find, but a chain has at most $n+1$ members and a single cube is too
+rigid to be forced to be large. The families we build are unions of many
+cubes that fit together. Take pairwise disjoint nonempty blocks
+$Y_1,\dots,Y_m$, put $C_j=Y_1\cup\dots\cup Y_j$, and for $j>s$ and
+$A\subseteq[s]$ consider the cube $Q(j,A)=\{C_j\setminus Y_B:\ B\subseteq
+A\}$. The union of a member of $Q(j,A)$ and a member of $Q(j',A')$ with
+$j\le j'$ is again a member of $Q(j',A')$, so the union of any collection
+of cubes $Q(j,A)$ that are monochromatic in a common colour is
+union-closed. There are about $m^{t+1}$ pairs $(j,A)$ with $|A|=t$, and it
+is therefore enough to make a fixed proportion of these cubes
+monochromatic.
 
 For a fixed chain of blocks this cannot be arranged, since the colouring
 may have been chosen against it. We therefore randomise twice: the ground
 set is permuted by a uniformly random $\sigma$, and each block size is
 chosen at random from $\{1,\dots,M\}$. After a random permutation, the
 probability that a cube is monochromatic depends only on the sizes of its
-parts (Lemma~\ref{lem:shape}). A pigeonhole argument over permutations,
-combined with the two-letter case of the multidimensional Hales--Jewett
-theorem, shows that for every $r$ some shape whose base size lies between
-$r$ and $r+M$ has probability at least $(t+2)^{-M}$ of being
-monochromatic (Proposition~\ref{prop:saturation}). The shape of
-$Q(j,A)$ is governed by $t+1$ block sizes, those of $Y_j$ and of $Y_a$ for
-$a\in A$, and these can be tuned independently of all the others
-(Lemma~\ref{lem:slices}). Averaging over $\sigma$ and the block sizes
-then produces one chain of blocks in which a proportion
-$(t+2)^{-M}M^{-t-1}$ of all the cubes is monochromatic
-(Lemma~\ref{lem:average}). Figure~\ref{fig:proofmap} shows how the
-pieces are assembled.
+parts (Lemma~\ref{lem:shape}). The central step is a supersaturation
+statement: for every $r$, some shape whose base size lies between $r$ and
+$r+M$ is monochromatic with probability at least $k^{-2^{t}}$
+(Proposition~\ref{prop:saturation}). It follows from an inequality of
+Cauchy--Schwarz type for products over the vertices of a box
+(Lemma~\ref{lem:box}), applied to the sets obtained by running along $t$
+disjoint chains of elements (Figure~\ref{fig:box}). The shape of $Q(j,A)$
+is governed by $t+1$ block sizes, those of $Y_j$ and of $Y_a$ for $a\in
+A$, and these can be tuned independently of all the others
+(Lemma~\ref{lem:slices}). Averaging over $\sigma$ and the block sizes then
+produces one chain of blocks in which a proportion $k^{-2^{t}}M^{-t-1}$ of
+all the cubes is monochromatic (Lemma~\ref{lem:average}).
+Figure~\ref{fig:proofmap} shows how the pieces are assembled.
 
 \begin{figure}[t]
 \centering
@@ -342,35 +375,39 @@ $d$-dimensional Boolean algebras by Gunderson, R\"odl and Sidorenko
 \cite{GRS99}, who studied their extremal theory alongside that of
 $d$-dimensional affine cubes of integers and complete $d$-partite
 $d$-uniform hypergraphs. The passage between cubes of sets and Hilbert
-cubes of integers used in Section~\ref{sec:card} is of the same kind. The
-cube lemma of Section~\ref{sec:cube} is the two-letter case of the
-multidimensional form of the Hales--Jewett theorem \cite{HJ63}; see
-\cite{GRS90} for this form and for the background in Ramsey theory,
-including van der Waerden's theorem \cite{vdW27}. The upper bound rests on the Sauer--Shelah lemma
+cubes of integers used in Section~\ref{sec:card} is of the same kind.
+Proposition~\ref{prop:saturation} contains the two-letter case of the
+multidimensional Hales--Jewett theorem \cite{HJ63} with an explicit bound
+(Remark~\ref{rem:hj}); see \cite{GRS90} for this theorem and for the
+background in Ramsey theory, including van der Waerden's theorem
+\cite{vdW27}. The box inequality behind it is the simplest instance of the
+repeated use of the Cauchy--Schwarz inequality introduced by Gowers
+\cite{Go01}. The upper bound rests on the Sauer--Shelah lemma
 \cite{Sa72,Sh72}, which is also at the root of the theory of
 Vapnik--Chervonenkis dimension \cite{VC71}.
 
 \subsection{Formal verification}
 
-The definitions of $f$ and $F$, the lower bound \eqref{eq:trivial},
-Theorem~\ref{thm:upper} in the form $F(n)\le\sum_{j<d}\binom nj$,
-Theorem~\ref{thm:lower} with a constant of the same kind, and both
-statements of \eqref{eq:conj} have been checked in the Lean proof
-assistant \cite{MU21} using the Mathlib library \cite{Mathlib20}. In the
-formal version the two conjectures are stated directly in the form
-\eqref{eq:conj}, as in Corollary~\ref{cor:conj}(i) and~(ii). Section~\ref{sec:lean} lists what is covered
-and what is not.
+Every theorem, proposition, corollary and lemma of
+Sections~\ref{sec:cubes}--\ref{sec:f} has been formalised and checked in
+the Lean proof assistant \cite{MU21} with the Mathlib library
+\cite{Mathlib20}. The functions $f$, $F$ and $F_k$ are defined in the
+formal development literally as above, the two conjectures are stated in
+the form \eqref{eq:conj} with the term $o(1)$ written out as a function
+tending to zero, and Lean reports that the proof of each formal statement
+uses only the three standard axioms of the system.
+Section~\ref{sec:lean} describes the formalisation.
 
 \subsection{Organisation}
 
 Section~\ref{sec:cubes} introduces cubes and block chains and proves that
 monochromatic cubes of one chain can be glued. Section~\ref{sec:cube}
-proves the cube lemma and its supersaturated form, and
+proves the box inequality and the supersaturation statement, and
 Section~\ref{sec:lower} completes the proof of Theorem~\ref{thm:lower}.
 Section~\ref{sec:upper} proves Theorem~\ref{thm:upper} and
-Corollary~\ref{cor:conj}. Section~\ref{sec:card} treats cardinality
-colourings, Section~\ref{sec:f} the lattice function $f$, and
-Section~\ref{sec:small} the exact values for small $n$.
+Corollary~\ref{cor:conj} and studies the random colouring.
+Section~\ref{sec:card} treats cardinality colourings, Hilbert cubes and
+arithmetic progressions, and Section~\ref{sec:f} the lattice function $f$.
 Section~\ref{sec:lean} describes the formalisation, and
 Section~\ref{sec:questions} collects open questions.
 
@@ -378,9 +415,9 @@ Section~\ref{sec:questions} collects open questions.
 \section{Cubes and block chains}
 \label{sec:cubes}
 
-Throughout, $\chi$ is a $2$-colouring of $2^{[n]}$ and $S_n$ is the group
-of permutations of $[n]$. A permutation acts on sets and on families of
-sets in the obvious way: $\sigma(S)=\{\sigma(x):x\in S\}$ and
+Throughout, $k\ge2$ and $\chi$ is a $k$-colouring of $2^{[n]}$, and $S_n$
+is the group of permutations of $[n]$. A permutation acts on sets and on
+families of sets in the obvious way: $\sigma(S)=\{\sigma(x):x\in S\}$ and
 $\sigma(\cF)=\{\sigma(S):S\in\cF\}$. For sets $X_1,X_2,\dots$ and a finite
 set $I$ of indices we write $X_I=\bigcup_{i\in I}X_i$, so that
 $X_\emptyset=\emptyset$.
@@ -458,7 +495,7 @@ Q(j,A)=\{C_j\setminus Y_B:\ B\subseteq A\}.
 \]
 This is the $|A|$-cube with top $C_j$, generators $Y_a$ $(a\in A)$ and base
 $C_j\setminus Y_A$; its shape is
-$\bigl(\sum_{k\le j,\,k\notin A}|Y_k|;\ (|Y_a|)_{a\in A}\bigr)$, the
+$\bigl(\sum_{i\le j,\,i\notin A}|Y_i|;\ (|Y_a|)_{a\in A}\bigr)$, the
 generators being listed in increasing order of $a$.
 \end{definition}
 
@@ -508,12 +545,12 @@ squares are blocks present in the set.}
 Let $1\le s<m$, and let $\cS$ be a set of pairs $(j,A)$ with $s<j\le m$
 and $A\subseteq[s]$ such that the cube $Q(j,A)$ is monochromatic for every
 $(j,A)\in\cS$. Then there is a monochromatic union-closed family with at
-least $|\cS|/2$ members.
+least $|\cS|/k$ members.
 \end{proposition}
 
 \begin{proof}
 Choose a colour $c$ such that the set $\cS_c$ of pairs in $\cS$ whose cube
-has colour $c$ satisfies $|\cS_c|\ge|\cS|/2$, and let $\cF$ be the union
+has colour $c$ satisfies $|\cS_c|\ge|\cS|/k$, and let $\cF$ be the union
 of the cubes $Q(j,A)$ over $(j,A)\in\cS_c$. Every member of $\cF$ has
 colour $c$.
 
@@ -527,8 +564,8 @@ union-closed.
 Finally, the map $(j,A)\mapsto C_j\setminus Y_A$ from $\cS_c$ to $\cF$ is
 injective. Indeed, $j>s$ means $j\notin A$, so $C_j\setminus Y_A$ meets
 $Y_j$ and no block of larger index, which determines $j$; and then $A$ is
-the set of indices $k\le s$ for which $Y_k$ is disjoint from
-$C_j\setminus Y_A$. Hence $|\cF|\ge|\cS_c|\ge|\cS|/2$.
+the set of indices $i\le s$ for which $Y_i$ is disjoint from
+$C_j\setminus Y_A$. Hence $|\cF|\ge|\cS_c|\ge|\cS|/k$.
 \end{proof}
 
 The family $\cF$ is not closed under intersection in general: the
@@ -537,110 +574,208 @@ $B\cup B'$ need not be contained in $A$. This is as it must be, in view of
 Theorem~\ref{thm:f}.
 
 %======================================================================
-\section{The cube lemma and supersaturation}
+\section{A box inequality and supersaturation}
 \label{sec:cube}
 
-Define integers $M(t)$ by
-\begin{equation}
-\label{eq:Mt}
-M(0)=0,\qquad M(t)=M(t-1)+2^{2^{M(t-1)}}\quad(t\ge1),
-\end{equation}
-so that $M(1)=2$, $M(2)=18$ and $M(3)=18+2^{2^{18}}$. Note that
-$M(t)\ge t+1$ for $t\ge1$.
+The proof of Theorem~\ref{thm:lower} needs, for every $r$, a shape whose
+base size lies a little above $r$ and which is monochromatic with
+probability bounded below by a quantity depending on $k$ and $t$ alone.
+This section obtains such a shape from an inequality of Cauchy--Schwarz
+type for products taken over the vertices of a box.
 
-\begin{lemma}[Cube lemma]
-\label{lem:hjcube}
-Let $t\ge0$ and let $Z$ be a finite set with $|Z|\ge M(t)$. Every
-$2$-colouring of $2^{Z}$ is constant on some $t$-cube $Q(U;X_1,\dots,X_t)$
-with $U,X_1,\dots,X_t\subseteq Z$.
+Let $G$ be a finite set and $t\ge0$. For $x,x'\in G^{t}$ and
+$\omega\in\{0,1\}^{t}$ let $x^{(\omega)}\in G^{t}$ be the point whose
+$i$-th coordinate is $x'_i$ if $\omega_i=1$ and $x_i$ if $\omega_i=0$. The
+$2^{t}$ points $x^{(\omega)}$ are the vertices of the \emph{box} spanned by
+$x$ and $x'$; they are distinct precisely when $x_i\ne x'_i$ for every
+$i$. Expectations are taken with respect to the uniform distribution on
+the finite set indicated by the variables.
+
+\begin{lemma}[Box inequality]
+\label{lem:box}
+Let $f:G^{t}\to[0,\infty)$. If $x$ and $x'$ are independent and uniformly
+distributed in $G^{t}$, then
+\[
+\Ex\prod_{\omega\in\{0,1\}^{t}}f\bigl(x^{(\omega)}\bigr)\ \ge\
+\bigl(\Ex f(x)\bigr)^{2^{t}} .
+\]
 \end{lemma}
 
 \begin{proof}
-For $t=0$ a single set, say $U=\emptyset$, will do. Let $t\ge1$, put
-$q=M(t-1)$ and $N=2^{2^{q}}$, and choose disjoint sets $P,R\subseteq Z$ with
-$|P|=N$ and $|R|=q$, which is possible as $|Z|\ge q+N$. List
-$P=\{p_1,\dots,p_N\}$ and put $P_i=\{p_1,\dots,p_i\}$ for $0\le i\le N$.
-Each $i$ gives a colouring $\varphi_i$ of $2^{R}$, namely
-$\varphi_i(S)=\chi(P_i\cup S)$. There are only $N$ colourings of $2^{R}$
-and $N+1$ indices, so $\varphi_a=\varphi_b$ for some $a<b$. By induction
-$\varphi_a$ is constant, with value $c$ say, on a $(t-1)$-cube
-$Q(U';X_1,\dots,X_{t-1})$ inside $R$. Put $U=P_a\cup U'$ and
-$X_t=P_b\setminus P_a\neq\emptyset$. The sets $U,X_1,\dots,X_t$ are
-pairwise disjoint, and for $I\subseteq[t-1]$
-\begin{align*}
-\chi(U\cup X_I)&=\varphi_a(U'\cup X_I)=c,\\
-\chi(U\cup X_I\cup X_t)&=\varphi_b(U'\cup X_I)=\varphi_a(U'\cup X_I)=c .
-\end{align*}
-So $\chi$ is constant on $Q(U;X_1,\dots,X_t)$.
+We use induction on $t$. For $t=0$ both sides equal the value of $f$ at
+the only point of $G^{0}$. Let $t\ge1$ and write the points of $G^{t}$ as
+$(a,y)$ with $a\in G$ and $y\in G^{t-1}$. For $y,y'\in G^{t-1}$ and $a\in
+G$ put
+\[
+h_{y,y'}(a)=\prod_{\omega\in\{0,1\}^{t-1}}f\bigl(a,y^{(\omega)}\bigr).
+\]
+Splitting $\omega\in\{0,1\}^{t}$ according to its first coordinate shows
+that the product over the box spanned by $x=(a,y)$ and $x'=(a',y')$ equals
+$h_{y,y'}(a)\,h_{y,y'}(a')$. The variables $a,a',y,y'$ are independent,
+so the Cauchy--Schwarz inequality gives
+\[
+\Ex\prod_{\omega}f\bigl(x^{(\omega)}\bigr)
+=\Ex_{y,y'}\bigl(\Ex_a h_{y,y'}(a)\bigr)^{2}
+\ \ge\ \bigl(\Ex_{a}\Ex_{y,y'}h_{y,y'}(a)\bigr)^{2}.
+\]
+For fixed $a$, the induction hypothesis applied to $f(a,\cdot)$ gives
+$\Ex_{y,y'}h_{y,y'}(a)\ge(\Ex_yf(a,y))^{2^{t-1}}$, and since $z\mapsto
+z^{2^{t-1}}$ is convex on $[0,\infty)$, Jensen's inequality gives
+\[
+\Ex_a\bigl(\Ex_yf(a,y)\bigr)^{2^{t-1}}\ \ge\
+\bigl(\Ex_a\Ex_yf(a,y)\bigr)^{2^{t-1}}=\bigl(\Ex f\bigr)^{2^{t-1}}.
+\]
+Squaring, the left-hand side of the lemma is at least
+$(\Ex f)^{2^{t}}$.
 \end{proof}
 
-\begin{remark}
-\label{rem:hj}
-Identify a set $S\subseteq Z$ with the word in $\{0,1\}^{Z}$ that has
-the letter $1$ exactly at the positions in $S$. A $t$-cube then becomes a
-$t$-dimensional combinatorial subspace: the positions in $U$ carry the
-fixed letter $1$, those outside $T$ the fixed letter $0$, and those in
-$X_i$ the $i$-th variable. Lemma~\ref{lem:hjcube} is therefore the
-multidimensional form of the Hales--Jewett theorem \cite{HJ63} for the
-alphabet $\{0,1\}$, with the bound \eqref{eq:Mt}. The formal proof described in
-Section~\ref{sec:lean} uses the version of the Hales--Jewett theorem in
-Mathlib, which covers every finite alphabet and gives some $M$ without an
-explicit value; nothing else in the argument depends on the value of $M$.
-\end{remark}
+The quantity on the left of Lemma~\ref{lem:box} is the $2^{t}$-th power
+of the box norm of $f$, and the argument is the one Gowers used for the
+uniformity norms in a proof of Szemer\'edi's theorem
+\cite{Go01}.\footnote{In that setting one works with a function on an
+abelian group and the vertices of a parallelepiped $x+\omega\cdot h$, and
+repeated use of the Cauchy--Schwarz inequality compares the average over
+parallelepipeds with the average of the function. Here the underlying
+set is a product and the box is a combinatorial one, which is the
+simplest case of the method.} Applied to the indicator of each colour
+class it says that a random box is monochromatic with probability at
+least $k^{1-2^{t}}$, whatever the colouring. What remains is to turn boxes
+in a grid into cubes of sets, and this is where the order of the ground
+set is randomised.
 
-A single monochromatic cube is of little use by itself. What the proof
-needs is a shape that is monochromatic with probability bounded below
-independently of $n$, and this is obtained by applying
-Lemma~\ref{lem:hjcube} once for every permutation.
+For the rest of the paper put
+\begin{equation}
+\label{eq:Mt}
+L_k(t)=t\,k^{2^{t}}\qquad\text{and}\qquad M_k(t)=t\,L_k(t)=t^{2}\,k^{2^{t}}
+\qquad(t\ge1),
+\end{equation}
+so that $M_2(1)=4$, $M_2(2)=64$ and $M_2(3)=2304$. Note that
+$M_k(t)\ge t+1$.
 
 \begin{proposition}[Supersaturation]
 \label{prop:saturation}
-Let $t\ge1$ and $M=M(t)$, and let $r\ge0$ be an integer with $r+M\le n$.
-There are integers $u$ and $a_1,\dots,a_t\ge1$ with
+Let $t\ge1$ and $L\ge1$ be integers, put $M=tL$, and let $r\ge0$ be an
+integer with $r+M\le n$. There are integers $u$ and $a_1,\dots,a_t\ge1$
+with
 \[
 r\le u,\qquad (u-r)+a_1+\dots+a_t\le M,\qquad
-\rho_\chi(u;a_1,\dots,a_t)\ \ge\ (t+2)^{-M}.
+\rho_\chi(u;a_1,\dots,a_t)\ \ge\ k^{1-2^{t}}-\frac{t}{L+1}.
 \]
-In particular $u\le r+M-t$ and $a_i\le M$ for every $i$.
+In particular, for $L=L_k(t)$ and $M=M_k(t)$ one can achieve
+$\rho_\chi(u;a_1,\dots,a_t)\ge k^{-2^{t}}$, and then $u\le r+M-t$ and
+$a_i\le M$ for every $i$.
 \end{proposition}
 
 \begin{proof}
-Let $Z=[M]$ and $R=\{M+1,\dots,M+r\}$. For $\sigma\in S_n$ define a
-colouring of $2^{Z}$ by $S\mapsto\chi(\sigma(S\cup R))$.
-Lemma~\ref{lem:hjcube} gives disjoint $U,X_1,\dots,X_t\subseteq Z$ with
-the $X_i$ nonempty such that this colouring is constant on
-$Q(U;X_1,\dots,X_t)$; call $(U;X_1,\dots,X_t)$ a \emph{pattern} for
-$\sigma$. A pattern is determined by recording, for each point of $Z$,
-whether it lies in $U$, in one of the $t$ generators, or in none of them,
-so there are at most $(t+2)^{M}$ patterns. Some pattern $(U;X_1,\dots,X_t)$
-is therefore a pattern for at least $n!/(t+2)^{M}$ permutations. For each
-such $\sigma$ the family $\sigma\bigl(Q(U\cup R;X_1,\dots,X_t)\bigr)$ is
-monochromatic, so the shape $u=|U|+r$, $a_i=|X_i|$ has
-$\rho_\chi(u;a)\ge(t+2)^{-M}$. The constraints on $u$ and the $a_i$ hold
-because $U,X_1,\dots,X_t$ are disjoint subsets of $Z$ and the $X_i$ are
-nonempty.
+Choose pairwise disjoint sets $R,Z_1,\dots,Z_t\subseteq[n]$ with $|R|=r$
+and $|Z_i|=L$, which is possible because $r+tL\le n$, and list
+$Z_i=\{z_{i,1},\dots,z_{i,L}\}$. Put $G=\{0,1,\dots,L\}$ and, for $x\in
+G^{t}$,
+\[
+S(x)=R\cup\bigcup_{i=1}^{t}\{z_{i,q}:\ 1\le q\le x_i\},
+\]
+so that $x$ records how far along each of the $t$ chains
+$z_{i,1},z_{i,2},\dots$ the set $S(x)$ reaches. Let $\sigma\in S_n$ and
+$x,x'\in G^{t}$ be independent and uniform, and let $E$ be the event
+that $\chi(\sigma(S(\cdot)))$ is constant on the box spanned by $x$ and
+$x'$.
+
+Fix $\sigma$, and for each colour $c$ let $p_c$ be the probability that
+$\chi(\sigma(S(x)))=c$ for uniform $x$. Lemma~\ref{lem:box} applied to the
+indicator function of the colour class of $c$ shows that, conditionally
+on $\sigma$, all vertices of the box have colour $c$ with probability at
+least $p_c^{2^{t}}$. Since $p_1+\dots+p_k=1$, convexity gives
+$\sum_cp_c^{2^{t}}\ge k\cdot k^{-2^{t}}$, and averaging over $\sigma$ gives
+$\Pr(E)\ge k^{1-2^{t}}$. The event $D$ that $x_i=x'_i$ for some $i$ has
+probability at most $t/(L+1)$, so
+\[
+\Pr(E\setminus D)\ \ge\ k^{1-2^{t}}-\frac{t}{L+1}.
+\]
+
+Suppose now that $x_i\ne x'_i$ for every $i$, and put
+$\ell_i=\min(x_i,x'_i)$ and $h_i=\max(x_i,x'_i)$. The vertices of the box
+are the points whose $i$-th coordinate is $\ell_i$ or $h_i$ for every
+$i$, so the sets $S(x^{(\omega)})$ form the $t$-cube
+$Q_{x,x'}=Q(U;X_1,\dots,X_t)$ with
+\[
+U=S(\ell),\qquad X_i=\{z_{i,q}:\ \ell_i<q\le h_i\}
+\]
+(Figure~\ref{fig:box}). Its shape is
+$(r+\sum_i\ell_i;\ h_1-\ell_1,\dots,h_t-\ell_t)$, and $u=r+\sum_i\ell_i$
+and $a_i=h_i-\ell_i$ satisfy $u\ge r$, $a_i\ge1$ and
+$(u-r)+\sum_ia_i=\sum_ih_i\le tL=M$. The event $E\setminus D$ says that
+$\sigma(Q_{x,x'})$ is monochromatic. For a fixed pair $(x,x')$ outside
+$D$, the probability of this over $\sigma$ is $\rho_\chi$ at the shape of
+$Q_{x,x'}$, because $\sigma(Q_{x,x'})$ is then a uniformly random cube of
+that shape. Hence $\Pr(E\setminus D)$ is an average, over all pairs
+$(x,x')$, of numbers that vanish on $D$ and are values of $\rho_\chi$
+at admissible shapes elsewhere, and one of these values is at least
+$\Pr(E\setminus D)$.
+
+For $L=L_k(t)$ we have $t/(L+1)<t/L=k^{-2^{t}}$, so the value found is at
+least $(k-1)k^{-2^{t}}\ge k^{-2^{t}}$. The bounds on $u$ and $a_i$ follow
+from $a_i\ge1$.
 \end{proof}
 
-The lower bound $(t+2)^{-M}$ depends on $t$ alone. The price paid for it
-is that the base size $u$ is only known to lie in a window of length $M$
-above $r$; the block chains of the next section are designed to absorb
-exactly this uncertainty.
+\begin{figure}[t]
+\centering
+\input{figures/fig-box.tex}
+\caption{The grid $G^{3}$ with $G=\{0,1,\dots,4\}$, as in the proof of
+Proposition~\ref{prop:saturation} with $t=3$ and $L=4$, and the box
+spanned by $x=(1,1,2)$ and $x'=(3,3,0)$. Its eight vertices are the
+points of $\{1,3\}\times\{1,3\}\times\{0,2\}$, between the corners
+$\ell=(1,1,0)$ and $h=(3,3,2)$. The sets $S(y)$ at these vertices form
+the $3$-cube with base $S(\ell)$ and generators
+$X_i=\{z_{i,q}:\ell_i<q\le h_i\}$, whose shape is $(r+2;2,2,2)$.}
+\label{fig:box}
+\end{figure}
+
+The proof is short enough that its two sources of loss are easy to
+see.\footnote{The random ordering $\sigma$ is what turns a single good
+shape into a positive proportion of all cubes of that shape. Without it
+the box inequality would still produce a monochromatic cube in every
+window, but it would say nothing about how many cubes of the same shape
+are monochromatic, and it is this density that the averaging of
+Section~\ref{sec:lower} consumes.} The factor $k^{1-2^{t}}$ is already the
+probability that a fixed $t$-cube is monochromatic in a uniformly random
+$k$-colouring, so for such colourings the expected value of $\rho_\chi$
+at every shape equals $k^{1-2^{t}}$ and nothing better can be obtained on
+average. The subtraction of $t/(L+1)$ only accounts for degenerate
+boxes, and it is what forces the window $M$ to be as large as
+$t^{2}k^{2^{t}}$.
+
+\begin{remark}
+\label{rem:hj}
+Identify a subset $S$ of a finite set $Z$ with the word in $\{0,1\}^{Z}$ that has
+the letter $1$ exactly at the positions in $S$. A $t$-cube then becomes a
+$t$-dimensional combinatorial subspace: the positions in $U$ carry the
+fixed letter $1$, those outside $T$ the fixed letter $0$, and those in
+$X_i$ the $i$-th variable. Since $\rho_\chi>0$ in
+Proposition~\ref{prop:saturation}, every $k$-colouring of the subsets of
+a set of size $M_k(t)$ is constant on some $t$-cube, which is the
+two-letter case of the multidimensional Hales--Jewett theorem
+\cite{HJ63,GRS90} with the bound $t^{2}k^{2^{t}}$. The proposition says
+more: a proportion at least $k^{-2^{t}}$ of the cubes of one shape are
+monochromatic, and this density is what makes the rate in
+Theorem~\ref{thm:lower} explicit.
+\end{remark}
 
 %======================================================================
 \section{Proof of Theorem~\ref{thm:lower}}
 \label{sec:lower}
 
-Fix $t\ge1$, put $M=M(t)$, and let $n$ be large enough that
+Fix $k\ge2$ and $t\ge1$, put $M=M_k(t)$ as in \eqref{eq:Mt}, and let $n$
+be large enough that
 \[
 m=\Bigl\lfloor\frac{n-1}{M}\Bigr\rfloor\qquad\text{and}\qquad
 s=\Bigl\lfloor\frac m2\Bigr\rfloor
 \]
 satisfy $s\ge t$. Note that $mM\le n-1$. Fix pairwise disjoint sets
 $G_1,\dots,G_m\subseteq[n]$ of size $M$, the \emph{slots}, and list each
-slot as $G_k=\{g_{k,1},\dots,g_{k,M}\}$; for instance
-$g_{k,i}=(k-1)M+i$. For a vector $\beta\in[M]^{m}$ of block sizes let
+slot as $G_i=\{g_{i,1},\dots,g_{i,M}\}$; for instance
+$g_{i,q}=(i-1)M+q$. For a vector $\beta\in[M]^{m}$ of block sizes let
 \[
-Y_k^{\beta}=\{g_{k,1},\dots,g_{k,\beta_k}\}\qquad(1\le k\le m),
+Y_i^{\beta}=\{g_{i,1},\dots,g_{i,\beta_i}\}\qquad(1\le i\le m),
 \]
 and for $\sigma\in S_n$ let $Q_{\sigma,\beta}(j,A)$ denote the cube
 $Q(j,A)$ of Definition~\ref{def:chain} built from the blocks
@@ -649,11 +784,11 @@ $Q_{\sigma,\beta}(j,A)=\sigma\bigl(Q_{\mathrm{id},\beta}(j,A)\bigr)$, and
 $Q_{\sigma,\beta}(j,A)$ has shape
 \begin{equation}
 \label{eq:chainshape}
-\Bigl(\sum_{k\le j,\ k\notin A}\beta_k;\ (\beta_a)_{a\in A}\Bigr).
+\Bigl(\sum_{i\le j,\ i\notin A}\beta_i;\ (\beta_a)_{a\in A}\Bigr).
 \end{equation}
 Let $\cP$ be the set of pairs $(j,A)$ with $s<j\le m$, $A\subseteq[s]$
 and $|A|=t$. Call $\beta$ \emph{good for} $(j,A)$ if the shape
-\eqref{eq:chainshape} satisfies $\rho_\chi\ge(t+2)^{-M}$.
+\eqref{eq:chainshape} satisfies $\rho_\chi\ge k^{-2^{t}}$.
 
 \begin{lemma}[Slices]
 \label{lem:slices}
@@ -663,14 +798,14 @@ $M^{m-t-1}$ vectors $\beta\in[M]^{m}$ are good for $(j,A)$.
 
 \begin{proof}
 Write $A=\{a_{(1)}<\dots<a_{(t)}\}$ and let $K=[m]\setminus(A\cup\{j\})$,
-a set of $m-t-1$ indices. We show that every choice of $(\beta_k)_{k\in
+a set of $m-t-1$ indices. We show that every choice of $(\beta_i)_{i\in
 K}\in[M]^{K}$ extends to a vector $\beta$ that is good for $(j,A)$.
 Different choices give different vectors, which proves the lemma.
 
-Fix $(\beta_k)_{k\in K}$, let $R=\sum_{k<j,\,k\notin A}\beta_k$, which
+Fix $(\beta_i)_{i\in K}$, let $R=\sum_{i<j,\,i\notin A}\beta_i$, which
 involves only indices in $K$, and put $r=R+1$. Since $R\le(j-1-t)M\le
 (m-2)M$, we have $r+M\le(m-1)M+1\le n$. Proposition~\ref{prop:saturation}
-gives $u$ and $a_1,\dots,a_t$ with $\rho_\chi(u;a)\ge(t+2)^{-M}$, where
+gives $u$ and $a_1,\dots,a_t$ with $\rho_\chi(u;a)\ge k^{-2^{t}}$, where
 $z=u-r$ satisfies $0\le z\le M-t\le M-1$ and $1\le a_i\le M$. Set
 \[
 \beta_j=z+1,\qquad \beta_{a_{(i)}}=a_i\quad(1\le i\le t).
@@ -684,7 +819,7 @@ $(j,A)$.
 \label{lem:average}
 There are $\sigma\in S_n$ and $\beta\in[M]^{m}$ such that at least
 \[
-\frac{|\cP|}{(t+2)^{M}M^{t+1}}
+\frac{|\cP|}{k^{2^{t}}M^{t+1}}
 \]
 of the cubes $Q_{\sigma,\beta}(j,A)$, $(j,A)\in\cP$, are monochromatic.
 \end{lemma}
@@ -694,58 +829,50 @@ Count the triples $(\sigma,\beta,(j,A))\in S_n\times[M]^m\times\cP$ for
 which $Q_{\sigma,\beta}(j,A)$ is monochromatic. For fixed $(j,A)\in\cP$
 and $\beta$ good for $(j,A)$, the number of suitable $\sigma$ is $n!$
 times the value of $\rho_\chi$ at the shape \eqref{eq:chainshape}, which
-is at least $n!\,(t+2)^{-M}$. By Lemma~\ref{lem:slices} the number of
-triples is at least $|\cP|\,M^{m-t-1}\,n!\,(t+2)^{-M}$. There are
+is at least $n!\,k^{-2^{t}}$. By Lemma~\ref{lem:slices} the number of
+triples is at least $|\cP|\,M^{m-t-1}\,n!\,k^{-2^{t}}$. There are
 $n!\,M^{m}$ pairs $(\sigma,\beta)$, so one of them occurs in at least
-$|\cP|\,(t+2)^{-M}M^{-t-1}$ triples.
+$|\cP|\,k^{-2^{t}}M^{-t-1}$ triples.
 \end{proof}
 
 \begin{proof}[Proof of Theorem~\ref{thm:lower}]
-Let $c_t$ be as in the statement. Since $M\ge t+1$ we have
-$c_t\le(4M(t+1))^{-(t+1)}$, so for $n<4M(t+1)$ the bound
-$F(n)\ge1>c_tn^{t+1}$ is trivial. Let $n\ge4M(t+1)$.
+Let $c_{k,t}$ be as in the statement. Since $M\ge t+1$ we have
+$(4M^{2})^{t+1}\ge(4M(t+1))^{t+1}$, so for $1\le n<4M(t+1)$ the bound
+$F_k(n)\ge1>c_{k,t}n^{t+1}$ is trivial. Let $n\ge4M(t+1)$.
 
 Take $\sigma,\beta$ as in Lemma~\ref{lem:average} and apply
 Proposition~\ref{prop:glue} to the blocks
 $\sigma(Y_1^\beta),\dots,\sigma(Y_m^\beta)$, which are pairwise disjoint
 and nonempty, and to the set $\cS\subseteq\cP$ of pairs whose cube is
-monochromatic. Every colouring therefore has a monochromatic union-closed
-family with at least
+monochromatic. Every $k$-colouring therefore has a monochromatic
+union-closed family with at least
 \begin{equation}
 \label{eq:Pbound}
-\frac{|\cP|}{2\,(t+2)^{M}M^{t+1}}
+\frac{|\cP|}{k^{2^{t}+1}M^{t+1}}
 \end{equation}
-members. It remains to bound $|\cP|=(m-s)\binom st$ from below. We have
-$m\ge(n-M)/M$, so $s\ge(m-1)/2\ge n/(2M)-1\ge n/(4M)$ because $n\ge4M$.
-In particular $s\ge t+1$, so $\binom st\ge(s/t)^{t}$, and $m-s\ge s$.
-Hence
+members. It remains to bound $|\cP|=(m-s)\binom st$ from below. Since
+$n-1<M(m+1)$ and $m\le2s+1$, we have $n\le2M(s+1)$. Together with
+$n\ge4M(t+1)$ this gives $s\ge2t+1$, so $s\ge1$ and therefore $n\le4Ms$.
+Also $m-s\ge s$, and $\binom st\ge(s/t)^{t}$ because $s\ge t$. Hence
 \[
 |\cP|\ \ge\ \frac{s^{t+1}}{t^{t}}\ \ge\
 \frac{n^{t+1}}{t^{t}(4M)^{t+1}},
 \]
-and \eqref{eq:Pbound} is at least $c_t\,n^{t+1}$.
+and \eqref{eq:Pbound} is at least $c_{k,t}\,n^{t+1}$.
+
+For the last assertion let $k=2$, so that $\log_2M=2\log_2t+2^{t}$ and
+\[
+\log_2\frac1{c_{2,t}}=2^{t}+1+t\log_2t+(t+1)(2+2\log_2M)
+=(2t+3)\,2^{t}+(5t+4)\log_2t+2t+3 .
+\]
+Since $\log_2t\le t-1$ and $2^{t}\ge2t$, the last two terms are at most
+$5t^{2}+t-1\le2t(t+1)^{2}\le(t+1)^{2}2^{t}$, so
+$\log_2(1/c_{2,t})\le(t+2)^{2}2^{t}$. If $\log_2n\ge(t+2)^{2}2^{t}$, then
+$c_{2,t}n\ge1$ and $F(n)\ge c_{2,t}n^{t+1}\ge n^{t}$.
 \end{proof}
 
-\begin{remark}
-\label{rem:growth}
-The proof gives an explicit, if very slowly growing, function in
-Corollary~\ref{cor:conj}(i). By Theorem~\ref{thm:lower}, $F(n)\ge n^{t}$
-as soon as $n\ge1/c_t$. For $t=1$ we have $1/c_1=4608<2^{16}$, and for
-$t\ge2$ a crude estimate using $t+1\le M(t)$ and $M(t)\ge18$ gives
-$\log_2(1/c_t)\le1+2M+4M\log_2(M+1)\le2^{M+2}$ with $M=M(t)$. So
-$F(n)\ge n^{t}$ whenever $\log_2\log_2n\ge M(t)+2$. Let $E(x)=2^{x}$, let
-$E^{k}$ be its $k$-fold iterate, and let $\log^{*}n$ be the least $k$
-with $E^{k}(0)\ge n$. Since $x+2^{2^{x}}\le E^{3}(x)$ for $x\ge0$,
-\eqref{eq:Mt} gives $M(t)\le E^{3t}(0)$, and the condition above holds
-once $n\ge E^{3t+3}(0)$. Consequently the function $\omega$ constructed
-in the proof of Corollary~\ref{cor:conj}(i) satisfies
-$\omega(n)\ge\frac13\log^{*}n-2$. We have made no attempt to improve
-this, and it is very far from the limit $(1+o(1))\log_2n$ of
-Corollary~\ref{cor:conj}(iii).
-\end{remark}
-
 %======================================================================
-\section{The upper bound}
+\section{The upper bound and the random colouring}
 \label{sec:upper}
 
 A family $A_1,\dots,A_d$ of subsets of $[n]$ is an \emph{independent
@@ -794,21 +921,23 @@ contains no independent system of $d$ sets, $\vc(\cF)\le d-1$ by
 Lemma~\ref{lem:indep}(b), and $|\cF|\le\sum_{j<d}\binom nj$ by
 Lemma~\ref{lem:indep}(c).
 
-For the second assertion let $n\ge32$ and
-$d=\lceil\log_2n+\log_2\log_2n\rceil+1$. Then $2^{d}\ge2n\log_2n$, while
-$nd+2\le n(\log_2n+\log_2\log_2n+2)+2$. The required inequality
-$2n\log_2n>n\log_2n+n\log_2\log_2n+2n+2$ is equivalent to
-$\log_2n-\log_2\log_2n>2+2/n$, which holds for $n\ge32$: at $n=32$ the
-left side is $5-\log_25>2.67$, and it increases with $n$. Finally
-$\binom nj\le n^{j}$, so $\sum_{j<d}\binom nj\le d\,n^{d-1}$, and
-$d\le\log_2n+\log_2\log_2n+2$.
+For the second assertion let $n\ge2$, and put $a=\lfloor\log_2n\rfloor$
+and $b=\lfloor\log_2a\rfloor$, so that $a\ge1$, $n<2^{a+1}$, $a<2^{b+1}$
+and $b+1\le a$. For $d=a+b+3$ we get
+\[
+2^{d}=2^{a+1}\cdot2\cdot2^{b+1}\ \ge\ 2(n+1)(a+1),
+\]
+whereas $nd+2=n(a+1)+n(b+2)+2\le2n(a+1)+2<2(n+1)(a+1)$, because
+$b+2\le a+1$ and $a\ge1$. So $2^{d}>nd+2$, and the first assertion gives
+$F(n)\le\sum_{j<d}\binom nj\le\sum_{j<d}n^{j}\le d\,n^{d-1}$. Finally
+$a\le\log_2n$ and $b\le\log_2a\le\log_2\log_2n$, so $d\le\log_2n+
+\log_2\log_2n+3$.
 \end{proof}
 
 Figure~\ref{fig:surface} shows the size of the bound of
 Theorem~\ref{thm:upper} as a function of $n$ and $d$. Taking for $d$ the
-least admissible value $d(n)$ gives a bound valid for every $n\ge1$; for
-instance $d(n)=6$ for $6\le n\le10$, and $d(n)=\log_2n+\log_2\log_2n+O(1)$
-as $n\to\infty$.
+least admissible value $d(n)$ gives a bound valid for every $n$, and
+$d(n)=\log_2n+\log_2\log_2n+O(1)$ as $n\to\infty$.
 
 \begin{figure}[t]
 \centering
@@ -821,33 +950,52 @@ along which the bound stays far below the plane.}
 \end{figure}
 
 \begin{proof}[Proof of Corollary~\ref{cor:conj}]
-(i) For $n\ge1$ let $\omega(n)$ be the largest integer $c\in\{0,\dots,n\}$
-with $n^{c}\le F(n)$; it exists because $F(n)\ge1$. Given $c\ge1$,
-Theorem~\ref{thm:lower} with $t=c$ gives $F(n)\ge c_c\,n^{c+1}\ge n^{c}$
-for all $n\ge\max(c,1/c_c)$, and for these $n$ we have $\omega(n)\ge c$.
-Hence $\omega(n)\to\infty$.
+(i) Let $n\ge2$, so that $\ell=\log_2\log_2n\ge0$. If $\omega(n)\le0$
+there is nothing to prove, since $F(n)\ge1$. Otherwise
+$x=\ell-2\log_2(\ell+2)>1$, and the integer $t=\lfloor x\rfloor$
+satisfies $t\ge1$ and $\omega(n)=x-1<t\le x$. As $t\le\ell$ we have
+$\log_2(t+2)\le\log_2(\ell+2)$, and so
+\[
+\log_2\bigl((t+2)^{2}2^{t}\bigr)=t+2\log_2(t+2)\ \le\ x+2\log_2(\ell+2)=\ell ,
+\]
+that is, $(t+2)^{2}2^{t}\le\log_2n$. Theorem~\ref{thm:lower} gives
+$F(n)\ge n^{t}\ge n^{\omega(n)}$. As $\ell\to\infty$ and
+$\log_2(\ell+2)=o(\ell)$, we have $\omega(n)\to\infty$.
 
-(ii) Put $\eps(n)=F(n)^{1/n}-1+1/n$. Then
+(ii) Put $\eps(n)=F(n)^{1/n}-1+1/n$ for $n\ge1$. Then
 $(1+\eps(n))^{n}=(F(n)^{1/n}+1/n)^{n}>F(n)$. By Theorem~\ref{thm:upper},
 $\log F(n)=O((\log n)^{2})$, so $F(n)^{1/n}\to1$ and $\eps(n)\to0$.
 
-(iii) If $n^{\omega(n)}\le F(n)$, Theorem~\ref{thm:upper} gives
-$\omega(n)\log_2n\le\log_2F(n)\le(1+o(1))(\log_2n)^{2}$.
+(iii) Let $n\ge2$ and write $\lambda=\log_2n$ and
+$D=\lambda+\log_2\lambda+3$. Theorem~\ref{thm:upper} gives
+$n^{\omega(n)}\le F(n)\le D\,n^{D-1}$, hence
+\[
+\omega(n)\ \le\ D-1+\frac{\log_2D}{\log_2n}
+\ =\ \lambda+O(\log\lambda),
+\]
+which is at most $(1+\eps)\lambda$ for all large $n$.
+
+(iv) For every $t\ge1$, Theorem~\ref{thm:lower} gives $F_k(n)\ge
+c_{k,t}n^{t+1}\ge n^{t}$ as soon as $n\ge1/c_{k,t}$. Let $\omega_k(n)$ be
+the largest integer $t\le n$ with $n^{t}\le F_k(n)$; the value $t=0$
+qualifies because $F_k(n)\ge1$. Then $\omega_k(n)\ge t$ whenever $n\ge
+\max(t,1/c_{k,t})$, so $\omega_k(n)\to\infty$. For the second statement
+take $\eps_k=\eps$ from (ii) and use $F_k(n)\le F(n)$.
 \end{proof}
 
 The random colouring does contain large monochromatic union-closed
-families, and it is worth seeing how large, since this indicates how much
-room is left between the two theorems.
+families. How large they are indicates how much room is left between
+Theorems~\ref{thm:lower} and~\ref{thm:upper}.
 
 \begin{proposition}
 \label{prop:random}
-Let $\chi$ be a uniformly random $2$-colouring of $2^{[n]}$. The largest
-monochromatic union-closed family has expected size at least
+Let $n\ge1$. The average, over all $2$-colourings $\chi$ of $2^{[n]}$, of
+the largest size of a monochromatic union-closed family is at least
 \[
-\sum_{j=0}^{n}\binom nj\,2^{1-2^{j}}\ \ge\ \frac2n\Bigl(\frac{n}{j_0}\Bigr)^{j_0}
-\ge n^{\log_2\log_2n-2-o(1)},\qquad j_0=\lfloor\log_2\log_2n\rfloor ,
+\sum_{j=0}^{n}\binom nj\,2^{1-2^{j}} .
 \]
-the inequality holding for $n\ge4$.
+If $1\le j\le n$ and $2^{2^{j}}\le n$, this average is at least
+$(2/n)(n/j)^{j}$.
 \end{proposition}
 
 \begin{proof}
@@ -858,64 +1006,63 @@ $\cF=\{[n]\setminus Y:\ Y\in\cY\}$ is monochromatic and union-closed,
 because $([n]\setminus Y)\cup([n]\setminus Y')=[n]\setminus(Y\cap Y')$.
 A set $Y$ of size $j$ lies in $\cY$ exactly when the $2^{j}-1$ distinct
 sets $[n]\setminus Y'$ with $\emptyset\ne Y'\subseteq Y$ all have colour
-$c$, which happens with probability $2^{1-2^{j}}$. Summing over $Y$ gives
-$\Ex|\cF|$. For $n\ge4$ we have $j_0\ge1$ and $2^{j_0}\le\log_2n$, so the
-term $j=j_0$ is at least $(2/n)\binom{n}{j_0}\ge(2/n)(n/j_0)^{j_0}$, and
-$j_0^{\,j_0}=n^{o(1)}$.
+$c$, which happens for a proportion $2^{1-2^{j}}$ of all colourings.
+Summing over $Y$ gives the average of $|\cF|$, which is the first bound.
+For the second, the term of index $j$ is at least
+$\binom nj2^{1-2^{j}}\ge(n/j)^{j}\cdot2/n$, since $\binom nj\ge(n/j)^{j}$
+and $2^{2^{j}}\le n$.
 \end{proof}
 
-So for the random colouring the exponent $\omega$ is at least about
-$\log_2\log_2n$, while Theorem~\ref{thm:upper}, which is also proved with
-the random colouring, allows it to be as large as $\log_2n$. We do not
-know where the truth lies (Question~\ref{q:F}).
+For $n\ge4$ and $j=\lfloor\log_2\log_2n\rfloor$ the conditions of
+Proposition~\ref{prop:random} hold, and $(2/n)(n/j)^{j}\ge
+n^{\log_2\log_2n-2-o(1)}$ because $j>\log_2\log_2n-1$ and
+$j^{j}=n^{o(1)}$. So for the random
+colouring the exponent $\omega$ is at least about $\log_2\log_2n$, while
+Theorem~\ref{thm:upper}, which is also proved with the random colouring,
+allows it to be as large as $\log_2n$. The next two statements turn the
+upper bound for the random colouring into a counting problem.
 
-Both conjectures remain true when more colours are allowed. For $k\ge2$
-let $F_k(n)$ be the least, over all maps $\chi:2^{[n]}\to\{1,\dots,k\}$,
-of the largest size of a union-closed family on which $\chi$ is constant,
-so that $F_2=F$.
+\begin{lemma}
+\label{lem:subfamily}
+If $\cF\subseteq2^{[n]}$ is union-closed and $N\le|\cF|$, then $\cF$
+contains a union-closed subfamily with exactly $N$ members.
+\end{lemma}
+
+\begin{proof}
+It suffices to remove one member when $|\cF|>N$. Let $A$ be a member of
+least size. If $B,C\in\cF\setminus\{A\}$ satisfied $B\cup C=A$, then
+$B\subseteq A$ and $|B|\ge|A|$ would give $B=A$. So $\cF\setminus\{A\}$
+is union-closed.
+\end{proof}
 
 \begin{proposition}
-\label{prop:colours}
-Let $k\ge2$. Then $F_k(n)\le F(n)$ for every $n$. Moreover, define
-$M_k(0)=0$ and $M_k(t)=M_k(t-1)+k^{2^{M_k(t-1)}}$ for $t\ge1$; then for
-every $t\ge1$, with $M=M_k(t)$,
-\[
-F_k(n)\ \ge\ \frac{n^{t+1}}{k\,t^{t}(t+2)^{M}(4M^{2})^{t+1}}
-\qquad(n\ge1).
-\]
-Consequently both statements in \eqref{eq:conj} hold with $F_k$ in place
-of $F$.
+\label{prop:count}
+Let $U(n,N)$ be the number of union-closed families $\cF\subseteq
+2^{[n]}$ with $|\cF|=N$. If $U(n,N)<2^{N-1}$, then $F(n)<N$.
 \end{proposition}
 
 \begin{proof}
-A $2$-colouring is in particular a $k$-colouring, which gives
-$F_k(n)\le F(n)$; with Corollary~\ref{cor:conj}(ii) this proves the
-second statement for $F_k$. For the lower bound we go through
-Sections~\ref{sec:cubes}--\ref{sec:lower} with a $k$-colouring $\chi$,
-where monochromatic means that $\chi$ is constant. In the proof of
-Lemma~\ref{lem:hjcube} put $N=k^{2^{q}}$; this is the number of
-$k$-colourings of $2^{R}$, so two of the $N+1$ colourings $\varphi_i$
-coincide, and the rest of the argument is unchanged. Hence every
-$k$-colouring of $2^{Z}$ is constant on a $t$-cube inside $Z$ as soon as
-$|Z|\ge M_k(t)$. Lemma~\ref{lem:shape}, the definition of $\rho_\chi$,
-Proposition~\ref{prop:saturation} and Lemmas~\ref{lem:slices}
-and~\ref{lem:average} do not refer to the number of colours, so they
-hold with $M=M_k(t)$ in place of $M(t)$. Since $M_k(t)\ge kt\ge t+1$, the
-estimates in the proof of Theorem~\ref{thm:lower} are also unchanged. In
-Proposition~\ref{prop:glue} one colour class contains at least
-$|\cS|/k$ of the pairs, so the factor $2$ in \eqref{eq:Pbound} becomes
-$k$, and this gives the stated bound for $n\ge4M(t+1)$. For
-$n<4M(t+1)$ the right-hand side is less than $1\le F_k(n)$. The first
-statement for $F_k$ now follows exactly as in the proof of
-Corollary~\ref{cor:conj}(i).
+A fixed family of $N$ distinct sets is monochromatic under exactly
+$2\cdot2^{2^{n}-N}$ of the $2^{2^{n}}$ colourings. The colourings under
+which some union-closed family of $N$ sets is monochromatic are therefore
+at most $U(n,N)\,2^{2^{n}+1-N}<2^{2^{n}}$ in number, and some colouring
+has no monochromatic union-closed family of exactly $N$ members. By
+Lemma~\ref{lem:subfamily} it has none with $N$ or more members, since a
+subfamily of a monochromatic family is monochromatic. Hence
+$F(n)\le N-1$.
 \end{proof}
+
+Proposition~\ref{prop:count} is the first-moment method for a uniformly
+random colouring, and Corollary~\ref{cor:conj}(i) shows where it must
+fail: if $N\le n^{\omega(n)}\le F(n)$, then $U(n,N)\ge2^{N-1}$. We return
+to this in Question~\ref{q:count}.
 
 %======================================================================
 \section{Cardinality colourings, Hilbert cubes and arithmetic progressions}
 \label{sec:card}
 
-In this section $\chi(S)=g(|S|)$ for a function
-$g:\{0,1,\dots,n\}\to\{0,1\}$. A $t$-cube of shape $(u;a_1,\dots,a_t)$
+In this section $k\ge2$ and $\chi(S)=g(|S|)$ for a function
+$g:\{0,1,\dots,n\}\to[k]$. A $t$-cube of shape $(u;a_1,\dots,a_t)$
 consists of sets whose sizes are the elements of $H(u;a_1,\dots,a_t)$, and
 every permutation preserves sizes, so
 \begin{equation}
@@ -937,16 +1084,27 @@ is red.}
 \label{fig:hilbert}
 \end{figure}
 
-Applied to the colouring $S\mapsto g(r+|S|)$ of $2^{[M]}$,
-Lemma~\ref{lem:hjcube} gives the two-colour case of Hilbert's lemma in the
-following windowed form.
+Since $\rho_\chi$ takes only the values $0$ and $1$ here,
+Proposition~\ref{prop:saturation} turns into Hilbert's lemma with an
+explicit window.
 
 \begin{corollary}
 \label{cor:hilbertlemma}
-Let $t\ge1$, $M=M(t)$ and $r\ge0$. Every $g:\{r,r+1,\dots,r+M\}\to\{0,1\}$
-is constant on some Hilbert cube $H(u;a_1,\dots,a_t)$ with $a_i\ge1$,
-$u\ge r$ and $u+a_1+\dots+a_t\le r+M$.
+Let $k\ge2$, $t\ge1$, $M=t^{2}k^{2^{t}}$ and $r\ge0$. Every
+$g:\{r,r+1,\dots,r+M\}\to[k]$ is constant on some Hilbert cube
+$H(u;a_1,\dots,a_t)$ with $a_i\ge1$, $u\ge r$ and $u+a_1+\dots+a_t\le
+r+M$.
 \end{corollary}
+
+\begin{proof}
+Extend $g$ arbitrarily to $\{0,\dots,r-1\}$ and apply
+Proposition~\ref{prop:saturation}, with $n=r+M$, $L=L_k(t)$ and
+$M=M_k(t)$, to the cardinality colouring $S\mapsto g(|S|)$ of
+$2^{[r+M]}$. It gives a shape with $r\le u$, $(u-r)+\sum_ia_i\le M$ and
+$\rho_\chi(u;a)\ge k^{-2^{t}}>0$, so $\rho_\chi(u;a)=1$ and $g$ is
+constant on $H(u;a)$ by \eqref{eq:rho01}. The elements of $H(u;a)$ lie
+between $u\ge r$ and $u+\sum_ia_i\le r+M$.
+\end{proof}
 
 \begin{proof}[Proof of Theorem~\ref{thm:hilbert}]
 Consider the cardinality colouring $\chi(S)=g(|S|)$ and the construction
@@ -964,7 +1122,7 @@ every $(j,A)\in\cP$ at least $M^{m-t-1}$ vectors $\beta$ make
 $H_\beta(j,A)$ monochromatic. Averaging over the $M^{m}$ vectors, as in
 Lemma~\ref{lem:average} but without the permutations, some $\beta$ makes
 at least $|\cP|/M^{t+1}$ of the cubes $H_\beta(j,A)$ monochromatic, and
-at least half of these share a colour $c$. The estimate
+at least a proportion $1/k$ of these share a colour $c$. The estimate
 $|\cP|\ge n^{t+1}/(t^{t}(4M)^{t+1})$ from the proof of
 Theorem~\ref{thm:lower} completes the proof. All elements of the cubes
 lie in $\{0,\dots,n\}$, since $\beta_1+\dots+\beta_m\le mM\le n-1$.
@@ -975,76 +1133,106 @@ $Q_{\mathrm{id},\beta}(j,A)$ attached to the pairs of colour $c$ are
 monochromatic under $\chi$, and Proposition~\ref{prop:glue} glues them
 into a single union-closed family of colour $c$. For cardinality
 colourings the proof of Theorem~\ref{thm:lower} is therefore entirely a
-statement about sums of a bounded sequence of integers, and the factor
-$(t+2)^{-M}$ coming from permutations disappears.
+statement about sums of a bounded sequence of integers.
 
 There is also a direct route through arithmetic progressions, which gives
-Howorka's theorem with different constants. Let $W(k)$ be the van der
-Waerden number, the least $N$ such that every $2$-colouring of
-$\{1,\dots,N\}$ contains a monochromatic arithmetic progression of length
-$k$; it is finite by van der Waerden's theorem \cite{vdW27}, and Shelah
-\cite{Sh88} showed that it is bounded by a primitive recursive function
-of $k$.
+Howorka's theorem.
 
 \begin{proposition}
 \label{prop:AP}
 Suppose that $g$ is constant on the arithmetic progression
-$a,a+e,\dots,a+(k-1)e$, where $e\ge1$, $k\ge1$ and $a+(k-1)e\le n$. Put
-$q=\lfloor a/e\rfloor$ and $b=q+k-1$. Then $\chi$ has a monochromatic
-union-closed family with $\sum_{i=0}^{k-1}\binom bi$ members and a
-monochromatic sublattice with $2^{k-1}$ members.
+$a,a+e,\dots,a+(p-1)e$, where $e\ge1$, $p\ge1$ and $a+(p-1)e\le n$. Put
+$q=\lfloor a/e\rfloor$ and $b=q+p-1$. Then $\chi$ has a monochromatic
+union-closed family with $\sum_{i=0}^{p-1}\binom bi$ members and a
+monochromatic sublattice with $2^{p-1}$ members.
 \end{proposition}
 
 \begin{proof}
-Let $a_0=a-qe$, so $0\le a_0<e$, and choose pairwise disjoint sets
-$D,X_1,\dots,X_b\subseteq[n]$ with $|D|=a_0$ and $|X_i|=e$; this is
-possible because $a_0+be=a+(k-1)e\le n$. The family
+Let $a_0=a-qe$, so $0\le a_0<e$, and let $D=\{1,\dots,a_0\}$ and
+$X_i=\{a_0+(i-1)e+1,\dots,a_0+ie\}$ for $1\le i\le b$. These sets are
+pairwise disjoint subsets of $[n]$, because $a_0+be=a+(p-1)e\le n$, and
+$|D|=a_0$ and $|X_i|=e$. The family
 \[
 \cF=\bigl\{D\cup X_I:\ I\subseteq[b],\ |I|\ge q\bigr\}
 \]
-is union-closed, since $|I\cup I'|\ge q$ whenever $|I|\ge q$. A member
-with index set $I$ has size $a_0+|I|e=a+(|I|-q)e$, where $0\le|I|-q\le
-k-1$, so all members have the colour of the progression, and
-$|\cF|=\sum_{i=q}^{b}\binom bi=\sum_{i=0}^{k-1}\binom bi$. For the
-sublattice take the $(k-1)$-cube $Q(D';X_1,\dots,X_{k-1})$ with $|D'|=a$
-and $|X_i|=e$, whose member sizes $a+|I|e$ lie in the progression.
+is union-closed, since $D\cup X_I\cup D\cup X_{I'}=D\cup X_{I\cup I'}$ and
+$|I\cup I'|\ge q$ whenever $|I|\ge q$. A member with index set $I$ has
+size $a_0+|I|e=a+(|I|-q)e$, where $0\le|I|-q\le p-1$, so all members have
+the colour of the progression, and
+\[
+|\cF|=\sum_{i=q}^{b}\binom bi=\sum_{i=0}^{p-1}\binom bi
+\]
+by the symmetry $\binom bi=\binom b{b-i}$. For the sublattice take
+$D'=\{1,\dots,a\}$ and $X'_i=\{a+(i-1)e+1,\dots,a+ie\}$ for $1\le i\le
+p-1$. The $(p-1)$-cube $Q(D';X'_1,\dots,X'_{p-1})$ is a sublattice with
+$2^{p-1}$ members, whose sizes $a+|I|e$ lie in the progression.
 \end{proof}
+
+For $k\ge1$ and $p\ge1$ let $W_k(p)$ be the least $W$ such that every
+$g:\{0,1,\dots,W-1\}\to[k]$ is constant on some progression
+$a,a+e,\dots,a+(p-1)e$ with $e\ge1$. This number exists by van der
+Waerden's theorem.
+
+\begin{theorem}[van der Waerden \cite{vdW27}]
+\label{thm:vdw}
+For all $k\ge1$ and $p\ge1$ there is $W$ such that every
+$g:\{0,1,\dots,W-1\}\to[k]$ is constant on an arithmetic progression of
+length $p$ with a positive common difference.
+\end{theorem}
+
+The formal proof derives Theorem~\ref{thm:vdw} from the Hales--Jewett
+theorem.\footnote{Let $N$ be such that every $k$-colouring of the words
+of length $N$ over the alphabet $\{0,1,\dots,p-1\}$ has a monochromatic
+combinatorial line, and put $W=N(p-1)+1$. Colour a word by the value of
+$g$ at the sum of its letters. A combinatorial line has a nonempty set
+$E$ of active coordinates, which carry the letter $i$ at its $i$-th
+point, and fixed letters elsewhere, with sum $a$ say. The sums of its
+points are $a+i|E|$ for $0\le i\le p-1$, all less than $W$, so a
+monochromatic line gives a monochromatic progression with common
+difference $|E|$.}
 
 \begin{theorem}[Howorka]
 \label{thm:howorka}
-Let $k\ge2$ and $n\ge2W(k)$. Every cardinality colouring of $2^{[n]}$ has
-a monochromatic union-closed family with at least
+Let $p\ge2$, let $W=W_k(p)$, and let $n\ge2W$. Every
+cardinality $k$-colouring of $2^{[n]}$ has a monochromatic union-closed
+family with at least
 \[
-\binom{\lfloor n/(2W(k))\rfloor+k-1}{k-1}\ \ge\
-\Bigl(\frac{n}{2(k-1)W(k)}\Bigr)^{k-1}
+\binom{\lfloor n/(2W)\rfloor+p-1}{p-1}\ \ge\
+\frac{\bigl(\lfloor n/(2W)\rfloor+1\bigr)^{p-1}}{(p-1)!}
 \]
-members. Consequently there is $\omega(n)\to\infty$ such that every
-cardinality colouring of $2^{[n]}$ has a monochromatic union-closed
-family with at least $n^{\omega(n)}$ members.
+members.
 \end{theorem}
 
 \begin{proof}
-Let $W=W(k)$ and $m_0=\lceil n/2\rceil$. The integers
-$m_0,m_0+1,\dots,m_0+W-1$ lie in $\{0,\dots,n\}$ because $n\ge2W$, so $g$
-is constant on a progression $a,a+e,\dots,a+(k-1)e$ among them. Here
-$a\ge n/2$ and $(k-1)e\le W-1$, so $e<W$ and $\lfloor a/e\rfloor\ge\lfloor
-n/(2W)\rfloor$. Proposition~\ref{prop:AP} gives a monochromatic
-union-closed family with at least $\binom b{k-1}$ members, where
-$b\ge\lfloor n/(2W)\rfloor+k-1\ge n/(2W)$, and $\binom
-b{k-1}\ge(b/(k-1))^{k-1}$. For the last statement let $\omega(n)=k/3$,
-where $k$ is the largest integer with $k\ge4$ and $2(k-1)W(k)\le
-n^{1/2}$, and let $\omega(n)=0$ if there is no such $k$. The bound is
-then at least $n^{(k-1)/2}\ge n^{k/3}$.
+The integers $n-W,n-W+1,\dots,n-1$ lie in $\{0,\dots,n\}$, and by the
+definition of $W$ the function $g$ is constant on a progression
+$a,a+e,\dots,a+(p-1)e$ among them, with $e\ge1$. Here $a\ge n-W$ and
+$a+(p-1)e\le n-1$, and $e\le(p-1)e\le W-1$ because $p\ge2$. Since $n\ge
+2W$ we have $n-W\ge\lfloor n/2\rfloor$, and so
+\[
+\Bigl\lfloor\frac ae\Bigr\rfloor\ \ge\ \Bigl\lfloor\frac{n-W}{W}\Bigr\rfloor
+\ \ge\ \Bigl\lfloor\frac{\lfloor n/2\rfloor}{W}\Bigr\rfloor
+=\Bigl\lfloor\frac n{2W}\Bigr\rfloor .
+\]
+Proposition~\ref{prop:AP} gives a monochromatic union-closed family with
+at least $\binom b{p-1}$ members, where $b=\lfloor a/e\rfloor+p-1\ge
+\lfloor n/(2W)\rfloor+p-1$, and $\binom b{p-1}$ increases with $b$.
+Finally, with $N=\lfloor n/(2W)\rfloor$,
+\[
+\binom{N+p-1}{p-1}=\frac{(N+1)(N+2)\cdots(N+p-1)}{(p-1)!}\ \ge\
+\frac{(N+1)^{p-1}}{(p-1)!}. \qedhere
+\]
 \end{proof}
 
-The theorem is attributed to Howorka in \cite{Bl26} without a
-reference, and as we have not found Howorka's proof in print we have
-included the short argument above. Proposition~\ref{prop:AP} also restricts the
-cardinality colourings that are extremal for $f$. If no monochromatic
-sublattice has more than $\lceil(n+1)/2\rceil$ members, then $g$ has no
-monochromatic progression of length $k$ with
-$2^{k-1}>\lceil(n+1)/2\rceil$. This condition was used in the search
-for the colouring $g_{10}$ of Section~\ref{sec:small}.
+For fixed $p$ the bound of Theorem~\ref{thm:howorka} is at least a
+constant multiple of $n^{p-1}$, and $p$ is arbitrary. So for cardinality
+colourings the largest monochromatic union-closed family grows faster
+than every fixed power of $n$, which is Howorka's theorem as recorded in
+\cite{Bl26}; for all colourings this is contained in
+Corollary~\ref{cor:conj}. Proposition~\ref{prop:AP} also restricts the
+cardinality colourings that are good for $f$: if no monochromatic
+sublattice has more than $m$ members, then $g$ is constant on no
+progression of length $p$ in $\{0,\dots,n\}$ with $2^{p-1}>m$.
 
 %======================================================================
 \section{The lattice function}
@@ -1052,295 +1240,236 @@ for the colouring $g_{10}$ of Section~\ref{sec:small}.
 
 The lower bound in Theorem~\ref{thm:f} is \eqref{eq:trivial}. The upper
 bounds come from a random colouring and a count of sublattices, which in
-turn rests on the structure of a finite distributive lattice.
+turn rests on a description of a sublattice by a small amount of data.
 
-Let $\cL\subseteq2^{[n]}$ be a sublattice with $|\cL|\ge2$, and put
-$B_0=\bigcap_{A\in\cL}A$ and $T_0=\bigcup_{A\in\cL}A$, both members of
-$\cL$. For $x\in T_0\setminus B_0$ let
-$A_x=\bigcap\{A\in\cL:\ x\in A\}$, the least member of $\cL$ containing
-$x$, and let $\cJ=\cJ(\cL)=\{A_x:\ x\in T_0\setminus B_0\}$, ordered by
-inclusion. A \emph{down-set} of a poset $P$ is a set $D\subseteq P$ with
-$y\le x\in D\Rightarrow y\in D$; we write $\Down(P)$ for the set of
-down-sets and $\wdt(P)$ for the largest size of an antichain.
+Let $\cL\subseteq2^{[n]}$ be a nonempty sublattice, and put
+$B=\bigcap_{A\in\cL}A$ and $T=\bigcup_{A\in\cL}A$, the least and the
+greatest member of $\cL$. For $x\in T\setminus B$ let
+\[
+A_x=\bigcap\{A\in\cL:\ x\in A\},
+\]
+the least member of $\cL$ containing $x$, and for $X\subseteq
+T\setminus B$ put $A_X=\bigcup_{x\in X}A_x$. For $x\in T\setminus B$ let
+$[x]=\{y\in T\setminus B:\ A_y=A_x\}$ be the \emph{class} of $x$, and let
+$D_x=\{y\in T\setminus B:\ A_y\subsetneq A_x\}$.
 
 \begin{lemma}
 \label{lem:structure}
-Let $\cL$ be a sublattice of $2^{[n]}$ with $|\cL|\ge2$.
+Let $\cL$ be a nonempty sublattice of $2^{[n]}$.
 \begin{enumerate}[label=\textup{(\alph*)},leftmargin=2em]
-\item Every $A\in\cL$ equals $B_0\cup\bigcup\{J\in\cJ:\ J\subseteq A\}$.
-\item If $J\in\cJ$ and $J\subseteq A_1\cup\dots\cup A_r$ with
-$A_1,\dots,A_r\in\cL$, then $J\subseteq A_i$ for some $i$.
-\item The map $A\mapsto\{J\in\cJ:\ J\subseteq A\}$ is a bijection from
-$\cL$ onto $\Down(\cJ)$.
-\item $1\le|\cJ|\le n$ and $\wdt(\cJ)\le\log_2|\cL|$.
-\item Let $\psi:[n]\to\cJ\cup\{\bot,\top\}$ be given by $\psi(x)=\bot$ for
-$x\in B_0$, $\psi(x)=\top$ for $x\notin T_0$, and $\psi(x)=A_x$
-otherwise. Then $\cL$ consists of the sets
-$\{x:\ \psi(x)=\bot\text{ or }\psi(x)\in D\}$, $D\in\Down(\cJ)$. So $\cL$
-is determined by the poset $\cJ$, given abstractly on a set of labels,
-together with $\psi$.
+\item Every $A\in\cL$ equals $B\cup A_{A\setminus B}$, and $B\cup
+A_X\in\cL$ for every $X\subseteq T\setminus B$. Hence
+$\cL=\{B\cup A_X:\ X\subseteq T\setminus B\}$.
+\item For $x,y\in T\setminus B$ we have $y\in A_x$ if and only if
+$A_y\subseteq A_x$.
+\item For $x\in T\setminus B$ we have $A_x=B\cup[x]\cup A_{D_x}$.
 \end{enumerate}
 \end{lemma}
 
 \begin{proof}
-(a) If $x\in A\setminus B_0$ then $A_x\subseteq A$, so $A$ is contained
-in the right-hand side, and the reverse inclusion is clear.
+(a) Let $A\in\cL$. Then $B\subseteq A\subseteq T$, and $A_x\subseteq A$
+for every $x\in A\setminus B$, so $B\cup A_{A\setminus B}\subseteq A$;
+conversely every $x\in A$ lies in $B$ or in $A_x$. The set $B\cup A_X$ is
+a union of members of $\cL$, or equals $B$ when $X=\emptyset$.
 
-(b) Let $J=A_x$. Then $x\in A_i$ for some $i$, and $A_x\subseteq A_i$ by
-minimality.
+(b) If $y\in A_x$, then $A_x$ is a member containing $y$, so $A_y\subseteq
+A_x$. Conversely $y\in A_y$.
 
-(c) The map is injective by (a), and its values are down-sets. Given a
-down-set $D$, the set $A_D=B_0\cup\bigcup_{J\in D}J$ lies in $\cL$. If
-$J\in\cJ$ and $J\subseteq A_D$, then by (b) either $J\subseteq B_0$, which
-is impossible because $J=A_x$ with $x\notin B_0$, or $J\subseteq J'$ for
-some $J'\in D$, and then $J\in D$. So $A_D$ is mapped to $D$.
-
-(d) As $|\cL|\ge2$ we have $T_0\ne B_0$, so $\cJ\ne\emptyset$. List $\cJ$
-as $J_1,\dots,J_k$ in an order compatible with inclusion. The sets
-$\{J_1,\dots,J_i\}$, $0\le i\le k$, are down-sets, so by (c) they
-correspond to a strictly increasing chain of $k+1$ subsets of $[n]$, and
-$k\le n$. If $S\subseteq\cJ$ is an antichain, the down-sets generated by
-the $2^{|S|}$ subsets of $S$ are distinct, so $2^{|S|}\le|\cL|$.
-
-(e) For $x\in T_0\setminus B_0$ and $J\in\cJ$ we have $x\in J$ if and
-only if $A_x\subseteq J$. Hence $x\in A_D$ if and only if $A_x\subseteq J$
-for some $J\in D$, which for a down-set $D$ means $A_x\in D$.
+(c) The right-hand side is contained in $A_x$: we have $B\subseteq A_x$,
+every $y\in[x]$ lies in $A_y=A_x$, and $A_y\subseteq A_x$ for $y\in D_x$.
+Let $z\in A_x\setminus B$. Then $z\in T\setminus B$ and $A_z\subseteq A_x$
+by (b), so either $A_z=A_x$ and $z\in[x]$, or $z\in D_x$ and $z\in
+A_z\subseteq A_{D_x}$.
 \end{proof}
 
-Part (c) is Birkhoff's representation of finite distributive lattices
-\cite{Bi37}, specialised to sublattices of $2^{[n]}$.
+Part (a) is the form that Birkhoff's representation theorem for finite
+distributive lattices \cite{Bi37} takes for sublattices of
+$2^{[n]}$.\footnote{The sets $A_x$ are exactly the members of $\cL$ other
+than $B$ that are not the union of two smaller members: $A_x$ is not such
+a union because each of the two parts would have to contain $x$, and by
+(a) any other member is the union of the sets $A_x$ it contains, all of
+them smaller. Birkhoff's theorem identifies a finite distributive lattice
+with the down-sets of the poset of these elements.} Part (a) already
+shows that $\cL$ is determined by $B$ and the map $x\mapsto A_x$. To count
+large sublattices more efficiently we describe each $A_x$ through a small
+set of points below it.
 
 \begin{lemma}
-\label{lem:posets}
-Let $k\ge1$ and $w\ge1$. The number of partial orders of width at most $w$ on the labelled set
-$[k]$ is at most $(k+1)^{k(w+2)}$.
+\label{lem:cover}
+Let $\cL$ be a nonempty sublattice and $x\in T\setminus B$, and let
+$R_x\subseteq D_x$ be a set of least size with $A_{R_x}=A_{D_x}$. Then
+$A_x=B\cup[x]\cup A_{R_x}$, no set $A_y$ with $y\in R_x$ is contained in
+$A_{y'}$ for another $y'\in R_x$, and the $2^{|R_x|}$ sets $B\cup A_Y$,
+$Y\subseteq R_x$, are distinct members of $\cL$. In particular
+$|R_x|\le\log_2|\cL|$.
 \end{lemma}
 
 \begin{proof}
-Put $v=\min(\lfloor w\rfloor,k)$. The width of the poset is at most $v$,
-so by Dilworth's theorem \cite{Di50} it is the union of $v$ disjoint
-chains $\Gamma_1,\dots,\Gamma_v$, some possibly empty. Record for each
-$x\in[k]$ the index $c(x)$ of its chain, its position $p(x)$ in that
-chain counted from the bottom, and for each $i\le v$ the number $r_i(x)$
-of elements of $\Gamma_i$ below or equal to $x$. The elements of
-$\Gamma_i$ below or equal to $x$ form an initial segment of $\Gamma_i$,
-so $y\le x$ holds exactly when $p(y)\le r_{c(y)}(x)$. The data determine
-the order, and there are at most $v^{k}k^{k}(k+1)^{kv}\le(k+1)^{k(v+2)}
-\le(k+1)^{k(w+2)}$ possibilities.
+The first statement is Lemma~\ref{lem:structure}(c). If $A_y\subseteq
+A_{y'}$ for distinct $y,y'\in R_x$, then $R_x\setminus\{y\}$ would be a
+smaller set with the same union $A_{R_x}$. The sets $B\cup A_Y$ lie in
+$\cL$ by Lemma~\ref{lem:structure}(a). Let $Y\ne Y'$ be subsets of $R_x$,
+say $y\in Y\setminus Y'$. Then $y\in A_y\subseteq B\cup A_Y$. If $y$ lay
+in $B\cup A_{Y'}$, then, as $y\notin B$, we would have $y\in A_{y'}$ for
+some $y'\in Y'$, so $A_y\subseteq A_{y'}$ by
+Lemma~\ref{lem:structure}(b) with $y'\ne y$, which is impossible. So
+$B\cup A_Y\ne B\cup A_{Y'}$.
+\end{proof}
+
+For each nonempty sublattice fix sets $R_x$ as in Lemma~\ref{lem:cover},
+and for $x\in T\setminus B$ let $r(x)$ be the least element of $[x]$.
+
+\begin{lemma}
+\label{lem:code}
+Let $\cL$ and $\cL'$ be nonempty sublattices of $2^{[n]}$ with the same
+least member $B$, the same greatest member $T$, the same map $r$ on
+$T\setminus B$ and the same sets $R_x$ for $x\in T\setminus B$. Then
+$\cL=\cL'$.
+\end{lemma}
+
+\begin{proof}
+Write $A_x$ and $A'_x$ for the least members containing $x$ in $\cL$ and
+$\cL'$. The class of $x$ is $\{y\in T\setminus B:\ r(y)=r(x)\}$ in both
+lattices. We show $A_x=A'_x$ for $x\in T\setminus B$ by induction on
+$|A_x|$. By Lemma~\ref{lem:cover},
+\[
+A_x=B\cup[x]\cup A_{R_x}\qquad\text{and}\qquad
+A'_x=B\cup[x]\cup A'_{R_x}.
+\]
+Every $y\in R_x$ satisfies $A_y\subsetneq A_x$, so $|A_y|<|A_x|$ and
+$A_y=A'_y$ by induction. Hence $A_x=A'_x$, and
+Lemma~\ref{lem:structure}(a) gives $\cL=\cL'$.
 \end{proof}
 
 \begin{lemma}
 \label{lem:count}
-For $m\ge2$ the number $N(m)$ of sublattices of $2^{[n]}$ with exactly $m$
-members satisfies $N(m)\le(n+2)^{n(\log_2m+4)}$. The number of
-sublattices with at least two members is at most $2^{n(n+1)}$.
+\begin{enumerate}[label=\textup{(\alph*)},leftmargin=2em]
+\item The number of nonempty sublattices of $2^{[n]}$ is at most
+$2^{n(n+1)}$.
+\item For $w\ge0$, the number of nonempty sublattices $\cL$ of $2^{[n]}$
+with $\lfloor\log_2|\cL|\rfloor=w$ is at most $2^{2n}\,n^{n}\,(n+1)^{wn}$.
+\end{enumerate}
 \end{lemma}
 
 \begin{proof}
-By Lemma~\ref{lem:structure}(d),(e), a sublattice with $m$ members is
-determined by a partial order of width at most $\log_2m$ on a label set
-$[k]$ with $k\le n$, together with a map $[n]\to[k]\cup\{\bot,\top\}$.
-Lemma~\ref{lem:posets} gives
-$N(m)\le\sum_{k=1}^{n}(k+1)^{k(\log_2m+2)}(k+2)^{n}\le
-n\,(n+2)^{n(\log_2m+3)}\le(n+2)^{n(\log_2m+4)}$. For the second
-statement, Lemma~\ref{lem:structure}(a) shows that $\cL$ consists of the
-unions of $B_0$ with subfamilies of $\cJ$, so $\cL$ is determined by the
-family $\{B_0\}\cup\cJ$ of at most $n+1$ sets, in which $B_0$ is the
-smallest member. Such a family can be
-written as a sequence of exactly $n+1$ subsets of $[n]$, repeating a
-member if necessary, and there are $2^{n(n+1)}$ such sequences.
+(a) By Lemma~\ref{lem:structure}(a), $\cL$ is determined by $B$ and the
+map $x\mapsto A_x$, extended by $A_x=B$ for $x\notin T\setminus B$. There
+are $2^{n}$ choices for $B$ and $(2^{n})^{n}$ for the map.
+
+(b) By Lemma~\ref{lem:code}, $\cL$ is determined by $B$, $T$, the map
+$r$ and the sets $R_x$, extended in any fixed way to all $x\in[n]$. By
+Lemma~\ref{lem:cover} each $R_x$ has at most $w$ elements. There are at
+most $2^{n}$ choices for each of $B$ and $T$, at most $n^{n}$ for $r$,
+and, since the number of subsets of $[n]$ with at most $w$ elements is
+$\sum_{i\le w}\binom ni\le\sum_{i\le w}n^{i}\le(n+1)^{w}$, at most
+$(n+1)^{wn}$ for the family $(R_x)_{x\in[n]}$.
 \end{proof}
 
 \begin{proof}[Proof of Theorem~\ref{thm:f}]
-Let $\chi$ be a uniformly random colouring. A fixed family of $m$ sets is
-monochromatic with probability $2^{1-m}$.
+The number of $2$-colourings under which a fixed family of $N$ distinct
+sets is monochromatic is $2\cdot2^{2^{n}-N}$.
 
-For the first bound put $m_1=n^{2}+n+2$. By Lemma~\ref{lem:count} the
-expected number of monochromatic sublattices with at least $m_1$ members
-is at most $2^{n(n+1)}2^{1-m_1}=1/2$, so some colouring has none, and
-$f(n)\le m_1-1$.
+For the first bound put $m_1=n^{2}+n+2$. By Lemma~\ref{lem:count}(a),
+the colourings under which some sublattice with at least $m_1$ members is
+monochromatic number at most $2^{n(n+1)}\cdot2\cdot2^{2^{n}-m_1}=
+2^{2^{n}-1}$. So some colouring has no such sublattice, and $f(n)\le
+m_1-1=n^{2}+n+1$.
 
-For the second bound we may assume $n\ge3$, since for $n\le2$ it is
-weaker than $f(n)\le2^{n}$. Put $\ell=\log_2(n+2)$, so $\ell>2.32$, and
-$L=n\ell$ and $m_2=\lceil12n\ell^{2}\rceil$. By Lemma~\ref{lem:count},
-$N(m)2^{1-m}\le2^{L(\log_2m+4)+1-m}$ for $m\ge2$. The function
-$\varphi(m)=m/2-L(\log_2m+4)-1$ is increasing for $m>2L/\ln2$, and
-$m_2>2.9L>2L/\ln2$, so $\varphi(m)\ge\varphi(m_2)$ for $m\ge m_2$. Using
-$m_2\le13n\ell^{2}$, $\log_2n\le\ell$ and $\log_2\ell\le\ell-1$, which
-holds for $\ell\ge2$, we get $\log_2m_2+4\le\log_213+3\ell+2<3\ell+5.71$,
-hence
+For the second bound let $L=\lfloor\log_2n\rfloor+1$, so that
+$n+1\le2^{L}$, and for $w\ge0$ put
 \[
-L(\log_2m_2+4)+1\ \le\ 3n\ell^{2}+5.71\,n\ell+1\ \le\ 6n\ell^{2}\ \le\
-m_2/2,
+E(w)=n\bigl(L(w+1)+2\bigr)+w+3 .
 \]
-the middle inequality being $3\ell\ge5.71+1/(n\ell)$, true for
-$\ell>2.32$. So $\varphi(m_2)\ge0$, and $N(m)2^{1-m}\le2^{-m/2}$ for
-all $m\ge m_2$. The expected number of monochromatic sublattices with at
-least $m_2$ members is then at most
-$\sum_{m\ge m_2}2^{-m/2}=2^{-m_2/2}/(1-2^{-1/2})<1$, and $f(n)\le
-m_2-1<12n\ell^{2}$.
+The function $E$ is increasing, and $E(w)\le2^{w}$ for $w\ge3L+2$.
+Indeed, with $P=2^{L}$ we have $n\le P-1$ and $L+1\le P$, so
+\[
+E(3L+2)=n(3L^{2}+3L+2)+3L+5\le P(3L^{2}+3L+5)\le4P^{3}=2^{3L+2},
+\]
+and $E(w+1)=E(w)+nL+1\le2E(w)$. Put $m_2=E(3L+1)=nL(3L+2)+2n+3L+4$.
+Every sublattice $\cL$ with $|\cL|\ge m_2$ and $\lfloor\log_2|\cL|\rfloor
+=w$ satisfies $|\cL|\ge E(w)$: for $w\le3L+1$ because $E(w)\le m_2$, and
+for $w\ge3L+2$ because $E(w)\le2^{w}\le|\cL|$. By
+Lemma~\ref{lem:count}(b), and using $n\le2^{L}$ and $n+1\le2^{L}$, there
+are at most $2^{2n}n^{n}(n+1)^{wn}\le2^{n(L(w+1)+2)}$ such sublattices for
+each $w$, and each is monochromatic under at most $2^{2^{n}+1-E(w)}$
+colourings. The colourings under which some sublattice with at least
+$m_2$ members is monochromatic therefore number at most
+\[
+\sum_{w=0}^{n}2^{n(L(w+1)+2)}\,2^{2^{n}+1-E(w)}
+=2^{2^{n}}\sum_{w=0}^{n}2^{-(w+2)}\ <\ 2^{2^{n}-1},
+\]
+the sum running up to $w=n$ because a sublattice has at most $2^{n}$
+members. So some colouring has no such sublattice, and $f(n)\le
+m_2-1=nL(3L+2)+2n+3L+3$.
 
-The last assertion of the theorem follows from these bounds and
-Theorem~\ref{thm:lower}.
+As $L\le\log_2n+1$, the second bound is $(3+o(1))\,n(\log_2n)^{2}$. The
+last assertion of the theorem follows from Theorem~\ref{thm:lower} with
+$t>C$.
 \end{proof}
 
-The first bound is the better one for $n$ up to about $1300$.
-Neither can be pushed below $n$ by studying the random colouring alone.
-
-\begin{proposition}
-\label{prop:chain}
-With probability greater than $1/2$, a uniformly random $2$-colouring of
-$2^{[n]}$ has a monochromatic chain of $n$ sets, and hence a monochromatic
-sublattice of $n$ members.
-\end{proposition}
-
-\begin{proof}
-Build the chain greedily. Put $S_0=\emptyset$ and $c=\chi(\emptyset)$.
-Given $S_i$ with $|S_i|=i\le n-2$ and colour $c$, the $n-i$ sets
-$S_i\cup\{x\}$, $x\notin S_i$, have not been looked at before, and their
-colours are independent and uniform. If one of them has colour $c$, call
-it $S_{i+1}$; the step fails with probability $2^{-(n-i)}$. The
-probability that some step fails is at most
-$\sum_{i=0}^{n-2}2^{-(n-i)}=\sum_{j=2}^{n}2^{-j}<1/2$, and otherwise
-$S_0\subset S_1\subset\dots\subset S_{n-1}$ is a monochromatic chain.
-\end{proof}
-
-%======================================================================
-\section{Exact values for small \texorpdfstring{$n$}{n}}
-\label{sec:small}
-
-For small $n$ both functions can be computed. Fix $n$ and a target $m$.
-A colouring with no monochromatic closed family of at least $m$ members
-(closed meaning closed under union for $F$, and under union and
-intersection for $f$) is a satisfying assignment of the Boolean formula
-in the variables $x_S$, $S\subseteq[n]$, that contains, for every closed
-family $\cF$ with at least $m$ members, the two clauses
-$\bigvee_{S\in\cF}x_S$ and $\bigvee_{S\in\cF}\neg x_S$. These families are far too numerous to list,
-so we add them only when needed. A SAT solver (CaDiCaL, called through
-PySAT \cite{IMM18}) proposes a colouring that satisfies the clauses
-collected so far, and a branch-and-bound search looks in each colour class
-for a closed family of at least $m$ members. If it finds one, the two
-clauses for that family are added and the solver is called again. If the
-search finds nothing, the colouring shows that the value is less than
-$m$; if the solver reports that the formula is unsatisfiable, every
-colouring has a monochromatic closed family of at least $m$ members. The
-unit clause $x_\emptyset$ removes the symmetry $\chi\mapsto1-\chi$, and
-letting $m$ increase gives the exact value.
-
-
-\begin{table}[htb]
-\centering
-\begin{tabular}{c|cccccccccc}
-\toprule
-$n$ & 1&2&3&4&5&6&7&8&9&10\\
-\midrule
-$f(n)$ & 1&2&2&3&3&4&4&5&5&6\\
-$F(n)$ & 1&2&2&3&4&5&7& & & \\
-\bottomrule
-\end{tabular}
-\caption{Exact values. The lower bounds for $f$ are \eqref{eq:trivial};
-the upper bounds for $f(n)$, $n\ge3$, are certified by the colourings
-$g_n$ below. The
-values of $F(5)$, $F(6)$ and $F(7)$ rely on unsatisfiability verdicts, as
-explained in the text.}
-\label{tab:small}
-\end{table}
-
-Table~\ref{tab:small} lists the results, which were checked in three
-further ways. For $n\le4$ all $2^{2^{n}}$ colourings were
-examined directly, without a solver, and the values agree. Every
-colouring that certifies an upper bound was checked by a second program
-that shares no code with the search: for each colour class it encodes the
-existence of a closed subfamily of at least $m$ members as a separate
-satisfiability problem, with clauses $\neg y_S\vee\neg y_{S'}\vee
-y_{S\cup S'}$ (and the corresponding clauses for intersections when
-checking $f$) and a cardinality constraint $\sum y_S\ge m$ written with
-the sequential counter of Sinz \cite{Si05}; all these problems are
-unsatisfiable. Finally, the lower bounds $F(5)\ge4$, $F(6)\ge5$ and
-$F(7)\ge7$ were recomputed with every family behind an added clause
-checked to be union-closed, to have at least $m$ members, and to lie in
-one colour class of the colouring that produced it. These lower bounds therefore depend
-only on the correctness of the solver's final unsatisfiability verdict.
-The computation for $F(7)$ added $256\,428$ clauses; the one for $f(9)$
-added $14\,190$ clauses and took about twenty minutes on one processor
-core.
-
-For $n\le10$ the value of $f(n)$ is attained by a cardinality colouring.
-For $3\le n\le7$ and for $n=9$ the unrestricted search itself returned
-such a colouring, but for $n=8$ it returned one that is not of this kind.
-The colourings $g_3,\dots,g_7$ below are the ones the search returned;
-$g_8$ and $g_9$ were found by adding the clauses
-$x_S\leftrightarrow x_{S'}$ for $|S|=|S'|$, and $g_{10}$, for which the
-unrestricted search was not run to the end, by listing the cardinality
-colourings that pass the necessary condition of Section~\ref{sec:card}
-and checking each with the second program. Writing $g_n=(g_n(0),\dots,g_n(n))$, the colourings
-{\small
-\begin{align*}
-g_3&=(1,1,0,0), & g_4&=(1,1,0,1,0),\\
-g_5&=(1,1,0,1,0,0), & g_6&=(1,0,0,1,0,1,1),\\
-g_7&=(1,0,0,1,1,0,0,1), & g_8&=(1,0,1,0,0,1,1,0,1),\\
-g_9&=(1,0,1,0,0,1,1,0,1,0), & g_{10}&=(1,0,0,1,1,0,0,1,0,1,1)
-\end{align*}}%
-have no monochromatic sublattice with more than $\lceil(n+1)/2\rceil$
-members. For instance, the class of $g_9$ with colour $1$ is
-$\{0,2,5,6,8\}$; it contains the progression $2,5,8$, which yields the
-sublattice $\{\emptyset,D,D\cup X,D\cup X',D\cup X\cup X'\}$ with $|D|=2$
-and $|X|=|X'|=3$, and by the computation no monochromatic sublattice has
-six members.
-
-The table shows $F$ separating from $f$ at $n=5$. We do not conjecture
-that $f(n)=\lceil(n+1)/2\rceil$ for all $n$.
+The first bound is the smaller one for $n<210$ and the second for
+$n\ge263$. Both bounds come from the random colouring, and the gap
+between them and the lower bound $\lceil(n+1)/2\rceil$ is the subject of
+Question~\ref{q:f}.
 
 %======================================================================
 \section{Formal verification}
 \label{sec:lean}
 
-The following statements have been formalised and checked in Lean~4
-\cite{MU21} with the Mathlib library \cite{Mathlib20}, version~4.34.1 of
-both. The development contains no unproved steps, and for each statement
-below Lean reports that the proof uses only the three standard axioms
-(propositional extensionality, the axiom of choice and the soundness of
-quotient types). In the formalisation the ground set is the type of $n$
-elements, a colouring is a Boolean function on its subsets, and $F(n)$
-and $f(n)$ are defined literally as minima over all colourings of the
-size of the largest monochromatic family closed under union, respectively
-under union and intersection. It is also checked that $F(n)$ is the
-largest $m$ such that every colouring has a monochromatic union-closed
-family of at least $m$ sets.
+The results of Sections~\ref{sec:cubes}--\ref{sec:f} have been
+formalised in Lean~4 \cite{MU21}, version~4.34.1, with the Mathlib
+library \cite{Mathlib20} at the release of the same version number. The
+development contains no unproved steps, and for each statement listed
+below Lean reports that the proof uses only the three standard axioms of
+its logic, namely propositional extensionality, the axiom of choice and
+the soundness of quotient types.\footnote{These axioms are part of the
+foundations on which Mathlib is built. In particular, no statement relies
+on an additional axiom or on evaluating code in place of a proof.}
+
+In the formalisation the ground set is the type of $n$ elements, a
+$k$-colouring is a function from its subsets to a finite type with $k$
+elements, and $F_k(n)$, $F(n)$ and $f(n)$ are defined literally as the
+minimum over all colourings of the largest size of a monochromatic
+family that is closed under union, respectively under union and
+intersection. It is also proved that $F_k(n)$ is the largest $m$ such that
+every $k$-colouring has a monochromatic union-closed family of at least
+$m$ sets. The following statements are checked.
 
 \begin{enumerate}[label=(\arabic*),leftmargin=2em]
-\item $\lceil(n+1)/2\rceil\le f(n)\le F(n)$ for every $n$.
-\item $F(n)\le\sum_{j<d}\binom nj$ whenever $nd+2<2^{d}$; and $F(n)\le
-d\,n^{d}$ for $n\ge2$ with $d=2(\lfloor\log_2n\rfloor+1)$.
-\item For every $\eps>0$, $F(n)<(1+\eps)^{n}$ for all large $n$; and
-$F(n)<2^{n}$ for $n\ge1$.
-\item For every $t\ge1$ there are positive integers $M$ and $K$ such that
-\[
-\Bigl(\Bigl\lfloor\frac{\lfloor(n-1)/M\rfloor}{2}\Bigr\rfloor+1-t\Bigr)^{t+1}
-\le K\,F(n)\qquad(n\ge1),
-\]
-with subtraction truncated at zero. This is Theorem~\ref{thm:lower} with
-a constant of the same kind.
-\item For every $c\in\mathbb{N}$, $n^{c}<F(n)$ for all large $n$.
-\item The first conjecture: there is $\omega:\mathbb{N}\to\mathbb{R}$ with
-$\omega(n)\to\infty$ and $n^{\omega(n)}\le F(n)$ for every $n$. The second
-conjecture: there is $\eps:\mathbb{N}\to\mathbb{R}$ with $\eps(n)\to0$
-and $F(n)<(1+\eps(n))^{n}$ for every $n\ge1$. Their conjunction is proved
-as a single theorem.
+\item The bound \eqref{eq:trivial}, and $F_k(n)\le F(n)$ for $k\ge2$.
+\item Theorem~\ref{thm:lower} in the stated form
+$n^{t+1}\le k^{2^{t}+1}t^{t}(4M^{2})^{t+1}F_k(n)$ for $n\ge1$, and the
+bound $F(n)\ge n^{t}$ for $n\ge2^{(t+2)^{2}2^{t}}$, together with
+Lemmas~\ref{lem:shape}--\ref{lem:average} and
+Propositions~\ref{prop:glue} and~\ref{prop:saturation} in the form in
+which the proof uses them.
+\item Lemma~\ref{lem:indep} and Theorem~\ref{thm:upper}, both the bound
+$F(n)\le\sum_{j<d}\binom nj$ and the two explicit forms, with the
+Sauer--Shelah lemma taken from Mathlib.
+\item Corollary~\ref{cor:conj}: part~(i) with the stated $\omega(n)$ and
+$\omega(n)\to\infty$, parts (ii)--(iv), and the conjunction of the two
+conjectures in the form \eqref{eq:conj} as a single theorem.
+\item Proposition~\ref{prop:random}, Lemma~\ref{lem:subfamily} and
+Proposition~\ref{prop:count}.
+\item Corollary~\ref{cor:hilbertlemma}, Theorem~\ref{thm:hilbert},
+Proposition~\ref{prop:AP}, Theorem~\ref{thm:vdw}, derived from Mathlib's
+Hales--Jewett theorem as described above, and Theorem~\ref{thm:howorka},
+proved for every number $W$ with the property that defines $W_k(p)$.
+\item Lemmas~\ref{lem:structure}--\ref{lem:count} and
+Theorem~\ref{thm:f}.
 \end{enumerate}
 
-The formal proof of (4) follows Sections~\ref{sec:cubes}--\ref{sec:lower}
-with two changes. The cube lemma is replaced by Mathlib's Hales--Jewett
-theorem, as explained in Remark~\ref{rem:hj}, and the probabilistic
-language is replaced by counting: permutations and size vectors are
-counted rather than sampled, and Lemma~\ref{lem:average} becomes a double
-counting over the product of the two sets. The random colouring in (2) is
-replaced in the same way by a count of colourings. Theorem~\ref{thm:f}
-apart from the trivial lower bound, Propositions~\ref{prop:random},
-\ref{prop:colours} and~\ref{prop:chain}, the results of
-Section~\ref{sec:card},
-Remark~\ref{rem:growth} and the computations of Section~\ref{sec:small}
-are not formalised.
+The formal proofs follow the arguments given here, with one change of
+language: probabilities are replaced by counts. Permutations and size
+vectors are counted rather than sampled, so that Lemma~\ref{lem:average}
+becomes a double counting over the product of the two sets, and the
+random colourings of Sections~\ref{sec:upper} and~\ref{sec:f} are
+replaced by counts of colourings. The box inequality is proved for sums
+over all pairs of points, which is Lemma~\ref{lem:box} multiplied by
+$|G|^{2t}$. Outside the formal development remain only the figures and
+the elementary asymptotic rewritings of the proved bounds, such as
+$\omega(n)=(1-o(1))\log_2\log_2n$ in Corollary~\ref{cor:conj} and
+$n^{\log_2\log_2n-2-o(1)}$ after Proposition~\ref{prop:random}.
 
 %======================================================================
 \section{Questions}
@@ -1352,30 +1481,45 @@ the two functions, above all of $F$.
 \begin{question}
 \label{q:F}
 What is the order of magnitude of $\log F(n)/\log n$? By
-Corollary~\ref{cor:conj} and Remark~\ref{rem:growth} it tends to infinity
-and is at most $(1+o(1))\log_2n$. Is $F(n)=n^{\Theta(\log n)}$? For the
-random colouring the answer lies between $\log_2\log_2n$ and $\log_2n$ by
-Proposition~\ref{prop:random} and the proof of Theorem~\ref{thm:upper},
-and even there we do not know which end is closer to the truth.
+Corollary~\ref{cor:conj} it lies between $(1-o(1))\log_2\log_2n$ and
+$(1+o(1))\log_2n$. Is $F(n)=n^{\Theta(\log\log n)}$, or is
+$F(n)=n^{\Theta(\log n)}$?
 \end{question}
 
+The random colouring is the natural candidate for an upper bound, and by
+Proposition~\ref{prop:random} it cannot give anything below
+$n^{(1-o(1))\log_2\log_2n}$. Proposition~\ref{prop:count} reduces the
+matching upper bound to a count.
+
 \begin{question}
+\label{q:count}
+Is there a constant $C$ such that $U(n,N)<2^{N-1}$ for all large $n$ and
+all $N\ge n^{C\log_2\log_2n}$?
+\end{question}
+
+A positive answer would give $F(n)<n^{C\log_2\log_2n}$ by
+Proposition~\ref{prop:count}, and together with
+Corollary~\ref{cor:conj}(i) it would determine $\log F(n)/\log n$ up to a
+constant factor, answering Question~\ref{q:F} in favour of
+$n^{\Theta(\log\log n)}$. By Corollary~\ref{cor:conj}(i) the inequality
+fails for $N\le n^{\omega(n)}$, so the threshold in Question~\ref{q:count}
+cannot be lowered below $n^{(1-o(1))\log_2\log_2n}$.
+
+\begin{question}
+\label{q:f}
 Is $f(n)=O(n)$? Is $f(n)=\lceil(n+1)/2\rceil$ for every $n$?
-Proposition~\ref{prop:chain} shows that the random colouring cannot
-settle the first question.
 \end{question}
 
-\begin{question}
-Can the factor $(t+2)^{-M(t)}$ in Proposition~\ref{prop:saturation} be
-improved substantially? A density version of Lemma~\ref{lem:hjcube} with
-a good bound would improve the growth of $\omega$ in
-Remark~\ref{rem:growth}.
-\end{question}
+The lower bound $\lceil(n+1)/2\rceil$ comes from a single chain, and the
+upper bounds of Theorem~\ref{thm:f} from counting sublattices in a
+random colouring, which leaves a factor of order $(\log n)^{2}$ between
+them.
 
 %======================================================================
 \section*{Data availability}
 
-The code, data and Lean formalisation behind this paper are available at
+The Lean formalisation of the results of this paper and the sources of
+the paper are available at
 \href{https://doi.org/\zenododoi}{https://doi.org/\zenododoi}. Claude
 (Anthropic) assisted with the coding.
 
@@ -1386,13 +1530,13 @@ The code, data and Lean formalisation behind this paper are available at
 \bibitem[AHS24]{AHS24}
 R.~Alweiss, B.~Huang and M.~Sellke,
 \emph{Improved lower bound for Frankl's union-closed sets conjecture},
-Electron. J. Combin. \textbf{31} (2024), no.~3, Paper No.~3.35.
+Electron. J. Combin. \textbf{31} (2024), no.~3, Paper No.~P3.35.
 \href{https://doi.org/10.37236/12232}{doi:10.37236/12232}
 
 \bibitem[Bi37]{Bi37}
 G.~Birkhoff,
 \emph{Rings of sets},
-Duke Math. J. \textbf{3} (1937), no.~3.
+Duke Math. J. \textbf{3} (1937), no.~3, 443--454.
 \href{https://doi.org/10.1215/S0012-7094-37-00334-X}{doi:10.1215/S0012-7094-37-00334-X}
 
 \bibitem[Bl26]{Bl26}
@@ -1400,17 +1544,17 @@ T.~F. Bloom,
 \emph{Erd\H{o}s Problem \#1183},
 \url{https://www.erdosproblems.com/1183}, accessed 30 September 2026.
 
-\bibitem[Di50]{Di50}
-R.~P. Dilworth,
-\emph{A decomposition theorem for partially ordered sets},
-Ann. of Math. (2) \textbf{51} (1950), no.~1, 161--166.
-\href{https://doi.org/10.2307/1969503}{doi:10.2307/1969503}
-
 \bibitem[Gi22]{Gi22}
 J.~Gilmer,
 \emph{A constant lower bound for the union-closed sets conjecture},
 preprint (2022),
 \href{https://arxiv.org/abs/2211.09055}{arXiv:2211.09055}.
+
+\bibitem[Go01]{Go01}
+W.~T. Gowers,
+\emph{A new proof of Szemer\'edi's theorem},
+Geom. Funct. Anal. \textbf{11} (2001), no.~3, 465--588.
+\href{https://doi.org/10.1007/s00039-001-0332-9}{doi:10.1007/s00039-001-0332-9}
 
 \bibitem[GRS90]{GRS90}
 R.~L. Graham, B.~L. Rothschild and J.~H. Spencer,
@@ -1437,13 +1581,6 @@ ganzzahligen Coefficienten},
 J. Reine Angew. Math. \textbf{110} (1892), 104--129.
 \href{https://doi.org/10.1515/crll.1892.110.104}{doi:10.1515/crll.1892.110.104}
 
-\bibitem[IMM18]{IMM18}
-A.~Ignatiev, A.~Morgado and J.~Marques-Silva,
-\emph{PySAT: a Python toolkit for prototyping with SAT oracles},
-in: Theory and Applications of Satisfiability Testing, SAT 2018,
-Lecture Notes in Comput. Sci. 10929, Springer, Cham, 2018, 428--437.
-\href{https://doi.org/10.1007/978-3-319-94144-8_26}{doi:10.1007/978-3-319-94144-8\_26}
-
 \bibitem[Mat20]{Mathlib20}
 The mathlib Community,
 \emph{The Lean mathematical library},
@@ -1461,35 +1598,21 @@ Lecture Notes in Comput. Sci. 12699, Springer, Cham, 2021, 625--635.
 \bibitem[Sa72]{Sa72}
 N.~Sauer,
 \emph{On the density of families of sets},
-J. Combin. Theory Ser. A \textbf{13} (1972), 145--147.
+J. Combin. Theory Ser. A \textbf{13} (1972), no.~1, 145--147.
 \href{https://doi.org/10.1016/0097-3165(72)90019-2}{doi:10.1016/0097-3165(72)90019-2}
 
 \bibitem[Sh72]{Sh72}
 S.~Shelah,
 \emph{A combinatorial problem; stability and order for models and
 theories in infinitary languages},
-Pacific J. Math. \textbf{41} (1972), 247--261.
+Pacific J. Math. \textbf{41} (1972), no.~1, 247--261.
 \href{https://doi.org/10.2140/pjm.1972.41.247}{doi:10.2140/pjm.1972.41.247}
-
-\bibitem[Sh88]{Sh88}
-S.~Shelah,
-\emph{Primitive recursive bounds for van der Waerden numbers},
-J. Amer. Math. Soc. \textbf{1} (1988), no.~3, 683--697.
-\href{https://doi.org/10.1090/S0894-0347-1988-0929498-X}{doi:10.1090/S0894-0347-1988-0929498-X}
-
-\bibitem[Si05]{Si05}
-C.~Sinz,
-\emph{Towards an optimal CNF encoding of Boolean cardinality
-constraints},
-in: Principles and Practice of Constraint Programming, CP 2005,
-Lecture Notes in Comput. Sci. 3709, Springer, Berlin, 2005, 827--831.
-\href{https://doi.org/10.1007/11564751_73}{doi:10.1007/11564751\_73}
 
 \bibitem[VC71]{VC71}
 V.~N. Vapnik and A.~Ya. Chervonenkis,
 \emph{On the uniform convergence of relative frequencies of events to
 their probabilities},
-Theory Probab. Appl. \textbf{16} (1971), 264--280.
+Theory Probab. Appl. \textbf{16} (1971), no.~2, 264--280.
 \href{https://doi.org/10.1137/1116025}{doi:10.1137/1116025}
 
 \bibitem[vdW27]{vdW27}
