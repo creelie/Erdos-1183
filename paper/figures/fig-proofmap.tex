@@ -1,26 +1,29 @@
 % How the proof of Theorem 1.1 is put together.
 \begin{tikzpicture}[
     box/.style={draw=black!70, line width=0.6pt, rounded corners=3pt, fill=#1,
-      text width=10.3cm, align=flush left, inner sep=5pt, font=\small},
+      text width=10cm, align=flush left, inner sep=5pt, font=\small},
     box/.default=white,
     arr/.style={-{Stealth[length=6pt]}, line width=0.8pt}]
-  \node[box=gray!8] (cube) {\textbf{Lemma~\ref{lem:hjcube}.} If $|Z|\ge M(t)$, every $2$-colouring of
-    the subsets of $Z$ has a monochromatic $t$-cube $\{U\cup X_I: I\subseteq[t]\}$ inside $Z$.};
-  \node[box=teal!8, below=8mm of cube] (sat) {\textbf{Proposition~\ref{prop:saturation}.} For every
+  \node[box=gray!8] (box) {\textbf{Lemma~\ref{lem:box}.} For $f\ge0$ on $G^{t}$, the product of
+    $f$ over the $2^{t}$ vertices of a random box has mean at least $(\mathbb{E}f)^{2^{t}}$; so a
+    random box in $\{0,\dots,L\}^{t}$ is monochromatic with probability at least $k^{1-2^{t}}$.};
+  \node[box=teal!8, below=8mm of box] (sat) {\textbf{Proposition~\ref{prop:saturation}.} For every
     $r\le n-M$ some shape $(u;a_1,\dots,a_t)$ with $r\le u\le r+M-t$ satisfies
-    $\rho_\chi(u;a)\ge(t+2)^{-M}$.};
+    $\rho_\chi(u;a)\ge k^{-2^{t}}$.};
   \node[box=teal!13, below=8mm of sat] (slice) {\textbf{Lemma~\ref{lem:slices}.} For each level $j$
     and generator set $A$, at least $M^{m-t-1}$ of the $M^m$ size vectors $\beta$ give the cube
     $Q(j,A)$ a good shape.};
   \node[box=teal!18, below=8mm of slice] (avg) {\textbf{Lemma~\ref{lem:average}.} Some ordering
-    $\sigma$ and sizes $\beta$ make at least \mbox{$|\mathcal P|/((t+2)^M M^{t+1})$} of the cubes
+    $\sigma$ and sizes $\beta$ make at least \mbox{$|\mathcal P|/(k^{2^{t}}M^{t+1})$} of the cubes
     monochromatic at once.};
   \node[box=teal!24, below=8mm of avg] (glue) {\textbf{Proposition~\ref{prop:glue}.} Monochromatic
     cubes of one block chain glue into a monochromatic union-closed family, so
-    \mbox{$F(n)\ge |\mathcal P|/(2(t+2)^M M^{t+1})\ge c_t\,n^{t+1}$}.};
-  \foreach \a/\b/\t in {cube/sat/{one of $(t+2)^M$ patterns serves many $\sigma$},
+    \mbox{$F_k(n)\ge|\mathcal P|/(k^{2^{t}+1}M^{t+1})\ge c_{k,t}\,n^{t+1}$}.};
+  \foreach \a/\b/\t in {box/sat/{run along $t$ chains of $L$ points; discard degenerate boxes},
       sat/slice/{tune $t+1$ block sizes, fix the rest},
       slice/avg/{average over $(\sigma,\beta)$},
       avg/glue/{union rule, Lemma~\ref{lem:union}}}
-    \draw[arr] (\a) -- node[right=3pt, font=\footnotesize\itshape, text=black!70] {\t} (\b);
+    \draw[arr] ($(\a.south west)!0.14!(\a.south east)$) --
+      node[right=4pt, font=\footnotesize\itshape, text=black!70] {\t}
+      ($(\b.north west)!0.14!(\b.north east)$);
 \end{tikzpicture}

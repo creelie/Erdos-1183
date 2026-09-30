@@ -1,8 +1,8 @@
 {
-  "title": "Resolution of the Erdős–Ulam conjectures on monochromatic union-closed families (Erdős Problem 1183): paper, code and Lean formalisation",
+  "title": "Resolving Erdős–Ulam Monochromatic Union-Closed Family Conjectures",
   "upload_type": "publication",
   "publication_type": "preprint",
-  "description": "<p>Paper, code and Lean 4 formalisation for Erdős Problem 1183 (Erdős–Ulam). Let F(n) be the largest m such that every 2-colouring of the subsets of {1,…,n} contains a monochromatic union-closed family of m sets, and f(n) the analogous quantity for families closed under union and intersection.</p><p>Both conjectures recorded for the problem are proved. First: for every t ≥ 1 there is c<sub>t</sub> &gt; 0 with F(n) ≥ c<sub>t</sub> n<sup>t+1</sup>, so F(n) ≥ n<sup>ω(n)</sup> for some ω(n) → ∞. The proof glues monochromatic cubes of a chain of disjoint blocks into one union-closed family, using a supersaturated two-letter Hales–Jewett theorem over random orderings and random block sizes. Second: F(n) ≤ Σ<sub>j&lt;d</sub> C(n,j) whenever 2<sup>d</sup> &gt; nd + 2 (random colouring and the Sauer–Shelah lemma), so F(n) ≤ n<sup>(1+o(1)) log₂ n</sup> and F(n) &lt; (1+o(1))<sup>n</sup>.</p><p>Both conjectures, stated as on erdosproblems.com, are machine-checked in Lean 4 with Mathlib, with no sorry and only Lean's standard axioms (propext, Classical.choice, Quot.sound). The paper also shows ⌈(n+1)/2⌉ ≤ f(n) &lt; 12 n (log₂(n+2))², treats colourings by cardinality through Hilbert cubes and van der Waerden's theorem, and computes f(n) for n ≤ 10 and F(n) for n ≤ 7 with a SAT-based search, whose code and witnesses are included. Claude (Anthropic) assisted with the coding.</p>",
+  "description": "<p>We prove both Erdős–Ulam conjectures on monochromatic union-closed families (Erdős Problem 1183). Every two-colouring of the subsets of a finite set contains a monochromatic union-closed family whose size grows faster than any fixed power of the size of the set, while suitable colourings admit no monochromatic union-closed family of exponential size. Both results hold for any number of colours and are verified in Lean.</p><p>This record contains the paper (PDF and LaTeX source with TikZ figures) and the Lean 4 formalisation with Mathlib. Every theorem, proposition, corollary and lemma of the paper is checked in Lean with no sorry, and each audited statement uses only the standard axioms propext, Classical.choice and Quot.sound. Claude (Anthropic) assisted with the coding.</p>",
   "creators": [
     {
       "name": "Bhattacharjee, Deep",
@@ -23,11 +23,11 @@
   "keywords": [
     "Erdős problems",
     "Erdős Problem 1183",
-    "Erdős–Ulam problem",
+    "Erdős–Ulam conjectures",
     "union-closed families",
     "Ramsey theory",
-    "Hales–Jewett theorem",
     "Hilbert cubes",
+    "box norm",
     "van der Waerden's theorem",
     "Sauer–Shelah lemma",
     "Lean 4",
@@ -41,11 +41,6 @@
       "identifier": "https://www.erdosproblems.com/1183",
       "relation": "references",
       "resource_type": "other"
-    },
-    {
-      "identifier": "https://github.com/creelie/erdos-1183",
-      "relation": "isSupplementedBy",
-      "resource_type": "software"
     }
   ]
 }
