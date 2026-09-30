@@ -187,8 +187,8 @@ n^{\log_2n+\log_2\log_2n+1}\ =\ n^{(1+o(1))\log_2n}.
 \]
 \end{theorem}
 
-Together they settle both parts of \eqref{eq:conj}, and they locate the
-exponent $\omega(n)$ below $\log_2n$.
+Together they settle both parts of \eqref{eq:conj}, and they show that
+the exponent $\omega(n)$ can never exceed $(1+o(1))\log_2n$.
 
 \begin{corollary}
 \label{cor:conj}
@@ -263,9 +263,9 @@ B\subseteq A\Bigr\}.
 \]
 \end{theorem}
 
-Different pairs $(j,A)$ may give the same set of integers; there are
-only about $n\,M^{t}$ Hilbert cubes of dimension $t$ in
-$\{0,\dots,n\}$ whose differences are at most $M$. What
+Different pairs $(j,A)$ may give the same set of integers; there are at
+most $(n+1)M^{t}$ Hilbert cubes $H(u;a_1,\dots,a_t)$ in
+$\{0,\dots,n\}$ with all $a_i\le M$. What
 Theorem~\ref{thm:hilbert} provides is one sequence $\beta$ for which a
 fixed proportion of the cubes indexed by the pairs $(j,A)$ have a common
 colour, all of them hanging from the partial sums
@@ -294,9 +294,10 @@ set is permuted by a uniformly random $\sigma$, and each block size is
 chosen at random from $\{1,\dots,M\}$. After a random permutation, the
 probability that a cube is monochromatic depends only on the sizes of its
 parts (Lemma~\ref{lem:shape}). A pigeonhole argument over permutations,
-applied to a two-letter Hales--Jewett theorem, shows that for every
-admissible base size some shape has probability at least $(t+2)^{-M}$ of
-being monochromatic (Proposition~\ref{prop:saturation}). The shape of
+combined with the two-letter case of the multidimensional Hales--Jewett
+theorem, shows that for every $r$ some shape whose base size lies between
+$r$ and $r+M$ has probability at least $(t+2)^{-M}$ of being
+monochromatic (Proposition~\ref{prop:saturation}). The shape of
 $Q(j,A)$ is governed by $t+1$ block sizes, those of $Y_j$ and of $Y_a$ for
 $a\in A$, and these can be tuned independently of all the others
 (Lemma~\ref{lem:slices}). Averaging over $\sigma$ and the block sizes
@@ -323,8 +324,9 @@ least half of its members. That problem concerns the internal structure
 of one family and involves no colouring. Gilmer \cite{Gi22} proved that
 some element lies in a constant proportion of the members, and Alweiss,
 Huang and Sellke \cite{AHS24} improved the constant. The entropy method
-behind these results compares a family with itself, and we see no
-analogue of it here, where the family is not given in advance.
+behind these results compares the union of two independent random
+members of a family with a single random member, and we see no analogue
+of it here, where the family is not given in advance.
 
 Families of $2^{d}$ sets of the form $\{U\cup X_I\}$ are called
 $d$-dimensional Boolean algebras by Gunderson, R\"odl and Sidorenko
@@ -333,9 +335,9 @@ $d$-dimensional affine cubes of integers and complete $d$-partite
 $d$-uniform hypergraphs. The passage between cubes of sets and Hilbert
 cubes of integers used in Section~\ref{sec:card} is of the same kind. The
 cube lemma of Section~\ref{sec:cube} is the two-letter case of the
-multidimensional Hales--Jewett theorem \cite{HJ63}; see \cite{GRS90} for
-the background in Ramsey theory, including van der Waerden's theorem
-\cite{vdW27}. The upper bound rests on the Sauer--Shelah lemma
+multidimensional form of the Hales--Jewett theorem \cite{HJ63}; see
+\cite{GRS90} for this form and for the background in Ramsey theory,
+including van der Waerden's theorem \cite{vdW27}. The upper bound rests on the Sauer--Shelah lemma
 \cite{Sa72,Sh72}, which is also at the root of the theory of
 Vapnik--Chervonenkis dimension \cite{VC71}.
 
@@ -346,8 +348,8 @@ Theorem~\ref{thm:upper} in the form $F(n)\le\sum_{j<d}\binom nj$,
 Theorem~\ref{thm:lower} with a constant of the same kind, and both
 statements of \eqref{eq:conj} have been checked in the Lean proof
 assistant \cite{MU21} using the Mathlib library \cite{Mathlib20}. In the
-formal version the two conjectures are stated exactly as in Bloom's
-formulation \eqref{eq:conj}. Section~\ref{sec:lean} lists what is covered
+formal version the two conjectures are stated directly in the form
+\eqref{eq:conj}, as in Corollary~\ref{cor:conj}(i) and~(ii). Section~\ref{sec:lean} lists what is covered
 and what is not.
 
 \subsection{Organisation}
@@ -370,8 +372,9 @@ Section~\ref{sec:questions} collects open questions.
 Throughout, $\chi$ is a $2$-colouring of $2^{[n]}$ and $S_n$ is the group
 of permutations of $[n]$. A permutation acts on sets and on families of
 sets in the obvious way: $\sigma(S)=\{\sigma(x):x\in S\}$ and
-$\sigma(\cF)=\{\sigma(S):S\in\cF\}$. For a family of sets
-$(X_i)_{i\in I}$ we write $X_I=\bigcup_{i\in I}X_i$.
+$\sigma(\cF)=\{\sigma(S):S\in\cF\}$. For sets $X_1,X_2,\dots$ and a finite
+set $I$ of indices we write $X_I=\bigcup_{i\in I}X_i$, so that
+$X_\emptyset=\emptyset$.
 
 \begin{definition}
 \label{def:cube}
@@ -569,8 +572,8 @@ the letter $1$ exactly at the positions in $S$. A $t$-cube then becomes a
 $t$-dimensional combinatorial subspace: the positions in $U$ carry the
 fixed letter $1$, those outside $T$ the fixed letter $0$, and those in
 $X_i$ the $i$-th variable. Lemma~\ref{lem:hjcube} is therefore the
-multidimensional Hales--Jewett theorem \cite{HJ63} for the alphabet
-$\{0,1\}$, with the bound \eqref{eq:Mt}. The formal proof described in
+multidimensional form of the Hales--Jewett theorem \cite{HJ63} for the
+alphabet $\{0,1\}$, with the bound \eqref{eq:Mt}. The formal proof described in
 Section~\ref{sec:lean} uses the version of the Hales--Jewett theorem in
 Mathlib, which covers every finite alphabet and gives some $M$ without an
 explicit value; nothing else in the argument depends on the value of $M$.
@@ -983,14 +986,14 @@ n^{1/2}$, and let $\omega(n)=0$ if there is no such $k$. The bound is
 then at least $n^{(k-1)/2}\ge n^{k/3}$.
 \end{proof}
 
-Erd\H{o}s recorded this theorem without a reference, and we have not
-found Howorka's proof in print; the argument above is the natural one.
-Proposition~\ref{prop:AP} also constrains the colourings that are optimal
-for $f$ among cardinality colourings. Such a colouring with no
-monochromatic sublattice of more than $\lceil(n+1)/2\rceil$ members can
-contain no monochromatic progression of length $k$ with
-$2^{k-1}>\lceil(n+1)/2\rceil$. The colourings $g_n$ of
-Section~\ref{sec:small} respect this condition.
+The theorem is attributed to Howorka in \cite{Bl26} without a
+reference, and as we have not found Howorka's proof in print we have
+included the short argument above. Proposition~\ref{prop:AP} also restricts the
+cardinality colourings that are extremal for $f$. If no monochromatic
+sublattice has more than $\lceil(n+1)/2\rceil$ members, then $g$ has no
+monochromatic progression of length $k$ with
+$2^{k-1}>\lceil(n+1)/2\rceil$. This condition was used in the search
+for the colouring $g_{10}$ of Section~\ref{sec:small}.
 
 %======================================================================
 \section{The lattice function}
@@ -1058,19 +1061,21 @@ Part (c) is Birkhoff's representation of finite distributive lattices
 
 \begin{lemma}
 \label{lem:posets}
-The number of partial orders of width at most $w$ on the labelled set
+Let $k\ge1$ and $w\ge1$. The number of partial orders of width at most $w$ on the labelled set
 $[k]$ is at most $(k+1)^{k(w+2)}$.
 \end{lemma}
 
 \begin{proof}
-By Dilworth's theorem \cite{Di50} the poset is the union of $w$ chains
-$\Gamma_1,\dots,\Gamma_w$, some possibly empty. Record for each $x\in[k]$
-the index $c(x)$ of its chain, its position $p(x)$ in that chain counted
-from the bottom, and for each $i\le w$ the number $r_i(x)$ of elements of
-$\Gamma_i$ below or equal to $x$. The elements of $\Gamma_i$ below $x$
-form an initial segment of $\Gamma_i$, so $y\le x$ holds exactly when $p(y)\le r_{c(y)}(x)$.
-The data determine the order, and there are at most
-$w^{k}k^{k}(k+1)^{kw}\le(k+1)^{k(w+2)}$ possibilities.
+Put $v=\min(\lfloor w\rfloor,k)$. The width of the poset is at most $v$,
+so by Dilworth's theorem \cite{Di50} it is the union of $v$ disjoint
+chains $\Gamma_1,\dots,\Gamma_v$, some possibly empty. Record for each
+$x\in[k]$ the index $c(x)$ of its chain, its position $p(x)$ in that
+chain counted from the bottom, and for each $i\le v$ the number $r_i(x)$
+of elements of $\Gamma_i$ below or equal to $x$. The elements of
+$\Gamma_i$ below or equal to $x$ form an initial segment of $\Gamma_i$,
+so $y\le x$ holds exactly when $p(y)\le r_{c(y)}(x)$. The data determine
+the order, and there are at most $v^{k}k^{k}(k+1)^{kv}\le(k+1)^{k(v+2)}
+\le(k+1)^{k(w+2)}$ possibilities.
 \end{proof}
 
 \begin{lemma}
@@ -1154,22 +1159,22 @@ $S_0\subset S_1\subset\dots\subset S_{n-1}$ is a monochromatic chain.
 \label{sec:small}
 
 For small $n$ both functions can be computed. Fix $n$ and a target $m$.
-A colouring with no monochromatic closed family of $m$ members (closed
-meaning closed under union for $F$, and under union and intersection for
-$f$) is a satisfying assignment of the Boolean formula in the variables
-$x_S$, $S\subseteq[n]$, that contains, for every closed family $\cF$ with
-$m$ members, the two clauses $\bigvee_{S\in\cF}x_S$ and
-$\bigvee_{S\in\cF}\neg x_S$. These families are far too numerous to list,
+A colouring with no monochromatic closed family of at least $m$ members
+(closed meaning closed under union for $F$, and under union and
+intersection for $f$) is a satisfying assignment of the Boolean formula
+in the variables $x_S$, $S\subseteq[n]$, that contains, for every closed
+family $\cF$ with at least $m$ members, the two clauses
+$\bigvee_{S\in\cF}x_S$ and $\bigvee_{S\in\cF}\neg x_S$. These families are far too numerous to list,
 so we add them only when needed. A SAT solver (CaDiCaL, called through
 PySAT \cite{IMM18}) proposes a colouring that satisfies the clauses
 collected so far, and a branch-and-bound search looks in each colour class
-for a closed family of $m$ members. If it finds one, the two clauses for
-that family are added and the solver is called again. If the search finds
-nothing, the colouring shows that the value is less than $m$; if the
-solver reports that the formula is unsatisfiable, every colouring has a
-monochromatic closed family of $m$ members. The unit clause
-$\neg x_\emptyset$ removes the symmetry $\chi\mapsto1-\chi$, and letting
-$m$ increase gives the exact value.
+for a closed family of at least $m$ members. If it finds one, the two
+clauses for that family are added and the solver is called again. If the
+search finds nothing, the colouring shows that the value is less than
+$m$; if the solver reports that the formula is unsatisfiable, every
+colouring has a monochromatic closed family of at least $m$ members. The
+unit clause $x_\emptyset$ removes the symmetry $\chi\mapsto1-\chi$, and
+letting $m$ increase gives the exact value.
 
 
 \begin{table}[htb]
@@ -1183,7 +1188,8 @@ $F(n)$ & 1&2&2&3&4&5&7& & & \\
 \bottomrule
 \end{tabular}
 \caption{Exact values. The lower bounds for $f$ are \eqref{eq:trivial};
-the upper bounds for $f$ are certified by the colourings $g_n$ below. The
+the upper bounds for $f(n)$, $n\ge3$, are certified by the colourings
+$g_n$ below. The
 values of $F(5)$, $F(6)$ and $F(7)$ rely on unsatisfiability verdicts, as
 explained in the text.}
 \label{tab:small}
@@ -1194,27 +1200,29 @@ further ways. For $n\le4$ all $2^{2^{n}}$ colourings were
 examined directly, without a solver, and the values agree. Every
 colouring that certifies an upper bound was checked by a second program
 that shares no code with the search: for each colour class it encodes the
-existence of a closed subfamily of $m$ members as a separate
+existence of a closed subfamily of at least $m$ members as a separate
 satisfiability problem, with clauses $\neg y_S\vee\neg y_{S'}\vee
 y_{S\cup S'}$ (and the corresponding clauses for intersections when
 checking $f$) and a cardinality constraint $\sum y_S\ge m$ written with
 the sequential counter of Sinz \cite{Si05}; all these problems are
 unsatisfiable. Finally, the lower bounds $F(5)\ge4$, $F(6)\ge5$ and
 $F(7)\ge7$ were recomputed with every family behind an added clause
-checked to be union-closed, of size $m$, and contained in one colour class
-of the colouring that produced it. These lower bounds therefore depend
+checked to be union-closed, to have at least $m$ members, and to lie in
+one colour class of the colouring that produced it. These lower bounds therefore depend
 only on the correctness of the solver's final unsatisfiability verdict.
 The computation for $F(7)$ added $256\,428$ clauses; the one for $f(9)$
 added $14\,190$ clauses and took about twenty minutes on one processor
 core.
 
 For $n\le10$ the value of $f(n)$ is attained by a cardinality colouring.
-The solver found such colourings by itself for $n\le7$; for $n=8$ and $9$
-they were found by adding the clauses $x_S\leftrightarrow x_{S'}$ for
-$|S|=|S'|$, and for $n=10$, where the unrestricted search was not run to
-the end, by listing the cardinality colourings that pass the necessary
-condition of Section~\ref{sec:card} and checking each with the second
-program. Writing $g_n=(g_n(0),\dots,g_n(n))$, the colourings
+For $3\le n\le7$ and for $n=9$ the unrestricted search itself returned
+such a colouring, but for $n=8$ it returned one that is not of this kind.
+The colourings $g_3,\dots,g_7$ below are the ones the search returned;
+$g_8$ and $g_9$ were found by adding the clauses
+$x_S\leftrightarrow x_{S'}$ for $|S|=|S'|$, and $g_{10}$, for which the
+unrestricted search was not run to the end, by listing the cardinality
+colourings that pass the necessary condition of Section~\ref{sec:card}
+and checking each with the second program. Writing $g_n=(g_n(0),\dots,g_n(n))$, the colourings
 {\small
 \begin{align*}
 g_3&=(1,1,0,0), & g_4&=(1,1,0,1,0),\\

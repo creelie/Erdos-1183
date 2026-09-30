@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-f_card_search.py -- find a cardinality colouring g of {0,...,n} with no
+f_card_search_sat.py -- find a cardinality colouring g of {0,...,n} with no
 monochromatic sublattice of more than ceil((n+1)/2) members; such a g
 proves f(n) = ceil((n+1)/2), the lower bound being the trivial chain bound.
 
 Candidates g (with g(0) = 1 and balanced colour counts, as chains force)
-are filtered by the necessary condition of Proposition 6.1 of the paper
+are filtered by the necessary condition of Proposition 6.3 of the paper
 (no monochromatic arithmetic progression of k+1 terms with 2^k > m0,
 m0 = ceil((n+1)/2)), then checked by the SAT encoding of witnesses.py (variant: SAT check only).
 
-Usage: python3 f_card_search.py n
+Usage: python3 f_card_search_sat.py n
 """
 import sys, math, itertools, time
 from small_values import closed_family_of_size
