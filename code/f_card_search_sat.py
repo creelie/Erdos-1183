@@ -5,7 +5,7 @@ monochromatic sublattice of more than ceil((n+1)/2) members; such a g
 proves f(n) = ceil((n+1)/2), the lower bound being the trivial chain bound.
 
 Candidates g (with g(0) = 1 and balanced colour counts, as chains force)
-are filtered by the necessary condition of Proposition 6.3 of the paper
+are filtered by the necessary condition of Proposition 6.2 of the paper
 (no monochromatic arithmetic progression of k+1 terms with 2^k > m0,
 m0 = ceil((n+1)/2)), then checked by the SAT encoding of witnesses.py (variant: SAT check only).
 

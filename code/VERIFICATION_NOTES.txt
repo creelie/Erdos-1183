@@ -1,5 +1,6 @@
 Checks behind the computational and formal claims of
-"On the Erdos-Ulam problem for monochromatic union-closed families"
+"Resolution of the Erdos-Ulam conjectures on monochromatic union-closed
+families"
 (September 2026)
 =====================================================================
 

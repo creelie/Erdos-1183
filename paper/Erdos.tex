@@ -1,4 +1,4 @@
-%% On the Erdos--Ulam problem for monochromatic union-closed families
+%% Resolution of the Erdos--Ulam conjectures on monochromatic union-closed families
 \documentclass[reqno]{aomart}
 
 \usepackage{cmap}
@@ -46,8 +46,8 @@
 \DeclareMathOperator{\ind}{ind}
 \newcommand{\zenododoi}{10.5281/zenodo.23050880}
 
-\title[The Erd\H{o}s--Ulam problem for union-closed families]{On the
-Erd\H{o}s--Ulam problem for monochromatic union-closed families}
+\title[The Erd\H{o}s--Ulam conjectures for union-closed families]{Resolution
+of the Erd\H{o}s--Ulam conjectures on monochromatic union-closed families}
 
 \author[Deep Bhattacharjee]{Deep Bhattacharjee\texorpdfstring{\textsuperscript{$\dagger$}}{}}
 \address{Formerly, Electro-Gravitational Space Propulsion Laboratory (EGSPL),
@@ -89,14 +89,14 @@ Deep Bhattacharjee and Priyabrata Mandal.}
 \sloppy
 
 \begin{abstract}
-We prove the two Erd\H{o}s--Ulam conjectures on monochromatic
-union-closed families. For every fixed exponent, each two-colouring of
-the subsets of a large finite set contains a monochromatic union-closed
-family larger than that power of the size of the set, while suitable
-colourings keep every such family subexponential. The lower bound
-combines a supersaturated Hales--Jewett theorem with chains of disjoint
-blocks; for colourings by cardinality it becomes a statement about
-monochromatic Hilbert cubes. Both proofs are checked in Lean.
+We prove the Erd\H{o}s--Ulam conjectures on monochromatic union-closed
+families, settling both questions of Erd\H{o}s Problem 1183. For every
+fixed exponent, each two-colouring of the subsets of a large finite set
+contains a monochromatic union-closed family larger than that power of
+the size of the set, while suitable colourings keep every such family
+subexponential. The lower bound combines a supersaturated Hales--Jewett
+theorem with chains of disjoint blocks; for cardinality colourings it
+concerns Hilbert cubes. Both proofs are checked in Lean.
 \end{abstract}
 
 \maketitle
@@ -153,7 +153,8 @@ F(n)\ <\ (1+o(1))^{n}.
 \end{equation}
 He also noted that Howorka had proved the first statement for colourings
 in which the colour of a set depends only on its size. We prove both
-statements in \eqref{eq:conj} for arbitrary colourings.
+statements in \eqref{eq:conj} for arbitrary colourings, so that both
+conjectures are settled in full.
 
 \subsection{Results}
 
@@ -190,8 +191,9 @@ n^{\log_2n+\log_2\log_2n+1}\ =\ n^{(1+o(1))\log_2n}.
 Together they settle both parts of \eqref{eq:conj}, and they show that
 the exponent $\omega(n)$ can never exceed $(1+o(1))\log_2n$.
 
-\begin{corollary}
+\begin{corollary}[The Erd\H{o}s--Ulam conjectures]
 \label{cor:conj}
+Both statements in \eqref{eq:conj} hold, in the following form.
 \begin{enumerate}[label=\textup{(\roman*)},leftmargin=2em]
 \item There is a function $\omega:\mathbb{N}\to\mathbb{R}$ with
 $\omega(n)\to\infty$ such that $F(n)\ge n^{\omega(n)}$ for every
@@ -202,6 +204,13 @@ $\eps(n)\to0$ such that $F(n)<(1+\eps(n))^{n}$ for every $n\ge1$.
 $\omega(n)\le(1+o(1))\log_2n$.
 \end{enumerate}
 \end{corollary}
+
+Parts (i) and (ii) are exactly the two statements of \eqref{eq:conj},
+with the term $o(1)$ written out as a function $\eps(n)\to0$, so
+Corollary~\ref{cor:conj} answers both questions of Problem~1183 in the
+affirmative, and in this form both parts are checked
+in Lean (Section~\ref{sec:lean}). The same holds for any fixed number of
+colours (Proposition~\ref{prop:colours}).
 
 The two functions of Erd\H{o}s and Ulam turn out to be of quite
 different sizes. For sublattices the trivial bound \eqref{eq:trivial} is
@@ -748,6 +757,7 @@ a shattered set.
 
 \begin{lemma}
 \label{lem:indep}
+Let $d\ge0$ and $\cF\subseteq2^{[n]}$.
 \begin{enumerate}[label=\textup{(\alph*)},leftmargin=2em]
 \item If $A_1,\dots,A_d$ is an independent system, the $2^{d}-1$ unions
 $\bigcup_{i\in I}A_i$, $\emptyset\ne I\subseteq[d]$, are pairwise
@@ -858,6 +868,47 @@ So for the random colouring the exponent $\omega$ is at least about
 $\log_2\log_2n$, while Theorem~\ref{thm:upper}, which is also proved with
 the random colouring, allows it to be as large as $\log_2n$. We do not
 know where the truth lies (Question~\ref{q:F}).
+
+Both conjectures remain true when more colours are allowed. For $k\ge2$
+let $F_k(n)$ be the least, over all maps $\chi:2^{[n]}\to\{1,\dots,k\}$,
+of the largest size of a union-closed family on which $\chi$ is constant,
+so that $F_2=F$.
+
+\begin{proposition}
+\label{prop:colours}
+Let $k\ge2$. Then $F_k(n)\le F(n)$ for every $n$. Moreover, define
+$M_k(0)=0$ and $M_k(t)=M_k(t-1)+k^{2^{M_k(t-1)}}$ for $t\ge1$; then for
+every $t\ge1$, with $M=M_k(t)$,
+\[
+F_k(n)\ \ge\ \frac{n^{t+1}}{k\,t^{t}(t+2)^{M}(4M^{2})^{t+1}}
+\qquad(n\ge1).
+\]
+Consequently both statements in \eqref{eq:conj} hold with $F_k$ in place
+of $F$.
+\end{proposition}
+
+\begin{proof}
+A $2$-colouring is in particular a $k$-colouring, which gives
+$F_k(n)\le F(n)$; with Corollary~\ref{cor:conj}(ii) this proves the
+second statement for $F_k$. For the lower bound we go through
+Sections~\ref{sec:cubes}--\ref{sec:lower} with a $k$-colouring $\chi$,
+where monochromatic means that $\chi$ is constant. In the proof of
+Lemma~\ref{lem:hjcube} put $N=k^{2^{q}}$; this is the number of
+$k$-colourings of $2^{R}$, so two of the $N+1$ colourings $\varphi_i$
+coincide, and the rest of the argument is unchanged. Hence every
+$k$-colouring of $2^{Z}$ is constant on a $t$-cube inside $Z$ as soon as
+$|Z|\ge M_k(t)$. Lemma~\ref{lem:shape}, the definition of $\rho_\chi$,
+Proposition~\ref{prop:saturation} and Lemmas~\ref{lem:slices}
+and~\ref{lem:average} do not refer to the number of colours, so they
+hold with $M=M_k(t)$ in place of $M(t)$. Since $M_k(t)\ge kt\ge t+1$, the
+estimates in the proof of Theorem~\ref{thm:lower} are also unchanged. In
+Proposition~\ref{prop:glue} one colour class contains at least
+$|\cS|/k$ of the pairs, so the factor $2$ in \eqref{eq:Pbound} becomes
+$k$, and this gives the stated bound for $n\ge4M(t+1)$. For
+$n<4M(t+1)$ the right-hand side is less than $1\le F_k(n)$. The first
+statement for $F_k$ now follows exactly as in the proof of
+Corollary~\ref{cor:conj}(i).
+\end{proof}
 
 %======================================================================
 \section{Cardinality colourings, Hilbert cubes and arithmetic progressions}
@@ -1285,14 +1336,18 @@ language is replaced by counting: permutations and size vectors are
 counted rather than sampled, and Lemma~\ref{lem:average} becomes a double
 counting over the product of the two sets. The random colouring in (2) is
 replaced in the same way by a count of colourings. Theorem~\ref{thm:f}
-apart from the trivial lower bound, Propositions~\ref{prop:random}
-and~\ref{prop:chain}, the results of Section~\ref{sec:card},
+apart from the trivial lower bound, Propositions~\ref{prop:random},
+\ref{prop:colours} and~\ref{prop:chain}, the results of
+Section~\ref{sec:card},
 Remark~\ref{rem:growth} and the computations of Section~\ref{sec:small}
 are not formalised.
 
 %======================================================================
 \section{Questions}
 \label{sec:questions}
+
+With both conjectures settled, what remains open is the precise size of
+the two functions, above all of $F$.
 
 \begin{question}
 \label{q:F}
@@ -1316,14 +1371,6 @@ improved substantially? A density version of Lemma~\ref{lem:hjcube} with
 a good bound would improve the growth of $\omega$ in
 Remark~\ref{rem:growth}.
 \end{question}
-
-The proofs of Theorems~\ref{thm:lower} and~\ref{thm:upper} extend to any
-fixed number $k$ of colours with only notational changes: in
-\eqref{eq:Mt} the term $2^{2^{M(t-1)}}$ becomes $k^{2^{M(t-1)}}$, the
-factor $1/2$ in Proposition~\ref{prop:glue} becomes $1/k$, and in the
-proof of Theorem~\ref{thm:upper} a fixed independent tuple is
-monochromatic with probability $k^{2-2^{d}}$. So both conjectures hold for
-every fixed number of colours. This extension is not formalised.
 
 %======================================================================
 \section*{Data availability}

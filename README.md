@@ -22,6 +22,7 @@ union and intersection (resp. under union only).
 | `F(n) ≥ n^{ω(n)}` for some `ω(n) → ∞` | **Proved**: `F(n) ≥ c_t n^{t+1}` for every `t ≥ 1` | `first_conjecture`, `pow_le_mul_bigF`, `bigF_superpolynomial` |
 | `F(n) < (1+o(1))^n` | **Proved**: `F(n) ≤ Σ_{j<d} C(n,j)` whenever `2^d > nd+2`, so `F(n) ≤ n^{(1+o(1)) log₂ n}` | `second_conjecture`, `bigF_le_sum_choose` |
 | Both together | **Proved** | `erdos_1183 : FirstConjecture ∧ SecondConjecture` |
+| Same for any fixed number of colours | **Proved** in the paper (Proposition 5.3) | not formalised |
 | Estimate `f(n)` | `⌈(n+1)/2⌉ ≤ f(n) < 12 n (log₂(n+2))²`, so `f(n) = n^{1+o(1)}`; `f(n) = ⌈(n+1)/2⌉` for `n ≤ 10` (SAT) | lower bound only: `half_le_smallF` |
 
 `FirstConjecture` and `SecondConjecture` are stated in `lean/Erdos1183/Main.lean`

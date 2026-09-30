@@ -1,5 +1,6 @@
 Code accompanying
-  "On the Erdos-Ulam problem for monochromatic union-closed families"
+  "Resolution of the Erdos-Ulam conjectures on monochromatic union-closed
+   families"
   Deep Bhattacharjee, Priyabrata Mandal and Ushashi Bhattacharya, 2026
 
 These programs compute the small values of f(n) and F(n) reported in
@@ -36,7 +37,7 @@ FILES
                     this is how g_8 and g_9 of the paper were found.
   f_card_search_sat.py
                     enumerates the cardinality colourings g passing the
-                    necessary conditions of Proposition 6.3 and checks each
+                    necessary conditions of Proposition 6.2 and checks each
                     with the independent SAT encoding; used for n = 9, 10
                     (g_10 of the paper).
                     Usage: python3 f_card_search_sat.py n
