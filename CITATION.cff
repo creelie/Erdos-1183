@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Monochromatic Union-Closed Families in the Boolean Lattice (Erdős Problem 1183), with a Lean 4 formalization"
+type: software
+authors:
+  - family-names: Bhattacharjee
+    given-names: Deep
+    affiliation: "Formerly, Electro-Gravitational Space Propulsion Laboratory (EGSPL), Bhubaneswar, India"
+    orcid: "https://orcid.org/0000-0003-0466-750X"
+    email: d.bhattacharjee@erl-forschung.de
+  - family-names: Mandal
+    given-names: Priyabrata
+    affiliation: "Department of Mathematics, Bioinformatics and Computer Applications, Maulana Azad National Institute of Technology Bhopal, India"
+    orcid: "https://orcid.org/0000-0001-6472-6239"
+    email: priyabrata@manit.ac.in
+  - family-names: Bhattacharya
+    given-names: Ushashi
+    affiliation: "Formerly, National Taiwan University, Taipei, Taiwan"
+    orcid: "https://orcid.org/0009-0002-2254-3914"
+    email: rai.bhattacharya.in@gmail.com
+repository-code: "https://github.com/creelie/erdos-1183"
+license: CC-BY-4.0
+date-released: 2026-09-30
+keywords:
+  - Erdős problems
+  - union-closed families
+  - Ramsey theory
+  - Sauer–Shelah lemma
+  - Lean 4

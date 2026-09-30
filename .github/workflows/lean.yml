@@ -1,0 +1,25 @@
+name: Lean
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lean
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: lean
+          use-github-cache: true
+      - name: No sorry / admit / axiom declarations
+        run: |
+          ! grep -rnE '\b(sorry|admit)\b|^\s*axiom\s' Erdos1183 Erdos1183.lean
+      - name: Axiom audit
+        run: |
+          lake env lean Check.lean | tee axioms.txt
+          ! grep -q sorryAx axioms.txt

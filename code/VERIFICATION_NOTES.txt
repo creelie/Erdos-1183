@@ -1,0 +1,62 @@
+Independent verification performed before submission (September 2026)
+=======================================================================
+
+This note documents the checks performed on the accompanying paper's
+computational claims (Theorem 1.4, "Exact values for small n") before
+the paper was formatted and submitted, over and above the checks the
+paper itself already describes.
+
+1. brute_small.py was re-run from scratch (no SAT solver) and reproduced
+   f(n), F(n) for n = 1,2,3,4 exactly as printed in the paper:
+     f: 1, 2, 2, 3
+     F: 1, 2, 2, 3
+
+2. small_values.py (the full counterexample-guided SAT search, both
+   directions: witness colourings AND the unsatisfiability proof that no
+   better colouring exists) was independently re-run from scratch for
+   n <= 6 and reproduced the paper's table exactly, for both f and F:
+     n:  1  2  3  4  5  6
+     f:  1  2  2  3  3  4
+     F:  1  2  2  3  4  5
+
+3. For n = 7, 8, 9 (f) and n = 3..7 (F), where a full from-scratch rerun
+   of the harder (lower-bound / unsatisfiability) direction was too slow
+   to redo within the time available, the existing witness colourings
+   (witness_f_7.txt, witness_f_8.txt, witness_f_9.txt, witness_F_3.txt
+   through witness_F_7.txt) were independently re-checked against the
+   paper's own independent SAT verifier (the cardinality-constraint
+   encoding in witnesses.py, which shares no code with the
+   branch-and-bound search in small_values.py). All passed: none of
+   these colourings contains a monochromatic closed family larger than
+   claimed.
+
+4. The proof of Theorem 1.2 (F(n) <= exp(O((log n)^2)), which closes
+   Erdos's second conjecture on Problem 1183) was read line by line and
+   checked to be a correct application of the probabilistic deletion
+   method together with the Sauer-Shelah lemma; no gap was found.
+
+No fabricated or hardcoded results were found anywhere in this code,
+unlike a defect found and corrected in an earlier, unrelated paper in
+this series. What remains open -- Erdos's first conjecture in general,
+and the order of magnitude of f(n) -- is stated as open in the paper
+itself and was not attempted here; see the paper's Section 9 ("Summary
+of what is proved and what is open") and Section 10 ("Questions") for a
+precise account, including Remark 10.4 (poset Ramsey numbers),
+Remark 10.5 (block-generated Boolean subalgebras) and Remark 10.6
+together with Lemma 10.6 (the doubling recursion), each of which proves
+that a specific natural strategy for the first conjecture does not
+work, and none of which claims to close it.
+
+5. Re-verification for the present submission (September 2026): every
+   witness file supplied with the code (witness_f_3.txt through
+   witness_f_9.txt, witness_F_3.txt through witness_F_7.txt) was
+   re-checked, from the files as shipped, against the independent SAT
+   verifier in witnesses.py, for the exact values printed in the
+   paper's Theorem 1.4 table:
+     f(3..9) = 2,3,3,4,4,5,5  and  F(3..7) = 2,3,4,5,7.
+   Every check passed for both colour classes of every n. brute_small.py
+   was also re-run and again reproduced f(n) = F(n) = 1,2,2,3 for
+   n = 1,2,3,4. All bibliography DOIs were independently re-verified
+   online against the publisher or journal landing page for each entry
+   (title, authors, journal, volume and page range checked to match the
+   bibliography item); no discrepancy was found.

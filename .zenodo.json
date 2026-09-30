@@ -1,0 +1,48 @@
+{
+  "title": "Monochromatic Union-Closed Families in the Boolean Lattice (Erdős Problem 1183), with a Lean 4 formalization",
+  "upload_type": "publication",
+  "publication_type": "preprint",
+  "description": "<p>Paper, code and Lean 4 formalization for Erdős Problem 1183 (Erdős–Ulam). Let F(n) be the largest m such that every 2-colouring of the subsets of {1,…,n} contains a monochromatic union-closed family of m sets. Via a first-moment argument and the Sauer–Shelah lemma, F(n) ≤ Σ_{j&lt;d} C(n,j) whenever 2^d &gt; nd + 2, so F(n) ≤ n^{(1+o(1)) log₂ n} and F(n) &lt; (1+ε)^n for every ε &gt; 0 and all large n. This settles Erdős's second conjecture for the problem. The bound, the asymptotic statement, and the trivial lower bound ⌈(n+1)/2⌉ ≤ f(n) ≤ F(n) are machine-checked in Lean 4 with Mathlib, with no sorry and no axioms beyond Lean's standard ones. Erdős's first conjecture (F(n) &gt; n^c for every fixed c) remains open and is not claimed. The deposit also contains the SAT-based code computing f(n) for n ≤ 10 and F(n) for n ≤ 7.</p>",
+  "creators": [
+    {
+      "name": "Bhattacharjee, Deep",
+      "affiliation": "Formerly, Electro-Gravitational Space Propulsion Laboratory (EGSPL), Bhubaneswar, India",
+      "orcid": "0000-0003-0466-750X"
+    },
+    {
+      "name": "Mandal, Priyabrata",
+      "affiliation": "Department of Mathematics, Bioinformatics and Computer Applications, Maulana Azad National Institute of Technology Bhopal, India",
+      "orcid": "0000-0001-6472-6239"
+    },
+    {
+      "name": "Bhattacharya, Ushashi",
+      "affiliation": "Formerly, National Taiwan University, Taipei, Taiwan",
+      "orcid": "0009-0002-2254-3914"
+    }
+  ],
+  "keywords": [
+    "Erdős problems",
+    "Erdős Problem 1183",
+    "union-closed families",
+    "Ramsey theory",
+    "Vapnik–Chervonenkis dimension",
+    "Sauer–Shelah lemma",
+    "Lean 4",
+    "Mathlib",
+    "formal verification"
+  ],
+  "license": "cc-by-4.0",
+  "language": "eng",
+  "related_identifiers": [
+    {
+      "identifier": "https://www.erdosproblems.com/1183",
+      "relation": "references",
+      "resource_type": "other"
+    },
+    {
+      "identifier": "https://github.com/creelie/erdos-1183",
+      "relation": "isSupplementedBy",
+      "resource_type": "software"
+    }
+  ]
+}

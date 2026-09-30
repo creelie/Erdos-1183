@@ -1,0 +1,1459 @@
+% ============================================================
+%  Monochromatic Union-Closed Families in the Boolean Lattice
+% ============================================================
+\documentclass[reqno]{aomart}
+
+\usepackage{cmap}
+\usepackage{amsmath,amsfonts,mathtools,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{enumitem}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=red,urlcolor=blue}
+\usepackage{booktabs,array}
+
+\linespread{1.08}
+\emergencystretch=2em
+\raggedbottom
+\setlength{\parskip}{3pt}
+
+\numberwithin{equation}{section}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{question}[theorem]{Question}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\Ex}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\cL}{\mathcal{L}}
+\newcommand{\cY}{\mathcal{Y}}
+\newcommand{\cJ}{\mathcal{J}}
+\newcommand{\eps}{\varepsilon}
+\DeclareMathOperator{\ind}{ind}
+\DeclareMathOperator{\vc}{vc}
+\DeclareMathOperator{\Down}{Down}
+\DeclareMathOperator{\width}{w}
+
+\title{Monochromatic Union-Closed Families in the Boolean Lattice}
+
+\author[Deep Bhattacharjee]{Deep Bhattacharjee\textsuperscript{\dag}}
+\address{Formerly, Electro-Gravitational Space Propulsion Laboratory (EGSPL),
+  Bhubaneswar, Odisha 751030, India}
+\email{d.bhattacharjee@erl-forschung.de}
+\email{itsdeep@live.com}
+\orcid{\href{https://orcid.org/0000-0003-0466-750X}{0000-0003-0466-750X}}
+\thanks{\textsuperscript{\dag}\,Corresponding author.
+\textsuperscript{\dag,\ddag}\,Deep Bhattacharjee and Priyabrata Mandal
+contributed equally to this work and are joint first authors.}
+
+\author[Priyabrata Mandal]{Priyabrata Mandal\textsuperscript{\ddag}}
+\address{Department of Mathematics, Bioinformatics and Computer
+  Applications, Maulana Azad National Institute of Technology Bhopal,
+  Bhopal 462003, India}
+\email{priyabrata@manit.ac.in}
+\orcid{\href{https://orcid.org/0000-0001-6472-6239}{0000-0001-6472-6239}}
+
+\author{Ushashi Bhattacharya}
+\address{Formerly, National Taiwan University, Taipei 106319, Taiwan}
+\email{rai.bhattacharya.in@gmail.com}
+\orcid{\href{https://orcid.org/0009-0002-2254-3914}{0009-0002-2254-3914}}
+
+\subjclass[2020]{Primary 05D05; Secondary 05D10, 06D05}
+\keyword{union-closed families}
+\keyword{Ramsey theory}
+\keyword{Vapnik--Chervonenkis dimension}
+\date{September 2026}
+
+\copyrightnote{}
+\fancypagestyle{firstpage}{%
+  \fancyhf{}%
+  \cfoot{\footnotesize\thepage}}
+
+\begin{document}
+\sloppy
+\begin{abstract}
+Let $f(n)$ be the largest integer such that every $2$-colouring of the
+subsets of $\{1,\dots,n\}$ contains a monochromatic family of at least
+$f(n)$ sets closed under union and intersection, and let $F(n)$ be the
+analogous quantity for families closed under union only. Erd\H{o}s and
+Ulam asked for the order of magnitude of both functions; Erd\H{o}s
+recorded the trivial bound $f(n)\ge(n+1)/2$, wrote that there was no
+plausible conjecture for the true order of $f(n)$, and conjectured that
+$F(n)>n^{c}$ for every constant $c$ and that $F(n)<(1+\eps)^n$ for every
+$\eps>0$. Random colourings give $f(n)\le n^2+n+1$ and
+$f(n)<12n(\log_2(n+2))^2$, and, through the Sauer--Shelah lemma,
+$F(n)\le\sum_{j<d}\binom nj$ whenever $2^d>nd+2$, so that
+$F(n)\le n^{(1+o(1))\log_2n}$; this proves the second conjecture. The
+limits of the random method are located: a random colouring contains, in
+expectation, a monochromatic union-closed family of size
+$n^{(1+o(1))\log_2\log_2n}$ and, with probability at least $1/2$, a
+monochromatic chain of $n$ sets. Exact values are computed by a
+counterexample-guided satisfiability search: $f(n)=\lceil(n+1)/2\rceil$ for
+$1\le n\le10$, so that the trivial lower bound is sharp in this range, and
+$F(n)$ is determined for $n\le7$; for $n\le10$ the extremal colourings for
+$f$ can be chosen to depend only on the cardinality of the set, and these
+colourings are listed. The upper bound for $F(n)$, the resolution of the
+second conjecture, and the trivial lower bound are formally verified in
+Lean~4 with Mathlib.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:intro}
+
+Write $[n]=\{1,\dots,n\}$ and $2^{[n]}$ for the family of all subsets of
+$[n]$. A \emph{$2$-colouring} is a map $\chi:2^{[n]}\to\{0,1\}$, and a
+family $\cF\subseteq2^{[n]}$ is \emph{monochromatic} if $\chi$ is constant
+on $\cF$. A family is \emph{union-closed} if $A\cup B\in\cF$ whenever
+$A,B\in\cF$, and it is a \emph{sublattice} if it is closed under both union
+and intersection. Every nonempty family with one member is closed under
+both operations, so the following quantities are well defined:
+\begin{align*}
+f(n)&=\min_{\chi}\ \max\bigl\{|\cL|:\ \cL\subseteq2^{[n]}
+\text{ a monochromatic sublattice}\bigr\},\\
+F(n)&=\min_{\chi}\ \max\bigl\{|\cF|:\ \cF\subseteq2^{[n]}
+\text{ a monochromatic union-closed family}\bigr\},
+\end{align*}
+the minima being over all $2$-colourings of $2^{[n]}$. Clearly
+$F(n)\ge f(n)$. A maximal chain $\emptyset\subset\{1\}\subset\{1,2\}
+\subset\dots\subset[n]$ has $n+1$ members, at least $\lceil(n+1)/2\rceil$
+of one colour, and every subchain is a sublattice; hence
+\begin{equation}
+\label{eq:trivial}
+F(n)\ \ge\ f(n)\ \ge\ \Bigl\lceil\frac{n+1}2\Bigr\rceil .
+\end{equation}
+
+The problem of estimating $f(n)$ and $F(n)$ was raised by Erd\H{o}s and
+Ulam; Erd\H{o}s recorded it in \cite{Er78}, where he wrote that
+\eqref{eq:trivial} was all they could say about $f(n)$ and that they had
+no plausible conjecture for its true order of magnitude. For $F(n)$ he
+conjectured that $F(n)>n^{c}$ for every constant $c$ and all $n>n_0(c)$,
+and that $F(n)<(1+\eps)^n$ for every $\eps>0$ and all large $n$; he also
+recorded, without reference, a result of Howorka that the first
+conjecture holds for colourings in which all sets of the same cardinality
+receive the same colour. The problem is Problem 1183 in Bloom's database
+\cite{Bl26}, where it is listed as open with no further progress.
+
+\subsection{Results}
+
+The first two results are upper bounds obtained from random colourings.
+Logarithms are to base $2$.
+
+\begin{theorem}
+\label{thm:f}
+For every $n\ge1$,
+\[
+f(n)\ \le\ n^2+n+1
+\qquad\text{and}\qquad
+f(n)\ <\ 12\,n\,(\log_2(n+2))^2 .
+\]
+\end{theorem}
+
+\begin{theorem}
+\label{thm:F}
+Let $n\ge1$ and let $d\ge1$ be an integer with $2^d>nd+2$. Then
+\[
+F(n)\ \le\ \sum_{j=0}^{d-1}\binom nj .
+\]
+In particular, for $n\ge32$ one may take
+$d=\lceil\log_2n+\log_2\log_2n\rceil+1$, and then
+\[
+F(n)\ \le\ n^{\,\log_2n+\log_2\log_2n+1}
+=\exp\bigl((1+o(1))(\log_2 n)(\ln n)\bigr),
+\]
+so that $F(n)^{1/n}\to1$: the second conjecture of Erd\H{o}s holds, in
+the strong form $F(n)\le\exp(O((\log n)^2))$.
+\end{theorem}
+
+Theorem~\ref{thm:F} together with \eqref{eq:trivial} places $F(n)$
+between $(n+1)/2$ and $n^{(1+o(1))\log_2n}$. The next result shows that
+the random colouring, which is the only tool in
+Theorems~\ref{thm:f} and~\ref{thm:F}, cannot close this gap to a
+polynomial, and cannot bring $f(n)$ below $n$.
+
+\begin{theorem}
+\label{thm:limits}
+Let $\chi$ be a uniformly random $2$-colouring of $2^{[n]}$.
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2em]
+\item With probability at least $1/2$ there is a monochromatic chain of
+at least $n$ sets; consequently, with probability at least $1/2$, there is
+a monochromatic sublattice of size at least $n$.
+\item The expected size of the largest monochromatic union-closed family
+is at least
+\[
+\sum_{j=0}^{n}\binom nj2^{1-2^j}\ \ge\ \frac2n\Bigl(\frac n{j_0}\Bigr)^{j_0}
+\qquad(n\ge4,\ j_0=\lfloor\log_2\log_2n\rfloor),
+\]
+and hence at least $n^{\log_2\log_2n-2-o(1)}$.
+\end{enumerate}
+\end{theorem}
+
+The exponent $\log_2\log_2n$ in (ii) and the exponent $\log_2n$ in
+Theorem~\ref{thm:F} are the two sides of the same phenomenon: the
+union-closed families that a random colouring cannot avoid are the
+complements of the down-sets $\{Y:\chi([n]\setminus Y')=\chi([n])
+\text{ for all }Y'\subseteq Y\}$, which have Vapnik--Chervonenkis dimension
+about $\log_2\log_2n$, while the Sauer--Shelah bound used in
+Theorem~\ref{thm:F} only controls the dimension up to about $\log_2n$.
+
+The last result is computational and concerns small $n$.
+
+\begin{theorem}
+\label{thm:small}
+The exact values of $f(n)$ and $F(n)$ for small $n$ are as follows.
+\[
+\begin{array}{c|cccccccccc}
+n & 1&2&3&4&5&6&7&8&9&10\\ \hline
+f(n) & 1&2&2&3&3&4&4&5&5&6\\
+F(n) & 1&2&2&3&4&5&7&&&
+\end{array}
+\]
+In particular $f(n)=\lceil(n+1)/2\rceil$ for $1\le n\le10$, so that the
+trivial bound \eqref{eq:trivial} is sharp for $f$ in this range. For each
+$n\le10$ there is a colouring attaining $f(n)$ that depends only on the
+cardinality of the set; such colourings are listed in
+Section~\ref{sec:small}.
+\end{theorem}
+
+The computations use a counterexample-guided satisfiability search, described
+in Section~\ref{sec:small}, and the program is supplied with the paper.
+
+\subsection{Organisation}
+Section~\ref{sec:prelim} collects the structure theory of sublattices of
+$2^{[n]}$ (join-irreducibles, Birkhoff's correspondence with down-sets,
+Dilworth's theorem) and of union-closed families (independent systems,
+Vapnik--Chervonenkis dimension, the Sauer--Shelah lemma).
+Section~\ref{sec:f} proves Theorem~\ref{thm:f}, Section~\ref{sec:F}
+proves Theorem~\ref{thm:F}, Section~\ref{sec:limits} proves
+Theorem~\ref{thm:limits}, Section~\ref{sec:small} describes the
+computations behind Theorem~\ref{thm:small}, Section~\ref{sec:questions}
+lists the questions that remain, and Section~\ref{sec:lean} describes the
+Lean formalisation.
+
+\subsection{Related work}
+\label{sec:related}
+
+The problem studied here is easy to confuse with a more famous one that it
+resembles only superficially, so the distinction is worth making precise.
+\emph{Frankl's union-closed sets conjecture} \cite{Fr79}, posed in 1979,
+concerns a single union-closed family $\cF\ne\{\emptyset\}$ of finite sets
+and asks whether some element lies in at least half the members of $\cF$;
+it is a statement about the internal structure of one family, with no
+colouring anywhere in it. It was open in general until Gilmer
+\cite{Gi22} proved in 2022, by an entropy argument, that some
+element lies in at least a fixed positive proportion (he obtained
+$0.01$) of the members of every union-closed family; the constant was
+improved to $0.38234$ by Alweiss, Huang and Sellke \cite{AHS24} shortly
+afterwards, with $0.5$, the full conjecture, still open at the time of
+writing. The problem of the present paper is a Ramsey-type question about
+\emph{every} $2$-colouring of the entire Boolean lattice $2^{[n]}$: it
+asks not whether a given union-closed family is internally balanced, but
+how large a monochromatic union-closed (or intersection-and-union-closed)
+family a colouring is forced to contain. The two problems share only
+their two words ``union-closed''; a positive answer to one has no direct
+bearing on the other, and the entropy method of \cite{Gi22,AHS24}, which
+compares a family to its own down-set, does not seem to have an analogue
+here, since there is no single family to compare a colour class to before
+the colour class itself is fixed.
+
+The Sauer--Shelah lemma (Lemma~\ref{lem:indep}(c)) originates in extremal
+set theory \cite{Sa72,Sh72} and is the combinatorial core of the theory of
+Vapnik--Chervonenkis dimension \cite{VC71} in statistical learning theory
+and of NIP model theory; its use here, bounding a union-closed family by
+the independent systems it contains, is close to its original
+combinatorial form rather than to its statistical applications, and the
+textbook treatments in \cite[Chapter 17]{Bo86} and \cite[Section
+3.4]{St12} cover both the lemma and Dilworth's theorem \cite{Di50} used in
+Lemma~\ref{lem:posets}. Erd\H{o}s's own problem list \cite{Er78} groups
+the question of this paper with several other coloured extremal
+set-theory problems from the same period; Bloom's continuously updated
+database of Erd\H{o}s's problems \cite{Bl26} records the second conjecture
+resolved in Theorem~\ref{thm:F} and the first, left open here, as
+Problem~1183, and is the source of the precise attributions used
+throughout.
+
+\section{Preliminaries}
+\label{sec:prelim}
+
+\subsection{Sublattices of the Boolean lattice}
+
+Throughout this subsection $\cL\subseteq2^{[n]}$ is a sublattice with
+$|\cL|\ge2$, that is, a nonempty family closed under union and
+intersection. Put
+\[
+B_0=\bigcap_{A\in\cL}A\in\cL,\qquad T_0=\bigcup_{A\in\cL}A\in\cL .
+\]
+A member $J\in\cL$ is \emph{join-irreducible} if $J\ne B_0$ and $J$ is
+not the union of the members of $\cL$ properly contained in $J$. Let
+$\cJ(\cL)$ be the set of join-irreducible members and $k=|\cJ(\cL)|$.
+For $x\in T_0\setminus B_0$ put
+\[
+A_x=\bigcap\{A\in\cL:\ x\in A\}\in\cL ,
+\]
+the smallest member of $\cL$ containing $x$. A \emph{down-set} of a
+finite poset $P$ is a subset $D$ with $y\le x\in D\Rightarrow y\in D$;
+$\Down(P)$ denotes the set of down-sets. The \emph{width} $\width(P)$ is the
+largest size of an antichain.
+
+\begin{lemma}[Structure of sublattices]
+\label{lem:structure}
+Let $\cL$ be a sublattice of $2^{[n]}$ with $|\cL|\ge2$.
+\begin{enumerate}[label=\textup{(\alph*)},leftmargin=2em]
+\item For $x\in T_0\setminus B_0$, $A_x$ is join-irreducible, and every
+join-irreducible member is of the form $A_x$.
+\item Every $A\in\cL$ equals $B_0\cup\bigcup\{J\in\cJ(\cL):J\subseteq A\}$.
+\item If $J\in\cJ(\cL)$ and $J\subseteq A\cup A'$ with $A,A'\in\cL$, then
+$J\subseteq A$ or $J\subseteq A'$. The same holds for unions of any
+number of members.
+\item The map $A\mapsto D(A)=\{J\in\cJ(\cL):J\subseteq A\}$ is a
+bijection from $\cL$ onto $\Down(\cJ(\cL),\subseteq)$; in particular
+$|\cL|=|\Down(\cJ(\cL),\subseteq)|$.
+\item $k=|\cJ(\cL)|\le n$, and $\width(\cJ(\cL),\subseteq)\le\log_2|\cL|$.
+\item Define $\psi:[n]\to\cJ(\cL)\cup\{\bot,\top\}$ by $\psi(x)=\bot$ if
+$x\in B_0$, $\psi(x)=\top$ if $x\notin T_0$, and $\psi(x)=A_x$ otherwise.
+Then $\cL=\{A_D:D\in\Down(\cJ(\cL),\subseteq)\}$ with
+$A_D=\{x:\psi(x)=\bot\text{ or }\psi(x)\in D\}$. Consequently $\cL$ is
+determined by the poset $(\cJ(\cL),\subseteq)$, given abstractly on a set of
+$k$ labels, together with the map $\psi$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(a) $A_x\in\cL$ since $\cL$ is closed under intersection and $T_0$ is a
+member containing $x$; $A_x\ne B_0$ since $x\notin B_0$; and if $A_x$ were
+the union of members properly contained in it, one of them would contain
+$x$, contradicting the minimality of $A_x$. Conversely let $J\in\cJ(\cL)$
+and let $U$ be the union of the members of $\cL$ properly contained in
+$J$; since $B_0\subseteq J$ and $B_0\ne J$, $U\in\cL$ and $B_0\subseteq
+U\subsetneq J$. Pick $x\in J\setminus U$. Then $A_x\subseteq J$, and
+$A_x\subsetneq J$ would give $A_x\subseteq U$, which is false; so
+$A_x=J$.
+
+(b) Let $A\in\cL$. Then $B_0\subseteq A$, and for $x\in A\setminus B_0$
+we have $A_x\subseteq A$ with $A_x\in\cJ(\cL)$ by (a), so $A$ is contained
+in the right side; the reverse inclusion is clear.
+
+(c) Since $\cL$ is closed under intersection, $J=J\cap(A\cup A')
+=(J\cap A)\cup(J\cap A')$ with $J\cap A,J\cap A'\in\cL$ contained in $J$.
+If both were proper subsets of $J$, then $J$ would be the union of two
+members properly contained in it, contradicting join-irreducibility.
+Hence $J\cap A=J$ or $J\cap A'=J$. For a union of several members apply
+this repeatedly.
+
+(d) By (b) the map is injective. It takes values in down-sets: if
+$J'\subseteq J\subseteq A$ then $J'\subseteq A$. For surjectivity let $D$
+be a down-set and put $A_D=B_0\cup\bigcup_{J\in D}J\in\cL$. If
+$J\in\cJ(\cL)$ satisfies $J\subseteq A_D$, then by (c) applied to the
+union $B_0\cup\bigcup_{J'\in D}J'$ we have $J\subseteq B_0$, impossible as
+$B_0\subsetneq J$, or $J\subseteq J'$ for some $J'\in D$, whence $J\in D$
+as $D$ is a down-set. Thus $D(A_D)=D$.
+
+(e) Order $\cJ(\cL)$ by a linear extension $J_1,\dots,J_k$ of $\subseteq$;
+the sets $D_i=\{J_1,\dots,J_i\}$, $0\le i\le k$, are down-sets, so by (d)
+$A_{D_0}\subsetneq A_{D_1}\subsetneq\dots\subsetneq A_{D_k}$ is a chain
+of $k+1$ distinct subsets of $[n]$, whence $k+1\le n+1$. If $S$ is an
+antichain of $\cJ(\cL)$, the $2^{|S|}$ sets $\{J\in\cJ(\cL):J\subseteq
+J'\text{ for some }J'\in S'\}$, $S'\subseteq S$, are distinct down-sets,
+so $2^{\width}\le|\cL|$.
+
+(f) By (d) every member is $A_D=B_0\cup\bigcup_{J\in D}J$ for a unique
+down-set $D$. An element $x\in[n]$ lies in $A_D$ if and only if $x\in B_0$,
+or $x\in T_0\setminus B_0$ and $x\in J$ for some $J\in D$; and for
+$x\in T_0\setminus B_0$, $x\in J$ holds if and only if $A_x\subseteq J$,
+by minimality of $A_x$. Since $D$ is a down-set, $A_x\subseteq J\in D$ for
+some $J$ if and only if $A_x\in D$. This is the displayed description of
+$A_D$, which uses only $\psi$ and the order structure of $\cJ(\cL)$.
+\end{proof}
+
+Part (d) is Birkhoff's representation of finite distributive lattices
+\cite[Theorem 3.4.1]{St12}, specialised to sublattices of $2^{[n]}$; we have
+included the short proof since (c) and (f) are used in exactly this form.
+
+\begin{lemma}[Counting posets of bounded width]
+\label{lem:posets}
+The number of partial orders on the labelled set $[k]$ of width at most
+$w$ is at most $(k+1)^{k(w+2)}$.
+\end{lemma}
+
+\begin{proof}
+Let $P$ be such a poset. By Dilworth's theorem \cite{Di50}, $[k]$ is the
+disjoint union of $w$ chains $C_1,\dots,C_w$ of $P$, some possibly empty.
+Record the following data: for each $x\in[k]$ the index $c(x)\in[w]$ of
+its chain and its position $p(x)\in[k]$ within that chain (counted from the
+bottom); and for each $x\in[k]$ and each $i\in[w]$ the number
+$r_i(x)\in\{0,\dots,k\}$ of elements $y\in C_i$ with $y\le x$. Since
+$y\le x$ and $y'\le y$ with $y'\in C_i$ imply $y'\le x$, the elements of
+$C_i$ below $x$ form an initial segment of $C_i$, and so $y\le x$ holds if
+and only if $p(y)\le r_{c(y)}(x)$. Thus the data determine $P$, and the
+number of possible data is at most $w^k\cdot k^k\cdot(k+1)^{kw}\le
+(k+1)^{k(w+2)}$, using $w\le k$.
+\end{proof}
+
+\begin{lemma}[Counting sublattices]
+\label{lem:count}
+For $m\ge2$, the number $N(m)$ of sublattices $\cL\subseteq2^{[n]}$ with
+$|\cL|=m$ satisfies
+\[
+N(m)\ \le\ \sum_{k=1}^{n}(k+1)^{k(\lfloor\log_2m\rfloor+2)}(k+2)^n
+\ \le\ (n+2)^{\,n(\log_2m+4)} .
+\]
+Moreover the total number of sublattices of $2^{[n]}$ with at least two
+members is at most $2^{n(n+1)}$.
+\end{lemma}
+
+\begin{proof}
+By Lemma~\ref{lem:structure}(f), $\cL$ is determined by a poset on $k$
+labels together with a map $\psi:[n]\to[k]\cup\{\bot,\top\}$, where
+$k\le n$ and the poset has width at most $\log_2m$ by
+Lemma~\ref{lem:structure}(e). Lemma~\ref{lem:posets} bounds the number of
+posets and $(k+2)^n$ bounds the number of maps, which gives the first
+inequality. For the second, each summand is at most
+$(n+1)^{n(\log_2m+2)}(n+2)^n\le(n+2)^{n(\log_2m+2)+n}$, and there are
+$n\le(n+2)^n$ summands. For the last assertion, $\cL$ is determined by
+$B_0$ together with $\cJ(\cL)$, by Lemma~\ref{lem:structure}(b) and the
+fact that $\cL$ consists of all unions $B_0\cup\bigcup_{J\in D}J$; this is
+a list of at most $n+1$ subsets of $[n]$, and there are at most
+$(2^n)^{n+1}$ such lists.
+\end{proof}
+
+\subsection{Union-closed families}
+
+\begin{definition}
+Sets $A_1,\dots,A_d\subseteq[n]$ form an \emph{independent system} if
+each $A_i$ has a \emph{private element}: an $x_i\in A_i$ with
+$x_i\notin A_j$ for all $j\ne i$. The \emph{independence number}
+$\ind(\cF)$ of a family $\cF$ is the largest $d$ for which $\cF$ contains an
+independent system of $d$ sets. A set $X\subseteq[n]$ is \emph{shattered}
+by $\cF$ if $\{A\cap X:A\in\cF\}=2^X$, and the
+\emph{Vapnik--Chervonenkis dimension} $\vc(\cF)$ is the largest size of a
+shattered set.
+\end{definition}
+
+\begin{lemma}
+\label{lem:indep}
+\begin{enumerate}[label=\textup{(\alph*)},leftmargin=2em]
+\item If $A_1,\dots,A_d$ is an independent system, then the $2^d-1$
+unions $\bigcup_{i\in I}A_i$, $\emptyset\ne I\subseteq[d]$, are pairwise
+distinct.
+\item For every family $\cF$, $\vc(\cF)\le\ind(\cF)$.
+\item \textup{(Sauer \cite{Sa72}, Shelah \cite{Sh72}.)} If
+$\vc(\cF)\le d$ then $|\cF|\le\sum_{j=0}^{d}\binom nj$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(a) The private element $x_i$ lies in $\bigcup_{i\in I}A_i$ if and only if
+$i\in I$, so the union determines $I$.
+(b) Let $X=\{x_1,\dots,x_d\}$ be shattered, and for each $i$ choose
+$A_i\in\cF$ with $A_i\cap X=\{x_i\}$. Then $x_i$ is a private element of
+$A_i$ in the system $A_1,\dots,A_d$.
+(c) This is the Sauer--Shelah lemma.
+\end{proof}
+
+\section{Upper bounds for $f(n)$}
+\label{sec:f}
+
+Let $\chi$ be a uniformly random $2$-colouring of $2^{[n]}$: the colours
+$\chi(A)$, $A\subseteq[n]$, are independent and uniform on $\{0,1\}$.
+A fixed family of $m$ sets is monochromatic with probability $2^{1-m}$.
+
+\begin{proof}[Proof of Theorem~\ref{thm:f}, first bound]
+Let $M=n^2+n+2$. By Lemma~\ref{lem:count} there are at most $2^{n(n+1)}$
+sublattices with at least two members, so the expected number of
+monochromatic sublattices with at least $M$ members is at most
+$2^{n(n+1)}\cdot2^{1-M}=2^{-1}<1$. Hence some colouring has no
+monochromatic sublattice with $M$ or more members, and $f(n)\le M-1$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:f}, second bound]
+For $n\le2$ the bound is weaker than the trivial $f(n)\le2^n$, so let
+$n\ge3$ and put $\ell=\log_2(n+2)\ge\log_25>2.32$, $A=n\ell$ and
+$M=\lceil12n\ell^2\rceil$. By Lemma~\ref{lem:count}, for every $m\ge2$,
+\[
+N(m)\,2^{1-m}\le2^{A(\log_2m+4)+1-m}.
+\]
+Let $\varphi(m)=m/2-A(\log_2m+4)-1$. We claim $\varphi(m)\ge0$ for all
+real $m\ge M$. The derivative $\varphi'(m)=1/2-A/(m\ln2)$ is positive for
+$m>2A/\ln2$, and $M\ge12n\ell^2>2.9\,n\ell>2A/\ln2$, so it suffices to
+check $\varphi(M)\ge0$. Using $M\le13n\ell^2$ and
+$\log_2\ell\le\ell-1$ (valid for $\ell\ge1$),
+\[
+\log_2M+4\le\log_213+\log_2n+2\log_2\ell+4
+\le3.71+\ell+2(\ell-1)+4=3\ell+5.71,
+\]
+so $A(\log_2M+4)+1\le3n\ell^2+5.71n\ell+1\le6n\ell^2\le M/2$, the middle
+inequality being $3\ell\ge5.71+1/(n\ell)$, which holds as $\ell>2.32$.
+Hence, for $m\ge M$, $N(m)2^{1-m}\le2^{-m/2}$, and the expected number of
+monochromatic sublattices with at least $M$ members is at most
+$\sum_{m\ge M}2^{-m/2}<2^{-M/2}/(1-2^{-1/2})<1$. Some colouring therefore
+has no monochromatic sublattice with $M$ or more members, and
+$f(n)\le M-1<12n\ell^2$.
+\end{proof}
+
+\begin{remark}
+The first bound is the better one for $n\le1500$ or so, the second
+thereafter. Both use only the number of sublattices and the probability
+$2^{1-m}$; the second is limited by the factor $(n+2)^n$ in
+Lemma~\ref{lem:count}, which is really present (there are $n!$ maximal
+chains), so this method cannot give $f(n)=O(n)$. Theorem~\ref{thm:limits}(i)
+shows that the random colouring itself has monochromatic chains of $n$
+sets, so no analysis of the random colouring can bring the bound below
+$n$.
+\end{remark}
+
+\section{Upper bound for $F(n)$}
+\label{sec:F}
+
+\begin{proof}[Proof of Theorem~\ref{thm:F}]
+Let $\chi$ be a uniformly random $2$-colouring and let $d\ge1$ satisfy
+$2^d>nd+2$. Call an ordered $d$-tuple $(A_1,\dots,A_d)$ of subsets of
+$[n]$ \emph{bad} if it is an independent system and all $2^d-1$ unions
+$\bigcup_{i\in I}A_i$, $\emptyset\ne I\subseteq[d]$, have the same colour.
+By Lemma~\ref{lem:indep}(a) these unions are distinct sets, so a fixed
+independent tuple is bad with probability $2^{1-(2^d-1)}=2^{2-2^d}$.
+There are at most $2^{nd}$ tuples, so the expected number of bad tuples
+is at most $2^{nd+2-2^d}<1$. Fix a colouring with no bad tuple.
+
+Let $\cF$ be a monochromatic union-closed family for this colouring. If
+$\cF$ contained an independent system $A_1,\dots,A_d$, then all unions
+$\bigcup_{i\in I}A_i$ would belong to $\cF$ by union-closure and would
+therefore be monochromatic, making the tuple bad. Hence $\ind(\cF)\le d-1$,
+so $\vc(\cF)\le d-1$ by Lemma~\ref{lem:indep}(b), and
+$|\cF|\le\sum_{j\le d-1}\binom nj$ by Lemma~\ref{lem:indep}(c). This
+proves the first assertion.
+
+For the second, let $n\ge32$ and $d=\lceil\log_2n+\log_2\log_2n\rceil+1$.
+Then $2^d\ge2n\log_2n$, while $nd+2\le n(\log_2n+\log_2\log_2n+2)+2$; the
+inequality $2n\log_2n>n\log_2n+n\log_2\log_2n+2n+2$ is equivalent to
+$\log_2n-\log_2\log_2n>2+2/n$, which holds for $n\ge32$ (at $n=32$ the
+left side is $5-\log_25>2.67$ and the left side is increasing). Finally
+$\sum_{j\le d-1}\binom nj\le n^{d-1}\le n^{\log_2n+\log_2\log_2n+1}$, and
+$n^{\log_2n+\log_2\log_2n+1}=\exp((\log_2n+\log_2\log_2n+1)\ln n)$, whose
+$n$-th root tends to $1$.
+\end{proof}
+
+\begin{remark}
+For $n<32$ the theorem applies with other values of $d$: $d=6$ for
+$n\le10$, $d=7$ for $n\le18$, $d=8$ for $n\le31$. The resulting bounds are
+far from the true values in Theorem~\ref{thm:small}, as they must be, since
+the method does not see the chain structure at all.
+\end{remark}
+
+\begin{remark}[An explicit correction]
+\label{rem:explicit}
+The inequality $\sum_{j\le d-1}\binom nj\le n^{d-1}$ used at the end of
+the proof of Theorem~\ref{thm:F} is not quite literally true: since
+$\binom nj\le n^j$ for every $j\ge0$ and $n\ge1$, one has only
+\[
+\sum_{j=0}^{d-1}\binom nj\ \le\ \sum_{j=0}^{d-1}n^j\ \le\ d\,n^{d-1}
+\qquad(n\ge1),
+\]
+the last step bounding each of the $d$ terms by the largest, $n^{d-1}$.
+This is the correct form of the estimate, and it changes nothing: with
+$d=\lceil\log_2n+\log_2\log_2n\rceil+1=O(\log n)$, the extra factor $d$
+contributes $\log_2d=O(\log\log n)$ to $\log_2$ of the bound, which is
+already absorbed by the $o(1)$ in the exponent $\log_2n+\log_2\log_2n+1$.
+Precisely,
+\begin{equation}
+\label{eq:explicit}
+F(n)\ \le\ d\cdot n^{d-1}\ \le\ (\log_2n+\log_2\log_2n+2)\cdot
+n^{\,\log_2n+\log_2\log_2n+1}\qquad(n\ge32),
+\end{equation}
+which is the fully justified version of the last display in the proof of
+Theorem~\ref{thm:F} and is the bound tabulated in
+Table~\ref{tab:explicit} below.
+\end{remark}
+
+\section{Explicit and numerical bounds}
+\label{sec:explicit}
+
+Theorem~\ref{thm:F} is stated for $n\ge32$ so that the two-line
+computation in its proof goes through without case analysis; the
+underlying first-moment argument needs no such threshold, and the
+following restatement removes it.
+
+\begin{proposition}[Threshold-free form]
+\label{prop:allN}
+For every $n\ge1$, let $d(n)$ be the least positive integer $d$ with
+$2^d>nd+2$. Then
+\[
+F(n)\ \le\ \sum_{j=0}^{d(n)-1}\binom nj\ \le\ d(n)\,n^{d(n)-1}.
+\]
+The function $d(n)$ is nondecreasing, takes the values
+$3,4,4,5,5,6,6,6,6,6$ for $n=1,\dots,10$, and satisfies
+$d(n)=\log_2n+\log_2\log_2n+O(1)$ as $n\to\infty$; in particular
+$d(n)/\log_2n\to1$, so $F(n)\le n^{(1+o(1))\log_2n}$ and $F(n)^{1/n}\to1$
+with no restriction on $n$.
+\end{proposition}
+
+\begin{proof}
+The first inequality is the first assertion of Theorem~\ref{thm:F},
+proved for every $n\ge1$ and every $d$ with $2^d>nd+2$ (the proof uses
+only this hypothesis, not $n\ge32$); taking $d=d(n)$, the least such $d$,
+gives the strongest instance. The second inequality is
+Remark~\ref{rem:explicit}. Monotonicity of $d(n)$ holds because $2^d>nd+2$
+implies $2^d>n'd+2$ for $n'\le n$. The values for $n\le9$ and the
+asymptotics for $d(n)$ are immediate from the defining inequality: writing
+$d=\log_2n+\log_2\log_2n+e(n)$, the condition $2^d>nd+2$ becomes, after
+dividing by $n\log_2n$, an inequality in $e(n)$ that is satisfied once
+$e(n)\ge2+o(1)$ and fails once $e(n)\le-o(1)$, giving $e(n)=O(1)$; this is
+the computation carried out for $n\ge32$ in the proof of
+Theorem~\ref{thm:F} and it is valid, with different explicit constants,
+for every $n$.
+\end{proof}
+
+Table~\ref{tab:explicit} evaluates the bound of Proposition~\ref{prop:allN}
+directly: for each $n$ it records $d(n)$, the exact value of
+$\log_2\sum_{j<d(n)}\binom nj$ for $n\le2000$ (computed by exact integer
+arithmetic) or the bound $\log_2(d(n))+(d(n)-1)\log_2n$ of
+\eqref{eq:explicit} for larger $n$, and the ratio of this quantity to $n$,
+which is $\log_2(F(n)^{1/n})$ up to the direction of the inequality and
+which Theorem~\ref{thm:F} and Proposition~\ref{prop:allN} assert tends to
+$0$.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{r r r r}
+\toprule
+$n$ & $d(n)$ & $\log_2(\text{bound})$ & $\log_2(\text{bound})/n$\\
+\midrule
+$10$ & $6$ & $9.317$ & $0.9317$\\
+$32$ & $9$ & $23.842$ & $0.7451$\\
+$50$ & $9$ & $29.287$ & $0.5857$\\
+$100$ & $10$ & $40.937$ & $0.4094$\\
+$200$ & $12$ & $58.514$ & $0.2926$\\
+$500$ & $13$ & $78.598$ & $0.1572$\\
+$1000$ & $14$ & $96.925$ & $0.0969$\\
+$10^4$ & $18$ & $225.891$ & $0.02259$\\
+$10^5$ & $22$ & $348.802$ & $0.00349$\\
+$10^6$ & $25$ & $478.358$ & $0.00048$\\
+\bottomrule
+\end{tabular}
+\caption{The bound of Proposition~\ref{prop:allN}; entries for
+$n\le2000$ use the exact value of $\log_2\sum_{j<d(n)}\binom nj$, entries
+for $n>2000$ use the right side of \eqref{eq:explicit}. The last column,
+which is at least $\log_2(F(n))/n$ by Theorem~\ref{thm:F} and at most the
+value shown, illustrates the convergence $F(n)^{1/n}\to1$ at concrete
+scales; it says nothing about the true order of $F(n)$, which by
+Theorem~\ref{thm:limits}(ii) is not polynomial along the random colouring
+and is addressed only for cardinality colourings, in
+Section~\ref{sec:card}.}
+\label{tab:explicit}
+\end{table}
+
+\section{Limits of the random colouring}
+\label{sec:limits}
+
+\begin{proof}[Proof of Theorem~\ref{thm:limits}]
+(i) Build a chain greedily. Put $S_0=\emptyset$ and $c=\chi(\emptyset)$.
+Given $S_i$ with $|S_i|=i<n$ and $\chi(S_i)=c$, the $n-i$ sets
+$S_i\cup\{x\}$, $x\notin S_i$, have independent uniform colours, none of
+which has been examined before (each is examined only at the step at
+which it is a candidate, and $S_i$ determines the step). The step fails
+if all of them have colour $1-c$, which has probability $2^{-(n-i)}$;
+otherwise choose one of colour $c$ as $S_{i+1}$. The probability that no
+step fails for $i=0,\dots,n-2$ is at least
+$1-\sum_{i=0}^{n-2}2^{-(n-i)}=1-\sum_{j=2}^{n}2^{-j}>1/2$, and in that
+event $S_0\subset S_1\subset\dots\subset S_{n-1}$ is a monochromatic
+chain of $n$ sets, which is a sublattice.
+
+(ii) Let $T=[n]$ and $c=\chi(T)$, and let
+\[
+\cY=\{Y\subseteq T:\ \chi(T\setminus Y')=c\text{ for all }Y'\subseteq Y\}.
+\]
+Then $\cY$ is a down-set of $2^{[n]}$ containing $\emptyset$, and the
+family $\cF=\{T\setminus Y:Y\in\cY\}$ is monochromatic of colour $c$ and
+union-closed: $(T\setminus Y)\cup(T\setminus Y')=T\setminus(Y\cap Y')$ and
+$Y\cap Y'\in\cY$. A set $Y$ with $|Y|=j$ lies in $\cY$ if and only if the
+$2^j-1$ sets $T\setminus Y'$, $\emptyset\ne Y'\subseteq Y$, all have the
+colour of $T$, an event of probability $2^{-(2^j-1)}$. Hence
+$\Ex|\cF|=\Ex|\cY|=\sum_{j=0}^{n}\binom nj2^{1-2^j}$, and the largest
+monochromatic union-closed family has expected size at least this. For
+the numerical bound take $j_0=\lfloor\log_2\log_2n\rfloor$ with $n\ge4$;
+then $2^{j_0}\le\log_2n$, so $2^{1-2^{j_0}}\ge2/n$, and
+$\binom n{j_0}\ge(n/j_0)^{j_0}$; thus $\Ex|\cF|\ge2(n/j_0)^{j_0}/n$. As
+$(n/j_0)^{j_0}=n^{j_0-o(1)}$ and $j_0\ge\log_2\log_2n-1$, this is
+$n^{\log_2\log_2n-2-o(1)}$.
+\end{proof}
+
+\begin{remark}
+Part (ii) shows that no bound of the form $F(n)\le n^{C}$ with a constant
+$C$ can be proved by exhibiting a random colouring; the same family also
+shows that for the random colouring the Vapnik--Chervonenkis dimension of
+the largest monochromatic union-closed family is at least about
+$\log_2\log_2n$, since $\cY$ contains all sets of size at most $j_0$ with
+positive probability bounded away from zero when $2^{j_0}\le\log_2n$.
+\end{remark}
+
+
+\section{Colourings depending only on cardinality}
+\label{sec:card}
+
+A colouring $\chi$ is a \emph{cardinality colouring} if $\chi(S)=g(|S|)$
+for some $g:\{0,1,\dots,n\}\to\{0,1\}$. These are the colourings for which
+Erd\H{o}s recorded Howorka's assertion, and they are the colourings that
+attain $f(n)$ for $n\le10$ (Section~\ref{sec:small}). For a cardinality
+colouring, monochromatic closed families can be built from monochromatic
+arithmetic progressions of $g$.
+
+\begin{proposition}
+\label{prop:AP}
+Let $\chi(S)=g(|S|)$ and suppose that the arithmetic progression
+$a,a+s,\dots,a+(k-1)s$, with $s\ge1$, $k\ge1$ and $a+(k-1)s\le n$, is
+monochromatic for $g$. Put $q=\lfloor a/s\rfloor$ and $b=q+k-1$. Then
+there is a monochromatic union-closed family with
+$\sum_{i=0}^{k-1}\binom bi$ members, and a monochromatic sublattice with
+$2^{k-1}$ members. More generally, if $t_1<t_2<\dots<t_L$ and $s,w\ge1$
+are such that $t_L+ws\le n$ and all the numbers $t_j+is$
+($1\le j\le L$, $0\le i\le w$) have the same colour under $g$, then there
+is a monochromatic sublattice with $L\,2^{w}$ members.
+\end{proposition}
+
+\begin{proof}
+Put $a_0=a-qs\in[0,s)$ and choose pairwise disjoint sets
+$B,X_1,\dots,X_b\subseteq[n]$ with $|B|=a_0$ and $|X_i|=s$; this is
+possible since $a_0+bs=a+(k-1)s\le n$. Let
+\[
+\cF=\Bigl\{B\cup\bigcup_{i\in I}X_i:\ I\subseteq[b],\ |I|\ge q\Bigr\}.
+\]
+A member with index set $I$ has cardinality $a_0+|I|s=a+(|I|-q)s$ with
+$0\le|I|-q\le k-1$, so all members have the colour of the progression.
+The union of the members with index sets $I,I'$ has index set
+$I\cup I'$, of size at least $q$, so $\cF$ is union-closed, and
+$|\cF|=\sum_{i=q}^{b}\binom bi=\sum_{i=0}^{k-1}\binom bi$. For the
+sublattice take $|B'|=a$ and $k-1$ disjoint blocks $X_1,\dots,X_{k-1}$ of
+size $s$ disjoint from $B'$, and the family of all $B'\cup\bigcup_{i\in I}
+X_i$, $I\subseteq[k-1]$; it is closed under union and intersection, has
+$2^{k-1}$ members, and their cardinalities $a+|I|s$ lie in the
+progression.
+
+For the last assertion choose disjoint blocks $X_1,\dots,X_w$ of size $s$
+and a chain $C_1\subset\dots\subset C_L$ of subsets of
+$[n]\setminus(X_1\cup\dots\cup X_w)$ with $|C_j|=t_j$, possible since
+$t_L\le n-ws$. The family $\{C_j\cup\bigcup_{i\in I}X_i:\ 1\le j\le L,\
+I\subseteq[w]\}$ has $L2^w$ members of cardinalities $t_j+|I|s$, all of
+one colour, and it is closed under union and intersection since
+$(C_j\cup X_I)\cup(C_{j'}\cup X_{I'})=C_{\max(j,j')}\cup X_{I\cup I'}$ and
+$(C_j\cup X_I)\cap(C_{j'}\cup X_{I'})=C_{\min(j,j')}\cup X_{I\cap I'}$.
+\end{proof}
+
+Let $W(k)$ denote the van der Waerden number: the least $N$ such that
+every $2$-colouring of $\{1,\dots,N\}$ contains a monochromatic arithmetic
+progression of $k$ terms; it is finite by van der Waerden's theorem
+\cite{vdW27}. The following statement is the one attributed to Howorka in
+\cite{Er78}; we have not been able to locate a published proof, and give
+one.
+
+\begin{theorem}
+\label{thm:howorka}
+Let $k\ge2$ and $n\ge2W(k)$. For every cardinality colouring of
+$2^{[n]}$ there is a monochromatic union-closed family with at least
+\[
+\binom{\lfloor n/(2W(k))\rfloor+k-1}{k-1}\ \ge\
+\Bigl(\frac{n}{2(k-1)W(k)}\Bigr)^{k-1}
+\]
+members, and a monochromatic sublattice with $2^{k-1}$ members.
+Consequently, for every constant $c$, every cardinality colouring of
+$2^{[n]}$ with $n$ large in terms of $c$ has a monochromatic union-closed
+family of more than $n^{c}$ members; and there is a function
+$\omega(n)\to\infty$ such that every cardinality colouring has a
+monochromatic union-closed family of more than $n^{\omega(n)}$ members.
+\end{theorem}
+
+\begin{proof}
+Let $\chi(S)=g(|S|)$ and $W=W(k)$. The $W$ consecutive integers
+$m_0,m_0+1,\dots,m_0+W-1$ with $m_0=\lceil n/2\rceil$ lie in
+$\{0,\dots,n\}$ because $n\ge2W$, and by the definition of $W(k)$ the
+colouring $g$ restricted to them contains a monochromatic progression
+$a,a+s,\dots,a+(k-1)s$ with $a\ge n/2$ and $(k-1)s\le W-1$, so that
+$s<W$ and $\lfloor a/s\rfloor\ge\lfloor n/(2W)\rfloor$. By
+Proposition~\ref{prop:AP} there is a monochromatic union-closed family
+with $\sum_{i<k}\binom bi\ge\binom b{k-1}$ members, where
+$b=\lfloor a/s\rfloor+k-1\ge\lfloor n/(2W)\rfloor+k-1$, and
+$\binom b{k-1}\ge(b/(k-1))^{k-1}\ge(n/(2(k-1)W))^{k-1}$, using
+$b\ge\lfloor n/(2W)\rfloor+k-1\ge n/(2W)$ (as $k\ge2$).
+The sublattice statement is the second part of Proposition~\ref{prop:AP}.
+For fixed $k$ the bound is $c_kn^{k-1}$ with $c_k>0$, which exceeds
+$n^{c}$ for $n$ large once $k-1>c$. Finally let $\omega(n)$ be the largest
+$k$ with $2(k-1)W(k)\le n^{1/2}$; then $\omega(n)\to\infty$, and the bound
+is at least $n^{(\omega(n)-1)/2}$, which exceeds $n^{\omega(n)/3}$ for
+$\omega(n)\ge3$; replacing $\omega$ by $\omega/3$ gives the statement.
+\end{proof}
+
+\begin{remark}
+The van der Waerden numbers grow so fast that Theorem~\ref{thm:howorka}
+gives nothing for small $n$; its content is the polynomial growth for
+every fixed $k$. Proposition~\ref{prop:AP} also explains the shape of the
+extremal cardinality colourings of Section~\ref{sec:small}: a cardinality
+colouring with no monochromatic sublattice of more than
+$\lceil(n+1)/2\rceil$ members must have no monochromatic progression of
+$k$ terms with $2^{k-1}>\lceil(n+1)/2\rceil$, and, for every $s$ and $w$,
+at most $\lceil(n+1)/2\rceil2^{-w}$ starting points $t$ of one colour with
+$t,t+s,\dots,t+ws$ all of that colour. For $n\le10$ both conditions leave
+room, as the colourings $g_n$ listed in Section~\ref{sec:small} show.
+\end{remark}
+
+\section{Exact values for small $n$}
+\label{sec:small}
+
+\subsection{The algorithm}
+Fix $n$ and a target $M$. We wish to decide whether there is a
+$2$-colouring of $2^{[n]}$ with no monochromatic closed family of $M$ or
+more members, closure meaning union and intersection for $f$ and union
+alone for $F$. This is a satisfiability problem in the $2^n$ Boolean
+variables $x_S$, $S\subseteq[n]$, with one clause pair for every closed
+family $\cF$ of size $M$: not all $x_S$, $S\in\cF$, true, and not all
+false. Rather than enumerating all closed families in advance, the program
+proceeds by counterexample-guided refinement: a SAT solver (CaDiCaL,
+through the PySAT interface \cite{IMM18}) proposes a colouring subject to
+the clauses collected so far; a branch-and-bound search then looks, in
+each colour class, for a closed subfamily with at least $M$ members,
+building families by adding sets one at a time and closing under the
+operations; if one is found, its clause pair is added and the solver is
+run again; if none is found, the colouring is a witness that the value is
+less than $M$; if the solver reports unsatisfiability, every colouring
+has a monochromatic closed family of at least $M$ members and the value
+is at least $M$. The symmetry $\chi\mapsto1-\chi$ is broken by fixing the
+colour of $\emptyset$. Increasing $M$ from $1$ gives the exact value.
+
+\subsection{Results and checks}
+The values in Theorem~\ref{thm:small} were obtained in this way. The
+computation for $f(9)$ examined $14\,190$ clauses and took
+twenty minutes on one processor core; the computation for $F(7)$ examined $256\,428$ clauses. Three
+independent checks were made. For $n\le4$ all $2^{2^n}$ colourings were
+enumerated directly and the maximal monochromatic closed family was
+found by inspecting all closed families, without any SAT solver; the
+values agree. For every entry of the table the final colouring produced
+by the solver (the witness that the value is not larger) was verified by
+a second program that encodes ``this colour class contains a closed
+family of at least $M$ members'' as a satisfiability instance with a
+cardinality constraint, independent of the branch-and-bound search, and
+the instance was unsatisfiable for both colour classes in every case;
+the witnesses are supplied with the code, and this second, independent
+check was re-run for the present version of the paper, confirming for
+every $g_n$, $3\le n\le10$, that neither colour class contains a
+monochromatic sublattice of $\lceil(n+1)/2\rceil+1$ or more members. In
+particular the values of
+$f(n)$ for $n\le10$ do not depend on any unsatisfiability report: the
+lower bound is \eqref{eq:trivial}, and the upper bound is certified by the
+cardinality colourings $g_n$ listed below, each checked by the second
+program. The lower bounds for $F(5)$, $F(6)$ and $F(7)$ rest on the
+solver's unsatisfiability reports.
+
+The extremal colourings found by the solver for $n\le7$ happened to be
+cardinality colourings; for $n=8$ and $n=9$ a cardinality colouring
+attaining $f(n)$ was found by adding to the solver the clauses
+$x_S\leftrightarrow x_{S'}$ for $|S|=|S'|$, and for $n=10$ (where the
+unrestricted search was not run to completion) by enumerating the
+cardinality colourings that pass the necessary conditions of
+Proposition~\ref{prop:AP} and checking each with the second program;
+since $f(10)\ge6$ by \eqref{eq:trivial}, this determines $f(10)=6$. Writing
+$g_n=(g_n(0),g_n(1),\dots,g_n(n))$ for the colour of a set of each
+cardinality, the following colourings have no monochromatic sublattice
+with more than $\lceil(n+1)/2\rceil$ members:
+{\small
+\begin{align*}
+g_3&=(1,1,0,0), & g_4&=(1,1,0,1,0),\\
+g_5&=(1,1,0,1,0,0), & g_6&=(1,0,0,1,0,1,1),\\
+g_7&=(1,0,0,1,1,0,0,1), & g_8&=(1,0,1,0,0,1,1,0,1),\\
+g_9&=(1,0,1,0,0,1,1,0,1,0), & g_{10}&=(1,0,0,1,1,0,0,1,0,1,1).
+\end{align*}}
+For a colouring depending only on cardinality, a monochromatic sublattice
+corresponds, by Lemma~\ref{lem:structure}, to a poset on blocks of
+elements together with block sizes and a base size, all of whose down-set
+weights lie in one colour class; the reader may check by hand, for
+instance, that for $g_9$ the colour class $\{0,2,5,6,8\}$ contains the
+arithmetic progression $2,5,8$, which yields the sublattice
+$\{\emptyset,B,B\cup X,B\cup Y,B\cup X\cup Y\}$ of five members with
+$|B|=2$, $|X|=|Y|=3$, and that this family cannot be extended within the
+colour class.
+
+\subsection{Discussion}
+The values show that the trivial bound \eqref{eq:trivial} for $f$ is
+exact up to $n=10$, and that $F$ exceeds $f$ from $n=5$ on. We do not
+conjecture that $f(n)=\lceil(n+1)/2\rceil$ holds for all $n$. By
+Proposition~\ref{prop:AP}, a cardinality colouring attaining this value
+for all $n$ would have to avoid monochromatic arithmetic progressions of
+length $\log_2(n+1)+1$ in every colour class, and to contain, for every
+difference $s$ and length $w+1$, at most $\lceil(n+1)/2\rceil2^{-w}$ monochromatic
+progressions of that difference and length in each colour; the second
+condition is met with room to spare for $n\le10$ and asks, for large $n$,
+for a colouring whose progression counts never exceed their expected
+values, which we do not expect to exist. Whether $f(n)=O(n)$ is a
+different question, since general colourings are not constrained by
+Proposition~\ref{prop:AP}.
+
+\section{Summary of what is proved and what is open}
+\label{sec:summary}
+
+The results above touch four different quantities, and it is easy to
+lose track of which are settled and which are not; this section collects
+them in one place.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{p{0.3\linewidth} p{0.38\linewidth} p{0.22\linewidth}}
+\toprule
+Question & Status & Where\\
+\midrule
+Erd\H{o}s's second conjecture, $F(n)<(1+\eps)^n$ for every $\eps>0$ &
+PROVED, in the strong form $F(n)\le n^{(1+o(1))\log_2n}$, for every
+$n\ge1$ & Theorem~\ref{thm:F}, Prop.~\ref{prop:allN}\\
+\addlinespace
+Erd\H{o}s's first conjecture, $F(n)>n^c$ for every constant $c$ &
+OPEN in general; PROVED for cardinality colourings & Question~3,
+Theorem~\ref{thm:howorka}\\
+\addlinespace
+Order of magnitude of $f(n)$ & OPEN; $f(n)=\lceil(n+1)/2\rceil$ for
+$n\le10$, upper bound $f(n)<12n(\log_2n)^2$ in general & Theorems
+\ref{thm:f}, \ref{thm:small}\\
+\addlinespace
+Is $f(n)=O(n)$? & OPEN; the random colouring alone cannot show it,
+since it already has monochromatic chains of length $n$ &
+Theorem~\ref{thm:limits}(i)\\
+\addlinespace
+Is $F(n)$ polynomially bounded? & OPEN; known bounds place $\log_2F(n)$
+between about $(\log_2n)(\log_2\log_2n)$ and $2\log_2n\cdot\log_2n$ &
+Theorems \ref{thm:F}, \ref{thm:limits}(ii)\\
+\addlinespace
+Exact values of $f(n)$, $F(n)$ for small $n$ & COMPUTED and doubly
+verified for $n\le10$ (partially $F(8)$--$F(10)$ open) &
+Theorem~\ref{thm:small}, Appendix~\ref{app:sat}\\
+\bottomrule
+\end{tabular}
+\caption{The state of Erd\H{o}s and Ulam's problem after this paper. Only
+the second row of the second conjecture is fully closed; every other row
+records either a gap between a proved upper and a proved lower bound, or
+an outright open question, and none of the further theorems of this
+paper depend on any of the open rows.}
+\label{tab:summary}
+\end{table}
+
+The one item in the table that is genuinely settled, Erd\H{o}s's second
+conjecture, was open, so far as the sources in Section~\ref{sec:related}
+record, from 1978 until the argument of Theorem~\ref{thm:F}; the
+argument is short (Lemma~\ref{lem:indep} plus a first-moment count) once
+it is seen that the two-colouring, forced-monochromatic-union structure
+of the problem is exactly what an independent system detects. The first
+conjecture is the harder of Erd\H{o}s's two: even the far more permissive
+class of cardinality colourings needs the full strength of van der
+Waerden's theorem (Theorem~\ref{thm:howorka}) to rule out an $n^c$
+bound, and for general colourings no argument in this paper, or, so far
+as the authors are aware, in the literature, gives any superlinear lower
+bound on $F(n)$ at all beyond the trivial $\lceil(n+1)/2\rceil$. The gap
+between what a random colouring is forced to contain
+(Theorem~\ref{thm:limits}(ii), exponent $\log_2\log_2n$) and what the
+Sauer--Shelah bound permits (Theorem~\ref{thm:F}, exponent $\log_2n$) is
+the precise sense in which the first conjecture remains open: closing it
+either upward, by a better construction than the random colouring, or
+downward, by a bound sharper than Sauer--Shelah, would resolve Question~2
+below, and either direction looks, to the authors, to need an idea not
+present in this paper.
+
+\section{Questions}
+\label{sec:questions}
+
+\begin{question}
+Is $f(n)=\lceil(n+1)/2\rceil$ for all $n$? If not, what is the least $n$
+for which $f(n)>\lceil(n+1)/2\rceil$, and is $f(n)=O(n)$?
+\end{question}
+
+\begin{question}
+Is $F(n)$ bounded by a polynomial in $n$? By Theorem~\ref{thm:limits}(ii)
+a positive answer cannot come from a random colouring; by
+Theorem~\ref{thm:F} the true exponent of $\log n$ in $\log F(n)$ is at
+most $2$.
+\end{question}
+
+\begin{question}
+Is $F(n)>n^{c}$ for every constant $c$ and all large $n$, as Erd\H{o}s
+conjectured? The computed values $F(5)=4$, $F(6)=5$, $F(7)=7$ show that
+$F$ pulls away from $f$ early, but no lower bound better than
+$\lceil(n+1)/2\rceil$ is known for general colourings; for cardinality
+colourings Theorem~\ref{thm:howorka} settles the question.
+\end{question}
+
+\begin{remark}[An approach that does not work, and precisely why]
+\label{rem:posetramsey}
+A natural strategy for the first conjecture is to import a Ramsey
+theorem for the Boolean lattice itself. The \emph{poset Ramsey number}
+$R(Q_k,Q_k)$ is the least $n$ such that every $2$-colouring of the
+elements of $2^{[n]}$ contains a monochromatic \emph{copy} of the
+Boolean lattice $Q_k=2^{[k]}$, where a copy means an order-embedding
+$\phi:2^{[k]}\to2^{[n]}$, that is, an injection with $A\subseteq
+B\Leftrightarrow\phi(A)\subseteq\phi(B)$. Axenovich and Walzer
+\cite{AW17} proved $R(Q_k,Q_k)\ge2k$, and Lu and Thompson \cite{LT22}
+proved $R(Q_k,Q_k)\le k^2-k+2$, so this Ramsey number is polynomial in
+$k$. If a monochromatic copy of $Q_k$ were automatically a monochromatic
+union-closed family in the sense of this paper, the polynomial bound
+would immediately finish the first conjecture: taking $k$ with
+$k^2-k+2\le n$, i.e. $k=\Theta(\sqrt n)$, every colouring of $2^{[n]}$
+would contain a monochromatic union-closed family of size $2^k=
+2^{\Theta(\sqrt n)}$, which exceeds $n^c$ for every fixed $c$ once $n$
+is large. This does not work, and the reason is exact rather than a
+matter of degree: an order-embedding need not be a lattice embedding.
+The constructions in \cite{AW17,LT22} produce $\phi$ by a chain
+decomposition of $2^{[n]}$ into symmetric chains, walking up the chains
+level by level and, at each level, selecting an available element of the
+right colour \emph{from whichever chain happens to offer one}; nothing
+in the argument arranges for $\phi(A)\cup\phi(B)$ to equal $\phi(A\cup
+B)$ for $A,B\subseteq[k]$, or even for $\phi(A)\cup\phi(B)$ to be
+monochromatic, let alone to lie in the image of $\phi$ at all. A copy of
+$Q_k$ obtained this way witnesses $2^k$ elements of $2^{[n]}$ correctly
+ordered by inclusion and of one colour; it does not witness a
+union-closed family, since union-closure is a statement about actual
+unions in $2^{[n]}$, not about the abstract order type of a chosen set
+of representatives. Repairing this would require either forcing the
+chain-selection to respect a fixed block structure throughout, which the
+published proofs do not do and which does not obviously survive the
+level-by-level, chain-local nature of the argument, or a genuinely
+different construction; the authors were not able to find one, and are
+not aware of one in the literature. The gap between the two notions of
+``copy'' is therefore, at present, exactly the gap between what is known
+about poset Ramsey numbers and what the first conjecture requires.
+\end{remark}
+
+\begin{remark}[A second approach that does not work, and precisely why]
+\label{rem:booleanalgebra}
+Unlike the previous approach, there is a construction that genuinely
+avoids the defect of Remark~\ref{rem:posetramsey}: pairwise disjoint
+nonempty $X_1,\dots,X_d\subseteq[n]$ generate, by
+$I\mapsto\bigcup_{i\in I}X_i$, an actual sublattice of $2^{[n]}$ isomorphic
+to $2^{[d]}$, a \emph{$d$-dimensional Boolean algebra} in the terminology
+of Gunderson, R\"odl and Sidorenko \cite{GRS99}; if this copy is
+monochromatic, its $2^d-1$ nonempty members are a genuine monochromatic
+union-closed family (indeed a sublattice), with no gap between ``copy''
+and ``union-closed family'' to repair. The relevant Ramsey function,
+$r(d,n)$, is the largest $r$ such that every $r$-colouring of the subsets
+of an $n$-set contains a monochromatic $d$-dimensional Boolean algebra;
+Gunderson, R\"odl and Sidorenko prove
+\[
+c_1\,n^{1/2^d}\ \le\ r(d,n)\ \le\ n^{\,d/2^{d-1}(1+o(1))}
+\]
+for an absolute constant $c_1>0$ (\cite[Theorem 4.7]{GRS99}; the case
+$d=2$ is their Theorem 4.6, with the sharper constants
+$(1-o(1))\tfrac34\sqrt n\le r(2,n)\le(1+o(1))\sqrt n$). Fixing $r=2$ and
+asking how large a $d$ this forces at a given $n$ is exactly the question
+needed for the first conjecture, and both bounds answer it the same way:
+the lower bound shows $r(d,n)\ge2$, so that the guarantee holds, as soon
+as $n\ge(2/c_1)^{2^d}$, while the upper bound shows a $2$-colouring
+avoiding every monochromatic $d$-dimensional Boolean algebra exists as
+soon as $n^{2d/2^d(1+o(1))}<2$, i.e.\ for $n$ below essentially the same
+threshold. Both directions therefore agree that the threshold is
+\emph{doubly} exponential in $d$, $n=\Theta(2^{2^d})$ up to the constant in
+the exponent, not tower-type as in Remark~\ref{rem:posetramsey}'s more
+distant relative, the Hilbert cube problem \cite{Gow01,Bal19}, but also
+not singly exponential. Inverting, the largest $d$ that a $2$-colouring
+of $2^{[n]}$ is guaranteed to force by this method is only
+$d(n)=(1+o(1))\log_2\log_2n$, and the resulting monochromatic
+union-closed family has only $2^{d(n)}-1=\Theta(\log n)$ members: smaller,
+for every large $n$, than the trivial chain bound
+$\lceil(n+1)/2\rceil$ of \eqref{eq:trivial}. Because the upper bound in
+\cite{GRS99} matches the lower bound in the same doubly-exponential
+shape, this is not a matter of a Ramsey number not yet being computed
+well enough: for a fixed pair of colours, monochromatic Boolean
+subalgebras generated by disjoint blocks are, provably, too weak a
+structure to beat a single chain, let alone to grow polynomially with
+$n$. Any resolution of the first conjecture must therefore use
+union-closed families that are not sublattices of this particularly
+symmetric, block-generated kind.
+\end{remark}
+
+Both remarks above attack the first conjecture directly, over all of
+$2^{[n]}$ at once. The last attempt instead tries to build it up by
+recursion on $n$, and the recursion turns out to be exactly as hard as
+the problem it is meant to simplify -- provably so, not just in practice.
+
+\begin{lemma}[Doubling, conditional on a simultaneous family]
+\label{lem:doubling}
+Let $n\ge1$, let $\chi$ be a $2$-colouring of $2^{[n]}$, and define
+$\chi_0,\chi_1:2^{[n-1]}\to\{0,1\}$ by $\chi_0(A)=\chi(A)$ and
+$\chi_1(A)=\chi(A\cup\{n\})$. If there is a union-closed family
+$F\subseteq2^{[n-1]}$ and a colour $c$ such that every member of $F$ has
+colour $c$ under \emph{both} $\chi_0$ and $\chi_1$, then
+\[
+G\ =\ F\ \cup\ \{A\cup\{n\}:A\in F\}
+\]
+is a monochromatic (colour $c$) union-closed family for $\chi$, and
+$|G|=2|F|$.
+\end{lemma}
+
+\begin{proof}
+$G$ has colour $c$ throughout, by hypothesis. For closure under union,
+take $P,Q\in G$. If $P,Q\in F$ then $P\cup Q\in F\subseteq G$ since $F$
+is union-closed. If $P=A\cup\{n\}$ and $Q=A'\cup\{n\}$ with $A,A'\in F$,
+then $P\cup Q=(A\cup A')\cup\{n\}\in G$ since $A\cup A'\in F$. If
+$P=B\in F$ and $Q=A\cup\{n\}$ with $A\in F$, then
+$P\cup Q=(A\cup B)\cup\{n\}\in G$ since $A\cup B\in F$. The two halves of
+$G$ are disjoint, since one avoids $n$ and the other contains it, so
+$|G|=2|F|$.
+\end{proof}
+
+If the lemma's hypothesis -- a single union-closed family simultaneously
+monochromatic, in the same colour, under two given colourings of
+$2^{[n-1]}$ -- could always be met with $|F|\ge F(n-1)$, then applying it
+at every level from some fixed $n_0$ up would give
+$F(n)\ge2^{\,n-n_0}F(n_0)$ for all $n\ge n_0$, which is $2^{\Omega(n)}$.
+This contradicts Theorem~\ref{thm:F}: $F(n)\le n^{(1+o(1))\log_2n}
+=2^{(1+o(1))(\log_2n)^2}=2^{o(n)}$. Hence the required simultaneous
+family fails to exist, with $|F|\ge F(n-1)$, for infinitely many $n$ -- if
+it failed only finitely often, the recursion could still be run from the
+last failure onward and the same contradiction would follow. This is not
+an empirical difficulty with the three patches attempted below; it is a
+proof, from the paper's own Theorem~\ref{thm:F}, that no uniform way of
+supplying the lemma's hypothesis at every level can exist.
+
+\begin{remark}[A third approach that does not work, and precisely why]
+\label{rem:doubling}
+The obstruction identified above still leaves open whether the
+simultaneous family can be found \emph{often enough} -- say, at all $n$
+outside a sparse exceptional set -- to salvage a weaker recursion; the
+authors tried three routes to supplying it and each one breaks
+union-closure instead of repairing it. First, apply the first conjecture's
+guarantee to $\chi_0$ alone to get a union-closed $F_0\subseteq2^{[n-1]}$
+of size $\ge F(n-1)$ in some colour $c_0$, then $2$-colour $F_0$ itself by
+$\chi_1$: by pigeonhole at least $|F_0|/2$ members of $F_0$ share a single
+$\chi_1$-colour $c_1$, but this majority subfamily need not be
+union-closed, since the union of two of its members can fall on the
+$\chi_1$-minority side. Second, treat $\psi=(\chi_0,\chi_1)$ as a single
+$4$-colouring of $2^{[n-1]}$ and ask for a union-closed family
+monochromatic under $\psi$: this only helps if the forced $\psi$-colour
+happens to be a diagonal value $(c,c)$ rather than $(0,1)$ or $(1,0)$, and
+nothing forces the diagonal. Third, split $[n]$ into two halves instead
+of peeling one point, and look slice by slice: each slice $\chi_A$
+(for $A$ ranging over subsets of the first half) admits its own
+union-closed family by induction on half the size, but combining these
+into one union-closed family over all of $[n]$ requires many
+independently-obtained structures to agree, which is the same difficulty
+that gives Remark~\ref{rem:booleanalgebra} its doubly-exponential cost, not
+a way around it. The recursion of Lemma~\ref{lem:doubling} is therefore
+not merely unproved at every step; by the argument above it is
+\emph{provably} unavailable at infinitely many steps, and the three
+natural repairs available to a coloring-agnostic argument all either
+destroy closure or reduce to the difficulty already isolated in
+Remark~\ref{rem:booleanalgebra}.
+\end{remark}
+
+\section{Formal verification in Lean}
+\label{sec:lean}
+
+The definitions of $f(n)$ and $F(n)$, the first assertion of
+Theorem~\ref{thm:F}, the resulting resolution of Erd\H{o}s's second
+conjecture, and the trivial lower bound \eqref{eq:trivial} have been
+formalised in the Lean~4 proof assistant \cite{MU21} on top of the
+Mathlib library \cite{Mathlib20}. The formalisation is the directory
+\texttt{lean/} of the repository accompanying the paper
+(\url{https://github.com/creelie/erdos-1183}); it builds with Lean~4.34.1
+and Mathlib~v4.34.1, contains no \texttt{sorry} and declares no axiom, and
+for every theorem listed below Lean's \texttt{\#print axioms} reports only
+the three standard axioms \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound}.
+
+In the formalisation $[n]$ is \texttt{Fin n}, a colouring is a function
+\texttt{Finset (Fin n) → Bool}, and \texttt{bigF n} and
+\texttt{smallF n} are defined literally as in Section~\ref{sec:intro}, as
+the minimum over colourings of the largest monochromatic family closed
+under union (respectively under union and intersection). The lemmas
+\texttt{le\_bigF\_iff} and \texttt{bigF\_le\_iff} check that
+\texttt{bigF n} is exactly the largest $m$ such that every colouring
+contains a monochromatic union-closed family of $m$ sets.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{p{0.34\linewidth} p{0.56\linewidth}}
+\toprule
+Lean theorem & Statement\\
+\midrule
+\texttt{bigF\_le\_sum\_choose} & if $nd+2<2^d$ then
+$F(n)\le\sum_{j<d}\binom nj$ (Theorem~\ref{thm:F}, first assertion)\\
+\addlinespace
+\texttt{bigF\_le\_explicit} & for $n\ge2$ and $d=2(\lfloor\log_2n\rfloor+1)$,
+$F(n)\le d\,n^{d}$\\
+\addlinespace
+\texttt{second\_conjecture} & for every real $\eps>0$,
+$F(n)<(1+\eps)^n$ for all sufficiently large $n$\\
+\addlinespace
+\texttt{half\_le\_smallF}, \texttt{smallF\_le\_bigF} &
+$\lceil(n+1)/2\rceil\le f(n)\le F(n)$, i.e.\ \eqref{eq:trivial}\\
+\bottomrule
+\end{tabular}
+\caption{Machine-checked statements.}
+\label{tab:lean}
+\end{table}
+
+The formal proof follows Section~\ref{sec:F} with two changes. The
+first-moment argument is replaced by the equivalent count: for a fixed
+independent $d$-tuple the $2^d-1$ unions are distinct
+(Lemma~\ref{lem:indep}(a)), so at most $2\cdot2^{2^n-(2^d-1)}$ colourings
+make the tuple bad, and summing over the at most $2^{nd}$ tuples gives
+fewer than $2^{2^n}$ colourings when $nd+2<2^d$. The Sauer--Shelah lemma
+is Mathlib's (\texttt{Finset.card\_le\_card\_shatterer} and
+\texttt{Finset.card\_shatterer\_le\_sum\_vcDim}). For the asymptotic
+statement the formalisation uses the simpler choice
+$d=2(\lfloor\log_2n\rfloor+1)$, which gives $F(n)\le n^{O(\log n)}$ and
+suffices for $F(n)<(1+\eps)^n$; the sharper exponent
+$(1+o(1))\log_2n$ of Theorem~\ref{thm:F} is not formalised.
+
+Theorems~\ref{thm:f}, \ref{thm:limits}, \ref{thm:small} and
+\ref{thm:howorka} are not formalised; Theorem~\ref{thm:small} rests on the
+satisfiability computations of Section~\ref{sec:small}. Erd\H{o}s's first
+conjecture is stated in the formalisation as the proposition
+\texttt{FirstConjecture} ($F(n)>n^{c}$ for every fixed $c$ and all large
+$n$) and is not proved: it remains open.
+
+\appendix
+\section{The satisfiability encoding}
+\label{app:sat}
+
+This appendix formalises the algorithm sketched in
+Section~\ref{sec:small}, for a reader who wants to reproduce or
+re-implement it without reading the code.
+
+\subsection{Variables and the colouring clauses}
+Fix $n$. The Boolean variables are $x_S$ for $S\subseteq[n]$, one per
+subset, with $x_S=1$ meaning ``$S$ has colour $1$''. The symmetry
+$\chi\mapsto1-\chi$ is broken once and for all by the unit clause
+$\lnot x_\emptyset$. No other clause is imposed at the outset; clauses
+are added only as counterexamples are found, in the loop described next.
+
+\subsection{The closed-family clause}
+For a family $\cF\subseteq2^{[n]}$ with $|\cF|=M\ge2$, forbidding $\cF$
+from being monochromatic is the pair of clauses
+\[
+\Bigl(\bigvee_{S\in\cF}\lnot x_S\Bigr)\qquad\text{and}\qquad
+\Bigl(\bigvee_{S\in\cF}x_S\Bigr),
+\]
+the first true unless every $S\in\cF$ has $x_S=1$, the second true
+unless every $S\in\cF$ has $x_S=0$; together they say that $\cF$ is not
+entirely one colour. There are $2^{2^n}-2$ closed families of size
+$\ge2$ in the worst case (Lemma~\ref{lem:count} bounds this far more
+sharply), far too many to write down in advance for $n\ge5$ or so; the
+counterexample-guided loop adds only the ones that are actually needed.
+
+\subsection{The outer loop}
+For a target $M$, the loop maintains a growing CNF formula $\Phi$,
+initialised to $\{\lnot x_\emptyset\}$.
+\begin{enumerate}[label=\textup{(\arabic*)}]
+\item Call the SAT solver on $\Phi$. If unsatisfiable, report that every
+colouring has a monochromatic closed family of size $\ge M$ (so the
+value being computed is $\ge M$) and stop.
+\item Otherwise let $\chi$ be the returned model. For each colour
+$c\in\{0,1\}$, run the inner search of Section~\ref{sec:inner} below on
+the colour class $\chi^{-1}(c)$ with target $M$.
+\item If neither inner search finds a closed family of size $\ge M$,
+$\chi$ is a witness that the value is $<M$; report $\chi$ and stop.
+\item Otherwise, for each colour class in which the inner search found a
+closed family $\cF$ of size $\ge M$, add the two clauses of
+Section~\ref{sec:sub-clause} for that $\cF$ (or, if $|\cF|>M$, for an
+$M$-element closed subfamily of it, which exists since removing a
+maximal element of a closed family under either operation leaves a
+smaller closed family) to $\Phi$, and go to (1).
+\end{enumerate}
+Termination follows because each pass through the loop either stops or
+adds at least one clause pair ruling out at least one previously
+satisfying model, and there are only $2^{2^n}$ models in total; in
+practice the loop terminates after examining a number of families in
+the tens or low hundreds of thousands (Section~\ref{sec:small} records
+the exact counts for the two largest cases, $f(9)$ and $F(7)$), far
+fewer than $2^{2^n}$.
+
+\subsection{The inner search}
+\label{sec:inner}
+Given a set $C\subseteq2^{[n]}$ (a colour class) and a target $M$, the
+inner search looks for a subfamily $\cF\subseteq C$ with $|\cF|\ge M$
+that is closed under the relevant operations (union alone for $F$,
+union and intersection for $f$). It performs a depth-first
+branch-and-bound search that maintains a partial closed family, at each
+step either adding an unused element of $C$ and closing (repeatedly
+adjoining unions, and for $f$ also intersections, of existing members
+that lie in $C$, until no new member of $C$ is produced) or backtracking;
+a branch is pruned as soon as the sum of the current family's size and
+the number of remaining candidates in $C$ falls below $M$. This is
+exactly the sense in which $\cF$ is ``built by adding sets one at a
+time and closing under the operations'' in Section~\ref{sec:small}.
+
+\subsection{The independent verifier}
+\label{sec:sub-clause}
+The witness-checking program of Section~\ref{sec:small} re-expresses,
+for a fixed colour class $C$ and target $M$, the existence of a closed
+subfamily of size $\ge M$ as a second, differently structured
+satisfiability instance: one Boolean variable $y_S$ for each $S\in C$,
+the closure conditions $\lnot y_S\lor\lnot y_{S'}\lor y_{S\cup S'}$ (and,
+for $f$, the analogous clause for $S\cap S'$) for all $S,S'\in C$, and a
+cardinality constraint $\sum_{S\in C}y_S\ge M$ encoded by the sequential
+counter method of Sinz \cite{Si05}, which introduces $O(|C|M)$
+auxiliary variables and clauses rather than the $\binom{|C|}M$ clauses of
+a naive encoding. When $S\cup S'\notin C$ (respectively $S\cap S'\notin
+C$), the corresponding closure clause degenerates to $\lnot
+y_S\lor\lnot y_{S'}$, since no third variable is available to witness
+closure and $S,S'$ simply cannot be chosen together; this is the same
+convention used, without comment, in the code. This instance shares no
+variables, clauses, or code with the branch-and-bound search of
+Section~\ref{sec:inner}; agreement
+between the two, checked for every entry of Theorem~\ref{thm:small}
+(Section~\ref{sec:small}), is what makes the values independently
+verified rather than merely computed once.
+
+\section*{Competing Interests}
+The authors declare that there are no competing interests, financial or
+non-financial, that could have influenced the research reported in this
+paper.
+
+\section*{Data Availability}
+The program computing the values in Theorem~\ref{thm:small}, with its
+output, and the Lean formalisation of Section~\ref{sec:lean} accompany the
+paper and are available at \url{https://github.com/creelie/erdos-1183}. The underlying data and code are also
+available from the corresponding authors upon reasonable request by
+email.
+
+\begin{thebibliography}{AHS24}
+\raggedright
+
+\bibitem[AHS24]{AHS24}
+R.~Alweiss, B.~Huang, and M.~Sellke,
+\emph{Improved lower bound for Frankl's union-closed sets conjecture},
+Electron. J. Combin. \textbf{31} (2024), no.~3, \#P3.35.
+doi:10.37236/12232
+
+\bibitem[AW17]{AW17}
+M.~Axenovich and A.~Walzer,
+\emph{Boolean lattices: Ramsey properties and embeddings},
+Order, published online 2016/2017, arXiv:1512.05565.
+doi:10.1007/s11083-016-9399-7
+
+\bibitem[Bl26]{Bl26}
+T.~F. Bloom,
+\emph{Erd\H{o}s Problem \#1183},
+\url{https://www.erdosproblems.com/1183}, accessed 6 September 2026.
+
+\bibitem[Bo86]{Bo86}
+B.~Bollob\'as,
+\emph{Combinatorics: Set Systems, Hypergraphs, Families of Vectors and
+Combinatorial Probability},
+Cambridge University Press, Cambridge, 1986.
+
+\bibitem[Di50]{Di50}
+R.~P. Dilworth,
+\emph{A decomposition theorem for partially ordered sets},
+Ann. of Math. (2) \textbf{51} (1950), 161--166.
+doi:10.2307/1969503
+
+\bibitem[Er78]{Er78}
+P.~Erd\H{o}s,
+\emph{Problems and results in combinatorial analysis and combinatorial
+number theory},
+in: Proceedings of the Ninth Southeastern Conference on Combinatorics,
+Graph Theory, and Computing (Boca Raton, 1978), Congressus Numerantium
+XXI, Utilitas Math., Winnipeg, 1978, pp.~29--40.
+
+\bibitem[Fr79]{Fr79}
+P.~Frankl's conjecture, first published in D.~Duffus,
+\emph{Open problem session}, in: Graphs and Order (I.~Rival, ed.), NATO
+Advanced Science Institutes Series C, vol.~147, D.~Reidel, Dordrecht,
+1985, p.~525.
+
+\bibitem[Bal19]{Bal19}
+J.~Balogh, M.~Lavrov, G.~Shakan, and A.~Zs.~Wagner,
+\emph{Monochromatic Hilbert cubes and arithmetic progressions},
+Electron. J. Combin. \textbf{26} (2019), no.~2, \#P2.22.
+doi:10.37236/7917
+
+\bibitem[Gi22]{Gi22}
+J.~Gilmer,
+\emph{A constant lower bound for the union-closed sets conjecture},
+arXiv:2211.09055, 2022.
+
+\bibitem[Gow01]{Gow01}
+W.~T.~Gowers,
+\emph{A new proof of Szemer\'edi's theorem},
+Geom. Funct. Anal. \textbf{11} (2001), 465--588.
+doi:10.1007/s00039-001-0332-9
+
+\bibitem[GRS99]{GRS99}
+D.~S.~Gunderson, V.~R\"odl, and A.~Sidorenko,
+\emph{Extremal problems for sets forming Boolean algebras and complete
+partite hypergraphs},
+J. Combin. Theory Ser. A \textbf{88} (1999), 342--367.
+doi:10.1006/jcta.1999.2973
+
+\bibitem[LT22]{LT22}
+L.~Lu and J.~C.~Thompson,
+\emph{Poset Ramsey numbers for Boolean lattices},
+Order \textbf{39} (2022), 171--185.
+doi:10.1007/s11083-021-09557-4
+
+\bibitem[IMM18]{IMM18}
+A.~Ignatiev, A.~Morgado, and J.~Marques-Silva,
+\emph{PySAT: a Python toolkit for prototyping with SAT oracles},
+in: Theory and Applications of Satisfiability Testing (SAT 2018),
+Lecture Notes in Computer Science 10929, Springer, 2018, pp.~428--437.
+doi:10.1007/978-3-319-94144-8\_26
+
+\bibitem[MU21]{MU21}
+L.~de~Moura and S.~Ullrich,
+\emph{The Lean 4 theorem prover and programming language},
+in: Automated Deduction -- CADE 28, Lecture Notes in Computer Science
+12699, Springer, 2021, pp.~625--635.
+doi:10.1007/978-3-030-79876-5\_37
+
+\bibitem[Mat20]{Mathlib20}
+The mathlib Community,
+\emph{The Lean mathematical library},
+in: Proceedings of the 9th ACM SIGPLAN International Conference on
+Certified Programs and Proofs (CPP 2020), ACM, 2020, pp.~367--381.
+doi:10.1145/3372885.3373824
+
+\bibitem[Sa72]{Sa72}
+N.~Sauer,
+\emph{On the density of families of sets},
+J. Combin. Theory Ser. A \textbf{13} (1972), 145--147.
+doi:10.1016/0097-3165(72)90019-2
+
+\bibitem[Sh72]{Sh72}
+S.~Shelah,
+\emph{A combinatorial problem; stability and order for models and
+theories in infinitary languages},
+Pacific J. Math. \textbf{41} (1972), 247--261.
+doi:10.2140/pjm.1972.41.247
+
+\bibitem[Si05]{Si05}
+C.~Sinz,
+\emph{Towards an optimal CNF encoding of Boolean cardinality
+constraints},
+in: Principles and Practice of Constraint Programming (CP 2005),
+Lecture Notes in Computer Science 3709, Springer, 2005, pp.~827--831.
+doi:10.1007/11564751\_73
+
+\bibitem[VC71]{VC71}
+V.~N. Vapnik and A.~Ya. Chervonenkis,
+\emph{On the uniform convergence of relative frequencies of events to
+their probabilities},
+Theory Probab. Appl. \textbf{16} (1971), 264--280.
+doi:10.1137/1116025
+
+\bibitem[vdW27]{vdW27}
+B.~L. van der Waerden,
+\emph{Beweis einer Baudetschen Vermutung},
+Nieuw Arch. Wiskd. \textbf{15} (1927), 212--216.
+
+\bibitem[St12]{St12}
+R.~P. Stanley,
+\emph{Enumerative Combinatorics, Volume 1},
+second edition, Cambridge Studies in Advanced Mathematics 49, Cambridge
+University Press, Cambridge, 2012.
+doi:10.1017/CBO9781139058520
+
+\end{thebibliography}
+
+\end{document}
