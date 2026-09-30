@@ -1,5 +1,4 @@
 import Erdos1183.Basic
-import Mathlib.Combinatorics.HalesJewett
 import Mathlib.Data.Fintype.Perm
 
 /-!
@@ -12,9 +11,9 @@ A *labelling* `lab : α → Fin t ⊕ Bool` of a finite ground set describes a `
 `x i = true` removed.
 
 `Ncount χ lab` counts the permutations `σ` of the ground set for which the cube is
-monochromatic for the colouring `S ↦ χ (σ S)`. The main facts are that `Ncount` depends
-only on the sizes of the label classes (`Ncount_eq_of_card_fiber_eq`), and a supersaturated
-form of the multidimensional Hales–Jewett theorem (`exists_good_pattern`).
+monochromatic for the colouring `S ↦ χ (σ S)`. The main fact is that `Ncount` depends
+only on the sizes of the label classes (`Ncount_eq_of_card_fiber_eq`). Patterns `π` on a window
+of `M` positions describe cubes inside that window (`patLab`, `cubeSet_patLab`).
 -/
 
 open Finset
@@ -142,28 +141,6 @@ lemma card_fiber_eq_of_ne (lab lab' : α → G ⊕ Bool) (ℓ₀ : G ⊕ Bool)
 
 end Labels
 
-/-! ### Hales–Jewett cubes -/
-
-/-- The multidimensional Hales–Jewett theorem over the alphabet `Bool`, phrased with an
-explicit pattern `π`: coordinate `q` is fixed to `b` if `π q = inl b` and follows direction
-`i` if `π q = inr i`; every direction is used. -/
-theorem hj_cube (t : ℕ) : ∃ M : ℕ, ∀ C : (Fin M → Bool) → Bool,
-    ∃ π : Fin M → Bool ⊕ Fin t, (∀ i, ∃ q, π q = Sum.inr i) ∧
-      ∀ x : Fin t → Bool,
-        C (fun q => (π q).elim id x) = C (fun q => (π q).elim id fun _ => false) := by
-  obtain ⟨ι, _, h⟩ := Combinatorics.Subspace.exists_mono_in_high_dimension Bool Bool (Fin t)
-  refine ⟨Fintype.card ι, fun C => ?_⟩
-  set e := Fintype.equivFin ι
-  obtain ⟨l, c, hc⟩ := h fun w => C (w ∘ e.symm)
-  refine ⟨fun q => l.idxFun (e.symm q), fun i => ?_, fun x => ?_⟩
-  · obtain ⟨k, hk⟩ := l.proper i
-    exact ⟨e k, by simp [hk]⟩
-  · have key : ∀ y : Fin t → Bool, C (fun q => (l.idxFun (e.symm q)).elim id y) = c := by
-      intro y
-      rw [← hc y]
-      rfl
-    rw [key, key]
-
 section Pattern
 
 variable {n t M r : ℕ}
@@ -197,40 +174,6 @@ lemma cubeSet_patLab (M r : ℕ) (π : Fin M → Bool ⊕ Fin t) (x : Fin t → 
     by_cases hr : p.val < M + r
     · simp [hr]
     · simp [hr]
-
-/-- **Supersaturated Hales–Jewett.** For every colouring and every `r`, some proper pattern
-makes the hole cube monochromatic for at least a `(t+2)^{-M}` fraction of the orderings. -/
-theorem exists_good_pattern (t : ℕ) : ∃ M : ℕ, ∀ (n r : ℕ) (χ : Colouring n),
-    ∃ π : Fin M → Bool ⊕ Fin t, (∀ i, ∃ q, π q = Sum.inr i) ∧
-      Fintype.card (Equiv.Perm (Fin n)) ≤ (t + 2) ^ M * Ncount χ (patLab M r π) := by
-  obtain ⟨M, hM⟩ := hj_cube t
-  refine ⟨M, fun n r χ => ?_⟩
-  set P := (univ : Finset (Fin M → Bool ⊕ Fin t)).filter fun π => ∀ i, ∃ q, π q = Sum.inr i
-  -- every ordering makes some proper pattern monochromatic
-  have hcover : ∀ σ : Equiv.Perm (Fin n), ∃ π ∈ P, CubeMono (pull χ σ) (patLab M r π) := by
-    intro σ
-    obtain ⟨π, hπ, hmono⟩ := hM fun w => pull χ σ (topMinus M r w)
-    refine ⟨π, mem_filter.2 ⟨mem_univ _, hπ⟩, fun x => ?_⟩
-    rw [cubeSet_patLab, cubeSet_patLab]
-    exact hmono x
-  have hPne : P.Nonempty := by
-    obtain ⟨π, hπ, -⟩ := hcover 1
-    exact ⟨π, hπ⟩
-  obtain ⟨π₀, hπ₀, hmax⟩ := exists_max_image P (fun π => Ncount χ (patLab M r π)) hPne
-  refine ⟨π₀, (mem_filter.1 hπ₀).2, ?_⟩
-  have hsub : (univ : Finset (Equiv.Perm (Fin n))) ⊆
-      P.biUnion fun π => univ.filter fun σ => CubeMono (pull χ σ) (patLab M r π) := by
-    intro σ _
-    obtain ⟨π, hπ, h⟩ := hcover σ
-    exact mem_biUnion.2 ⟨π, hπ, mem_filter.2 ⟨mem_univ _, h⟩⟩
-  have hP : #P ≤ (t + 2) ^ M := by
-    calc #P ≤ #(univ : Finset (Fin M → Bool ⊕ Fin t)) := card_le_card (filter_subset _ _)
-      _ = (t + 2) ^ M := by simp [Fintype.card_sum, add_comm]
-  calc Fintype.card (Equiv.Perm (Fin n)) = #(univ : Finset (Equiv.Perm (Fin n))) := card_univ.symm
-    _ ≤ ∑ π ∈ P, Ncount χ (patLab M r π) := (card_le_card hsub).trans card_biUnion_le
-    _ ≤ ∑ _π ∈ P, Ncount χ (patLab M r π₀) := sum_le_sum fun π hπ => hmax π hπ
-    _ = #P * Ncount χ (patLab M r π₀) := by rw [sum_const, smul_eq_mul]
-    _ ≤ (t + 2) ^ M * Ncount χ (patLab M r π₀) := Nat.mul_le_mul_right _ hP
 
 lemma patVal_eq_inl (a : Bool ⊕ Fin t) (i : Fin t) :
     patVal a = Sum.inl i ↔ a = Sum.inr i := by

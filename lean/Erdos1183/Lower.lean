@@ -1,4 +1,5 @@
 import Erdos1183.Chain
+import Erdos1183.Box
 
 /-!
 # The lower bound `F(n) ≥ c_t n^{t+1}`
@@ -7,7 +8,8 @@ import Erdos1183.Chain
   orderings.
 * `exists_family`: monochromatic block-chain cubes of one ordering give a monochromatic
   union-closed family of at least half their number.
-* `card_le_bigF`: the combination, `#P ≤ 2 (t+2)^M M^{t+1} F(n)`.
+* `card_le_bigF`: the combination, `#P ≤ 2 D M^{t+1} F(n)`, where `1/D` is the proportion of
+  orderings supplied by supersaturation (`D = 2^{2^t}` by `exists_good_pattern`).
 -/
 
 open Finset
@@ -253,13 +255,13 @@ section Bound
 variable {n m t M : ℕ}
 
 /-- **Combination.** If `P` is a set of (level, generators) pairs with all generators below all
-levels, then `#P ≤ 2 (t+2)^M M^{t+1} F(n)`. -/
-theorem card_le_bigF (ht : 1 ≤ t)
+levels, then `#P ≤ 2 D M^{t+1} F(n)`. -/
+theorem card_le_bigF (D : ℕ) (ht : 1 ≤ t)
     (hgood : ∀ r (χ : Colouring n), ∃ π : Fin M → Bool ⊕ Fin t, (∀ i, ∃ q, π q = Sum.inr i) ∧
-      Fintype.card (Equiv.Perm (Fin n)) ≤ (t + 2) ^ M * Ncount χ (patLab (n := n) M r π))
+      Fintype.card (Equiv.Perm (Fin n)) ≤ D * Ncount χ (patLab (n := n) M r π))
     (hmn : m * M < n) (P : Finset (Fin m × Finset (Fin m)))
     (hP : ∀ x ∈ P, ∀ y ∈ P, ∀ a ∈ y.2, a < x.1) (hPt : ∀ x ∈ P, #x.2 = t) :
-    #P ≤ 2 * (t + 2) ^ M * M ^ (t + 1) * bigF n := by
+    #P ≤ 2 * D * M ^ (t + 1) * bigF n := by
   rcases P.eq_empty_or_nonempty with rfl | ⟨x₀, hx₀⟩
   · simp
   have h : m * M ≤ n := hmn.le
@@ -276,8 +278,8 @@ theorem card_le_bigF (ht : 1 ≤ t)
   obtain ⟨χ, hχ⟩ := (bigF_le_iff (n := n) (bigF n)).1 le_rfl
   have : Nonempty (Fin m → Fin M) := ⟨fun _ => ⟨0, hM0⟩⟩
   obtain ⟨b, σ, hbσ⟩ := exists_le_mul_card_filter P
-    (fun x b σ => CubeMono (pull χ σ) (chainLab h b x.1 x.2)) ((t + 2) ^ M) (M ^ (m - (t + 1)))
-    (fun x hx => card_goodSizes h χ hmn ht (fun r => hgood r χ) x.1 x.2 (hPt x hx)
+    (fun x b σ => CubeMono (pull χ σ) (chainLab h b x.1 x.2)) (D) (M ^ (m - (t + 1)))
+    (fun x hx => card_goodSizes h χ D hmn ht (fun r => hgood r χ) x.1 x.2 (hPt x hx)
       (hP x hx x hx))
   obtain ⟨𝓕, hU, hMono, h𝓕⟩ := exists_family h b σ χ P hP
   have h𝓕' := hχ 𝓕 hU hMono
@@ -286,13 +288,13 @@ theorem card_le_bigF (ht : 1 ≤ t)
     rw [← pow_add, Nat.sub_add_cancel hm]
   have hpos : 0 < M ^ (m - (t + 1)) := pow_pos hM0 _
   have key : #P * M ^ (m - (t + 1)) ≤
-      (2 * (t + 2) ^ M * M ^ (t + 1) * bigF n) * M ^ (m - (t + 1)) := by
+      (2 * D * M ^ (t + 1) * bigF n) * M ^ (m - (t + 1)) := by
     calc #P * M ^ (m - (t + 1))
-        ≤ (t + 2) ^ M * M ^ m *
+        ≤ D * M ^ m *
           #(P.filter fun x => CubeMono (pull χ σ) (chainLab h b x.1 x.2)) := hbσ
-      _ ≤ (t + 2) ^ M * M ^ m * (2 * bigF n) :=
+      _ ≤ D * M ^ m * (2 * bigF n) :=
           Nat.mul_le_mul_left _ (h𝓕.trans (Nat.mul_le_mul_left _ h𝓕'))
-      _ = (2 * (t + 2) ^ M * M ^ (t + 1) * bigF n) * M ^ (m - (t + 1)) := by
+      _ = (2 * D * M ^ (t + 1) * bigF n) * M ^ (m - (t + 1)) := by
           rw [hsplit]; ring
   exact Nat.le_of_mul_le_mul_right key hpos
 
@@ -310,15 +312,16 @@ lemma card_filter_lt_val (m s : ℕ) (hs : s ≤ m) :
   exact this
 
 /-- **Polynomial lower bound.** For every `t ≥ 1` there are `M > 0` and `K > 0` such that
-`(s + 1 - t)^{t+1} ≤ K F(n)` for all `n ≥ 1`, where `s = ⌊⌊(n-1)/M⌋/2⌋`. -/
+`(s + 1 - t)^{t+1} ≤ K F(n)` for all `n ≥ 1`, where `s = ⌊⌊(n-1)/M⌋/2⌋`. One may take
+`M = t^2 2^{2^t}` and `K = t! · 2 · 2^{2^t} M^{t+1}`. -/
 theorem pow_le_mul_bigF (t : ℕ) (ht : 1 ≤ t) : ∃ M > 0, ∃ K > 0, ∀ n, 1 ≤ n →
     ((n - 1) / M / 2 + 1 - t) ^ (t + 1) ≤ K * bigF n := by
-  obtain ⟨M, hM⟩ := exists_good_pattern t
-  have hM0 : 0 < M := by
-    obtain ⟨π, hπ, -⟩ := hM 0 0 (fun _ => true)
-    obtain ⟨q, -⟩ := hπ ⟨0, ht⟩
-    exact q.pos
-  refine ⟨M, hM0, t.factorial * (2 * (t + 2) ^ M * M ^ (t + 1)), by positivity, fun n hn => ?_⟩
+  have hM0 : 0 < boxM t := by
+    unfold boxM boxL
+    positivity
+  refine ⟨boxM t, hM0, t.factorial * (2 * 2 ^ 2 ^ t * boxM t ^ (t + 1)), by positivity,
+    fun n hn => ?_⟩
+  set M := boxM t with hMdef
   set m := (n - 1) / M with hm
   set s := m / 2 with hs
   have hmn : m * M < n := by
@@ -337,7 +340,8 @@ theorem pow_le_mul_bigF (t : ℕ) (ht : 1 ≤ t) : ∃ M > 0, ∃ K > 0, ∀ n, 
     intro x hx
     simp only [P, mem_product, mem_powersetCard] at hx
     exact hx.2.2
-  have hbound := card_le_bigF ht (fun r χ => hM n r χ) hmn P hP hPt
+  have hbound := card_le_bigF (2 ^ 2 ^ t) ht (fun r χ => exists_good_pattern t ht r χ)
+    hmn P hP hPt
   have hcardP : #P = (m - s) * s.choose t := by
     simp only [P, card_product, card_powersetCard, card_filter_le_val,
       card_filter_lt_val m s hsm]
@@ -348,8 +352,8 @@ theorem pow_le_mul_bigF (t : ℕ) (ht : 1 ≤ t) : ∃ M > 0, ∃ K > 0, ∀ n, 
   calc (s + 1 - t) ^ (t + 1) = (s + 1 - t) * (s + 1 - t) ^ t := by ring
     _ ≤ (m - s) * (t.factorial * s.choose t) := Nat.mul_le_mul hms hdesc
     _ = t.factorial * #P := by rw [hcardP]; ring
-    _ ≤ t.factorial * (2 * (t + 2) ^ M * M ^ (t + 1) * bigF n) := Nat.mul_le_mul_left _ hbound
-    _ = t.factorial * (2 * (t + 2) ^ M * M ^ (t + 1)) * bigF n := by ring
+    _ ≤ t.factorial * (2 * 2 ^ 2 ^ t * M ^ (t + 1) * bigF n) := Nat.mul_le_mul_left _ hbound
+    _ = t.factorial * (2 * 2 ^ 2 ^ t * M ^ (t + 1)) * bigF n := by ring
 
 end Bound
 

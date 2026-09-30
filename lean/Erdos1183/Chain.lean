@@ -145,8 +145,8 @@ lemma card_gridLab_true :
     simp only [mem_filter] at hq hq'
     exact hkk' (hq.2.1.symm.trans hq'.2.1)
 
-/-- If the class sizes of the block-chain labelling match those of a Hales–Jewett pattern
-(generators matched along `ι`), the two cubes are monochromatic for equally many orderings. -/
+/-- If the class sizes of the block-chain labelling match those of a pattern (generators
+matched along `ι`), the two cubes are monochromatic for equally many orderings. -/
 lemma Ncount_chainLab_eq {t r : ℕ} (χ : Colouring n) (π : Fin M → Bool ⊕ Fin t)
     (ι : Fin t ↪ Fin m) (hι : ∀ k, k ∈ A ↔ ∃ i, ι i = k) (hAj : ∀ a ∈ A, a ≤ j)
     (hM : M ≤ n) (hMr : M + r ≤ n)
@@ -208,14 +208,15 @@ lemma card_piFinset_slice (s : Finset (Fin m)) (z : Fin M) :
   simp_rw [hk]
   rw [prod_ite_mem, univ_inter, prod_const, card_compl, Fintype.card_fin]
 
-/-- **Slice counting.** For a level `j` and a set `A` of `t ≥ 1` earlier generators, at least
-`M^{m-t-1}` block-size vectors are good: one for every choice of the sizes of the blocks
-outside `A ∪ {j}`. -/
-lemma card_goodSizes (hmn : m * M < n) (ht : 1 ≤ t)
+/-- **Slice counting.** Suppose that for every `r` some proper pattern of the window `Fin M`
+is monochromatic for at least a `1/D` fraction of the orderings. For a level `j` and a set `A`
+of `t ≥ 1` earlier generators, at least `M^{m-t-1}` block-size vectors are then good: one for
+every choice of the sizes of the blocks outside `A ∪ {j}`. -/
+lemma card_goodSizes (D : ℕ) (hmn : m * M < n) (ht : 1 ≤ t)
     (hgood : ∀ r, ∃ π : Fin M → Bool ⊕ Fin t, (∀ i, ∃ q, π q = Sum.inr i) ∧
-      Fintype.card (Equiv.Perm (Fin n)) ≤ (t + 2) ^ M * Ncount χ (patLab (n := n) M r π))
+      Fintype.card (Equiv.Perm (Fin n)) ≤ D * Ncount χ (patLab (n := n) M r π))
     (j : Fin m) (A : Finset (Fin m)) (hA : #A = t) (hAj : ∀ a ∈ A, a < j) :
-    M ^ (m - (t + 1)) ≤ #(goodSizes h χ ((t + 2) ^ M) j A) := by
+    M ^ (m - (t + 1)) ≤ #(goodSizes h χ (D) j A) := by
   have hm : 1 ≤ m := j.pos
   have hM0 : 0 < M := by
     obtain ⟨π, hπ, -⟩ := hgood 0
@@ -236,12 +237,12 @@ lemma card_goodSizes (hmn : m * M < n) (ht : 1 ≤ t)
       exact ⟨i, hi⟩
     · rintro ⟨i, rfl⟩
       exact A.orderEmbOfFin_mem hA i
-  -- the Hales–Jewett pattern chosen for given sizes below `j`
+  -- the pattern chosen for given sizes below `j`
   let R : (Fin m → Fin M) → ℕ := fun b₀ =>
     ∑ k ∈ univ.filter (fun k => k < j ∧ k ∉ A), ((b₀ k).val + 1)
   let π : (Fin m → Fin M) → Fin M → Bool ⊕ Fin t := fun b₀ => (hgood (R b₀ + 1)).choose
   have hπ : ∀ b₀, (∀ i, ∃ q, π b₀ q = Sum.inr i) ∧ Fintype.card (Equiv.Perm (Fin n)) ≤
-      (t + 2) ^ M * Ncount χ (patLab (n := n) M (R b₀ + 1) (π b₀)) :=
+      D * Ncount χ (patLab (n := n) M (R b₀ + 1) (π b₀)) :=
     fun b₀ => (hgood (R b₀ + 1)).choose_spec
   let idx : ∀ k, k ∈ A → Fin t := fun k hk => ((hι k).1 hk).choose
   have hidx : ∀ k hk, ι (idx k hk) = k := fun k hk => ((hι k).1 hk).choose_spec
@@ -289,7 +290,7 @@ lemma card_goodSizes (hmn : m * M < n) (ht : 1 ≤ t)
     have h4 : #(univ.filter (fun k : Fin m => k < j ∧ k ∉ A)) * M ≤ (m - 1) * M :=
       Nat.mul_le_mul_right _ h2
     omega
-  have hG : ∀ b₀, G b₀ ∈ goodSizes h χ ((t + 2) ^ M) j A := by
+  have hG : ∀ b₀, G b₀ ∈ goodSizes h χ (D) j A := by
     intro b₀
     simp only [goodSizes, mem_filter, mem_univ, true_and]
     rw [Ncount_chainLab_eq h (G b₀) j A χ (π b₀) ι hι (fun a ha => (hAj a ha).le)
