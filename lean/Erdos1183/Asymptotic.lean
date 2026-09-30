@@ -6,10 +6,8 @@ import Mathlib.Analysis.SpecialFunctions.Log.Basic
 
 Taking `d = 2 (⌊log₂ n⌋ + 1)` in `bigF_le_sum_choose` gives
 `F(n) ≤ d · n^d = exp(O((log n)^2))`, which is `(1 + o(1))^n`.
-This is Erdős's second conjecture for Problem 1183.
-
-Erdős's first conjecture, `F(n) > n^c` for every fixed `c` and all large `n`, is stated
-below as `FirstConjecture` and is **not** proved here; it remains open.
+This gives Erdős's second conjecture for Problem 1183; the statement in the form used on
+erdosproblems.com is `SecondConjecture` in `Erdos1183.Main`.
 -/
 
 open Filter Finset Real
@@ -92,18 +90,5 @@ theorem bigF_subexponential :
   have hprod : (d : ℝ) * (1 + L) ≤ (4 * L + 2) * (1 + L) :=
     mul_le_mul_of_nonneg_right hdL (by linarith)
   nlinarith
-
-/-- Erdős's second conjecture for Problem 1183, as stated on erdosproblems.com:
-`F(n) < (1 + o(1))^n`. -/
-def SecondConjecture : Prop :=
-  ∀ ε : ℝ, 0 < ε → ∀ᶠ n : ℕ in atTop, (bigF n : ℝ) < (1 + ε) ^ n
-
-theorem second_conjecture : SecondConjecture := bigF_subexponential
-
-/-- Erdős's first conjecture for Problem 1183: `F(n) > n^c` for every fixed `c` and all
-large `n` (equivalently `F(n) ≥ n^{ω(n)}` for some `ω(n) → ∞`).
-**This is open and is not proved in this development.** -/
-def FirstConjecture : Prop :=
-  ∀ c : ℕ, ∀ᶠ n : ℕ in atTop, n ^ c < bigF n
 
 end Erdos1183
