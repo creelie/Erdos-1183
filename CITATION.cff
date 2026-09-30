@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this work, please cite it as below."
-title: "Monochromatic Union-Closed Families in the Boolean Lattice (Erdős Problem 1183), with a Lean 4 formalization"
+title: "On the Erdős–Ulam problem for monochromatic union-closed families (Erdős Problem 1183): paper, code and Lean formalisation"
 type: software
 authors:
   - family-names: Bhattacharjee
@@ -23,7 +23,10 @@ license: CC-BY-4.0
 date-released: 2026-09-30
 keywords:
   - Erdős problems
+  - Erdős–Ulam problem
   - union-closed families
   - Ramsey theory
+  - Hales–Jewett theorem
+  - Hilbert cubes
   - Sauer–Shelah lemma
   - Lean 4

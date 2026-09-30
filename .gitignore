@@ -6,3 +6,6 @@ paper/*.fls
 paper/*.fdb_latexmk
 paper/*.synctex.gz
 __pycache__/
+paper/*.rpi
+paper/figures/*.aux
+paper/figures/*.log

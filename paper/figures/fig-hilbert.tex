@@ -1,0 +1,30 @@
+% A cardinality colouring g of {0,...,20} and a monochromatic Hilbert cube H(5;3,7).
+\begin{tikzpicture}[x=0.62cm,
+    r/.style={circle, draw=red!55!black, fill=red!75!black, inner sep=0pt, minimum size=6.5pt},
+    b/.style={rectangle, draw=blue!55!black, fill=blue!15, line width=0.8pt, inner sep=0pt, minimum size=6pt},
+    arc/.style={line width=0.8pt, -{Stealth[length=4.5pt]}},
+    num/.style={font=\scriptsize, inner sep=1.5pt}]
+  \draw[gray!60, line width=0.5pt] (-0.4,0) -- (20.4,0);
+  \foreach \k/\c in {0/b,1/r,2/b,3/b,4/r,5/r,6/b,7/r,8/r,9/b,10/b,11/r,12/r,13/b,14/r,15/r,16/b,17/b,18/r,19/b,20/r} {
+    \node[\c] (p\k) at (\k,0) {};
+  }
+  \foreach \k in {5,8,12,15} { \draw[red!75!black, line width=1pt] (\k,0) circle (7pt); }
+  % the four additions: two above the line, two below, so that no two arcs cross
+  \draw[arc, orange!80!black] (p5.north) to[bend left=35]
+    node[midway, above, font=\footnotesize] {$+a_2$} (p12.north);
+  \draw[arc, teal!60!black] (p12.north east) to[bend left=50]
+    node[midway, above, font=\footnotesize] {$+a_1$} (p15.north west);
+  \draw[arc, teal!60!black] (p5.south east) to[bend right=50]
+    node[midway, below, font=\footnotesize] {$+a_1$} (p8.south west);
+  \draw[arc, orange!80!black] (p8.south east) to[bend right=35]
+    node[midway, below, font=\footnotesize] {$+a_2$} (p15.south west);
+  % numbers
+  \node[num, below=5pt] at (0,0) {$0$};
+  \node[num, below=5pt] at (20,0) {$20$};
+  \node[num, below left=4pt and 0pt] at (5,0) {$u=5$};
+  \node[num, above=6pt] at (8,0) {$8$};
+  \node[num, below=6pt] at (12,0) {$12$};
+  \node[num, below right=4pt and 0pt] at (15,0) {$15$};
+  \node[font=\small, anchor=west] at (-0.4,2.0)
+    {$H(u;a_1,a_2)=\{u,\ u+a_1,\ u+a_2,\ u+a_1+a_2\}$ with $u=5$, $a_1=3$, $a_2=7$};
+\end{tikzpicture}

@@ -1,0 +1,24 @@
+% The union rule (C_j \ Y_B) cup (C_j' \ Y_B') = C_j' \ Y_{B cap B'}.
+\begin{tikzpicture}[x=0.62cm, y=0.62cm]
+  \newcommand{\blockrow}[3]{% y, list, label
+    \foreach \k in {1,...,9} {
+      \pgfmathtruncatemacro{\v}{#2[\k-1]}
+      \ifnum\v=1
+        \draw[teal!50!black, fill=teal!35, line width=0.4pt] (\k-1,#1) rectangle ++(0.8,0.8);
+      \else
+        \draw[gray!50, line width=0.4pt] (\k-1,#1) rectangle ++(0.8,0.8);
+      \fi
+    }
+    \node[left, font=\small] at (-0.3,#1+0.4) {#3};
+  }
+  \blockrow{4}{{1,0,1,0,1,1,0,0,0}}{$C_6\setminus Y_{\{2,4\}}$}
+  \blockrow{2.6}{{1,1,0,0,1,1,1,1,0}}{$\cup\;\;C_8\setminus Y_{\{3,4\}}$}
+  \draw[line width=0.5pt] (-0.1,2.25) -- (8.9,2.25);
+  \blockrow{1.2}{{1,1,1,0,1,1,1,1,0}}{$=\;\;C_8\setminus Y_{\{4\}}$}
+  \foreach \k in {1,...,9} { \node[font=\scriptsize] at (\k-0.6,0.75) {$\k$}; }
+  % mark s
+  \draw[dashed, line width=0.5pt] (4.9,0.5) -- (4.9,5.1);
+  \node[font=\footnotesize, above] at (4.9,5.1) {$s=5$};
+  \node[font=\footnotesize, align=left, right] at (9.3,1.6)
+    {$\{2,4\}\cap\{3,4\}=\{4\}$};
+\end{tikzpicture}

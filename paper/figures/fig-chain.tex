@@ -1,0 +1,60 @@
+% A block chain: slots G_1..G_m, blocks Y_k of sizes beta_k, and one member C_j \ Y_B.
+\begin{tikzpicture}[cell/.style={minimum size=0.42cm, inner sep=0pt, outer sep=0pt}]
+  \def\M{6}
+  \def\colsep{0.78}
+  % beta_k for k = 1..10
+  \foreach \k/\b in {1/4,2/2,3/5,4/3,5/6,6/2,7/4,8/5,9/3,10/4} {
+    \pgfmathsetmacro{\xx}{(\k-1)*\colsep}
+    % slot outline
+    \foreach \r in {1,...,\M} {
+      \draw[gray!45, line width=0.3pt] (\xx,{(\r-1)*0.42}) rectangle ++(0.42,0.42);
+    }
+    % which kind of block is it?
+    \ifnum\k=4
+      \foreach \r in {1,...,\b} {
+        \draw[red!70!black, dashed, line width=0.7pt, pattern=north east lines,
+          pattern color=red!50] (\xx,{(\r-1)*0.42}) rectangle ++(0.42,0.42);
+      }
+    \else\ifnum\k=2
+      \foreach \r in {1,...,\b} {
+        \draw[black, line width=0.9pt, fill=teal!55] (\xx,{(\r-1)*0.42}) rectangle ++(0.42,0.42);
+      }
+    \else\ifnum\k>8
+      \foreach \r in {1,...,\b} {
+        \draw[gray!70, line width=0.4pt, fill=gray!20] (\xx,{(\r-1)*0.42}) rectangle ++(0.42,0.42);
+      }
+    \else
+      \foreach \r in {1,...,\b} {
+        \draw[teal!50!black, line width=0.4pt, fill=teal!30] (\xx,{(\r-1)*0.42}) rectangle ++(0.42,0.42);
+      }
+    \fi\fi\fi
+    \node[font=\scriptsize, below] at ({\xx+0.21},-0.02) {$\k$};
+  }
+  % annotations
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror}, line width=0.6pt]
+    (0,-0.42) -- ({4*\colsep+0.42},-0.42)
+    node[midway, below=6pt, font=\footnotesize] {indices $1,\dots,s$: generators};
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror}, line width=0.6pt]
+    ({5*\colsep},-0.42) -- ({9*\colsep+0.42},-0.42)
+    node[midway, below=6pt, font=\footnotesize] {indices $s+1,\dots,m$: levels};
+  % the level j = 8
+  \draw[-{Stealth[length=5pt]}, line width=0.7pt] ({7*\colsep+0.21},{\M*0.42+0.75}) --
+    ({7*\colsep+0.21},{\M*0.42+0.12}) node[pos=0, above, font=\footnotesize] {level $j$};
+  % one slot and its block
+  \draw[decorate, decoration={brace, amplitude=4pt}, line width=0.5pt]
+    ({-0.08},0) -- ({-0.08},{\M*0.42}) node[midway, left=5pt, font=\footnotesize] {$G_k$, $|G_k|=M$};
+  \draw[decorate, decoration={brace, amplitude=4pt, mirror}, line width=0.5pt]
+    ({9*\colsep+0.5},0) -- ({9*\colsep+0.5},{4*0.42}) node[midway, right=5pt, font=\footnotesize] {$|Y_k|=\beta_k$};
+  % legend
+  \begin{scope}[shift={(0.2,-1.85)}]
+    \draw[teal!50!black, fill=teal!30, line width=0.4pt] (0,0) rectangle ++(0.34,0.34);
+    \node[right, font=\footnotesize] at (0.4,0.17) {block of $C_j\setminus Y_B$};
+    \draw[black, fill=teal!55, line width=0.9pt] (4.1,0) rectangle ++(0.34,0.34);
+    \node[right, font=\footnotesize] at (4.5,0.17) {generator in $A\setminus B$, kept};
+    \draw[red!70!black, dashed, pattern=north east lines, pattern color=red!50, line width=0.7pt]
+      (0,-0.55) rectangle ++(0.34,0.34);
+    \node[right, font=\footnotesize] at (0.4,-0.38) {generator in $B$, removed};
+    \draw[gray!70, fill=gray!20, line width=0.4pt] (4.1,-0.55) rectangle ++(0.34,0.34);
+    \node[right, font=\footnotesize] at (4.5,-0.38) {block beyond level $j$};
+  \end{scope}
+\end{tikzpicture}
