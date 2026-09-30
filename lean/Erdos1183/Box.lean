@@ -10,9 +10,9 @@ For `x x' : Fin t → G` and `ω : Fin t → Bool`, the point `boxPt x x' ω` ta
 `x' i` where `ω i = true` and `x i` elsewhere. The box inequality (`box_ineq`) says that for
 `f ≥ 0`, the average over `x, x'` of `∏_ω f (boxPt x x' ω)` is at least `(E f)^(2^t)`.
 
-Applied to the colouring `x ↦ χ (σ (S x ∪ R))` of a grid of `t` chains of length `L`, it shows
-that a proportion `2^{-2^t}` of the orderings makes some fixed cube monochromatic
-(`exists_good_pattern`), with `L = t 2^{2^t}`.
+Applied to the colour classes of the colouring `x ↦ χ (σ (S x ∪ R))` of a grid of `t` chains
+of length `L`, it shows that for `k ≥ 2` colours a proportion `k^{-2^t}` of the orderings makes
+some fixed cube monochromatic (`exists_good_pattern`), with `L = t k^{2^t}`.
 -/
 
 open Finset
@@ -166,86 +166,71 @@ theorem box_ineq : ∀ (t : ℕ) (f : (Fin t → G) → ℝ), (∀ x, 0 ≤ f x)
       _ ≤ (∑ p, Z p) ^ 2 := hsq
       _ ≤ N ^ (2 * t) * ∑ p, Z p ^ 2 := hcs
 
-/-- **Monochromatic boxes.** For every `g : G^t → Bool`, at least `2 N^{2t} / 2^{2^t}` pairs
-`(x, x')` have a box on which `g` is constant. -/
-theorem card_mono_boxes (t : ℕ) (g : (Fin t → G) → Bool) :
-    2 * (Fintype.card G : ℝ) ^ (2 * t) ≤ 2 ^ 2 ^ t *
+/-- **Monochromatic boxes.** For every `g : G^t → κ` with `k` colours, at least
+`N^{2t} / k^{2^t - 1}` pairs `(x, x')` have a box on which `g` is constant. -/
+theorem card_mono_boxes {κ : Type*} [Fintype κ] [DecidableEq κ] (t : ℕ)
+    (g : (Fin t → G) → κ) :
+    (Fintype.card G : ℝ) ^ (2 * t) ≤ (Fintype.card κ : ℝ) ^ (2 ^ t - 1) *
       (#(univ.filter fun p : (Fin t → G) × (Fin t → G) =>
         ∀ ω, g (boxPt p.1 p.2 ω) = g p.1) : ℝ) := by
   have hN : (0 : ℝ) < Fintype.card G := by exact_mod_cast Fintype.card_pos
+  have : Nonempty κ := ⟨g fun _ => Classical.arbitrary G⟩
+  have hk : (0 : ℝ) < Fintype.card κ := by exact_mod_cast Fintype.card_pos
   set N : ℝ := (Fintype.card G : ℝ) with hNdef
-  set u : (Fin t → G) → ℝ := fun x => if g x = true then 1 else 0 with hu
-  set v : (Fin t → G) → ℝ := fun x => if g x = false then 1 else 0 with hv
-  have hu0 : ∀ x, 0 ≤ u x := fun x => by simp only [hu]; split_ifs <;> norm_num
-  have hv0 : ∀ x, 0 ≤ v x := fun x => by simp only [hv]; split_ifs <;> norm_num
-  have huv : ∀ x, u x + v x = 1 := fun x => by
-    simp only [hu, hv]; cases g x <;> norm_num
-  -- the two box sums count the pairs whose box is all `true`, respectively all `false`
+  set k : ℝ := (Fintype.card κ : ℝ) with hkdef
+  set u : κ → (Fin t → G) → ℝ := fun c x => if g x = c then 1 else 0 with hu
+  have hu0 : ∀ c x, 0 ≤ u c x := fun c x => by simp only [hu]; split_ifs <;> norm_num
+  -- the box sums of the colour classes count the pairs whose box has that colour
   have hpt : ∀ p : (Fin t → G) × (Fin t → G),
-      (∏ ω, u (boxPt p.1 p.2 ω)) + (∏ ω, v (boxPt p.1 p.2 ω)) ≤
+      ∑ c, (∏ ω, u c (boxPt p.1 p.2 ω)) ≤
         if (∀ ω, g (boxPt p.1 p.2 ω) = g p.1) then (1 : ℝ) else 0 := by
     intro p
-    simp only [hu, hv, Fintype.prod_boole]
-    have hAC : (∀ ω, g (boxPt p.1 p.2 ω) = true) → ∀ ω, g (boxPt p.1 p.2 ω) = g p.1 :=
-      fun h ω => by rw [h ω, ← boxPt_false p.1 p.2, h]
-    have hBC : (∀ ω, g (boxPt p.1 p.2 ω) = false) → ∀ ω, g (boxPt p.1 p.2 ω) = g p.1 :=
-      fun h ω => by rw [h ω, ← boxPt_false p.1 p.2, h]
-    have hAB : ¬ ((∀ ω, g (boxPt p.1 p.2 ω) = true) ∧ ∀ ω, g (boxPt p.1 p.2 ω) = false) :=
-      fun h => by
-        have h1 := h.1 fun _ => false
-        rw [h.2 fun _ => false] at h1
-        exact Bool.false_ne_true h1
-    by_cases hA : ∀ ω, g (boxPt p.1 p.2 ω) = true
-    · have hB : ¬ ∀ ω, g (boxPt p.1 p.2 ω) = false := fun hB => hAB ⟨hA, hB⟩
-      rw [ite_eq_left hA, ite_eq_right hB, ite_eq_left (hAC hA)]
-      norm_num
-    · by_cases hB : ∀ ω, g (boxPt p.1 p.2 ω) = false
-      · rw [ite_eq_right hA, ite_eq_left hB, ite_eq_left (hBC hB)]
-        norm_num
-      · rw [ite_eq_right hA, ite_eq_right hB]
-        split_ifs <;> norm_num
-  have hbox : boxSum u + boxSum v ≤ (#(univ.filter fun p : (Fin t → G) × (Fin t → G) =>
+    simp only [hu, Fintype.prod_boole]
+    by_cases hm : ∀ ω, g (boxPt p.1 p.2 ω) = g p.1
+    · rw [ite_eq_left hm, Finset.sum_boole]
+      have hsub : (univ.filter fun c => ∀ ω, g (boxPt p.1 p.2 ω) = c) ⊆ {g p.1} := by
+        intro c hc
+        simp only [mem_filter, mem_univ, true_and] at hc
+        have h0 := hc fun _ => false
+        rw [boxPt_false] at h0
+        simp [h0]
+      have := card_le_card hsub
+      rw [card_singleton] at this
+      exact_mod_cast this
+    · rw [ite_eq_right hm]
+      refine le_of_eq (sum_eq_zero fun c _ => ite_eq_right fun hc => hm fun ω => ?_)
+      rw [hc ω, ← hc fun _ => false, boxPt_false]
+  have hbox : ∑ c, boxSum (u c) ≤ (#(univ.filter fun p : (Fin t → G) × (Fin t → G) =>
       ∀ ω, g (boxPt p.1 p.2 ω) = g p.1) : ℝ) := by
-    rw [card_filter, Nat.cast_sum, boxSum, boxSum, ← sum_add_distrib]
+    rw [card_filter, Nat.cast_sum]
+    simp only [boxSum]
+    rw [sum_comm]
     refine sum_le_sum fun p _ => (hpt p).trans ?_
     split_ifs <;> simp
-  set μ : ℝ := (∑ x, u x) / N ^ t with hμ
-  have hμv : (∑ x, v x) / N ^ t = 1 - μ := by
-    have : ∑ x, v x = N ^ t - ∑ x, u x := by
-      have h := sum_add_distrib (s := (univ : Finset (Fin t → G))) (f := u) (g := v)
-      simp only [huv, sum_const, card_univ, Fintype.card_fun, Fintype.card_fin, nsmul_eq_mul,
-        mul_one, Nat.cast_pow] at h
-      rw [← hNdef] at h
-      linarith
-    rw [this, hμ, sub_div, div_self (by positivity)]
-  have hμ0 : 0 ≤ μ := div_nonneg (sum_nonneg fun x _ => hu0 x) (by positivity)
-  have hμ1 : 0 ≤ 1 - μ := by
-    rw [← hμv]; exact div_nonneg (sum_nonneg fun x _ => hv0 x) (by positivity)
-  have hbu := box_ineq t u hu0
-  have hbv := box_ineq t v hv0
-  rw [← hNdef, ← hμ] at hbu
-  rw [← hNdef, hμv] at hbv
-  -- `μ^K + (1 - μ)^K ≥ 2^{1-K}` by convexity
+  -- the densities of the colour classes sum to one
+  set μ : κ → ℝ := fun c => (∑ x, u c x) / N ^ t with hμ
+  have hμ0 : ∀ c, 0 ≤ μ c := fun c => div_nonneg (sum_nonneg fun x _ => hu0 c x) (by positivity)
+  have hμ1 : ∑ c, μ c = 1 := by
+    have h1 : ∑ c, ∑ x, u c x = N ^ t := by
+      rw [sum_comm]
+      simp only [hu, sum_ite_eq, mem_univ, ite_true, sum_const, card_univ, Fintype.card_fun,
+        Fintype.card_fin, nsmul_eq_mul, mul_one, Nat.cast_pow, hNdef]
+    rw [hμ, ← sum_div, h1, div_self (by positivity)]
+  -- the power mean inequality `∑ μ_c^K ≥ k^{1-K}`
   have hK : 2 ^ t = (2 ^ t - 1) + 1 := (Nat.succ_pred_eq_of_pos (by positivity)).symm
-  have hconv : 2 ≤ 2 ^ 2 ^ t * (μ ^ 2 ^ t + (1 - μ) ^ 2 ^ t) := by
-    have h := pow_sum_div_card_le_sum_pow (s := univ)
-      (f := fun b : Bool => if b then μ else 1 - μ)
-      (fun b _ => by cases b <;> simp [hμ0, hμ1]) (2 ^ t - 1)
-    rw [← hK] at h
-    simp only [Fintype.sum_bool, ite_true, Bool.false_eq_true, ite_false, add_sub_cancel,
-      one_pow, card_univ, Fintype.card_bool, Nat.cast_ofNat] at h
-    have h2 : (0 : ℝ) < 2 ^ (2 ^ t - 1) := by positivity
-    rw [div_le_iff₀ h2] at h
-    have h3 : (2 : ℝ) ^ 2 ^ t = 2 * 2 ^ (2 ^ t - 1) := by
-      rw [← pow_succ', ← hK]
-    rw [h3]
-    nlinarith
-  have hNt : 0 < N ^ (2 * t) := by positivity
-  calc 2 * N ^ (2 * t) ≤ N ^ (2 * t) * (2 ^ 2 ^ t * (μ ^ 2 ^ t + (1 - μ) ^ 2 ^ t)) := by
-        nlinarith
-    _ = 2 ^ 2 ^ t * (N ^ (2 * t) * μ ^ 2 ^ t + N ^ (2 * t) * (1 - μ) ^ 2 ^ t) := by ring
-    _ ≤ 2 ^ 2 ^ t * (boxSum u + boxSum v) := by gcongr
-    _ ≤ _ := by gcongr
+  have hpm : 1 ≤ k ^ (2 ^ t - 1) * ∑ c, μ c ^ 2 ^ t := by
+    have h := pow_sum_div_card_le_sum_pow (s := univ) (f := μ) (fun c _ => hμ0 c) (2 ^ t - 1)
+    rw [← hK, hμ1, one_pow, card_univ, ← hkdef] at h
+    have hkK : (0 : ℝ) < k ^ (2 ^ t - 1) := by positivity
+    rw [div_le_iff₀ hkK] at h
+    linarith
+  calc N ^ (2 * t) ≤ N ^ (2 * t) * (k ^ (2 ^ t - 1) * ∑ c, μ c ^ 2 ^ t) :=
+        le_mul_of_one_le_right (by positivity) hpm
+    _ = k ^ (2 ^ t - 1) * ∑ c, N ^ (2 * t) * μ c ^ 2 ^ t := by
+        rw [← mul_assoc, mul_comm (N ^ (2 * t)), mul_assoc, mul_sum]
+    _ ≤ k ^ (2 ^ t - 1) * ∑ c, boxSum (u c) :=
+        mul_le_mul_of_nonneg_left (sum_le_sum fun c _ => box_ineq t (u c) (hu0 c)) (by positivity)
+    _ ≤ _ := mul_le_mul_of_nonneg_left hbox (by positivity)
 
 lemma card_fiber (t : ℕ) (ht : 1 ≤ t) (i : Fin t) (c : G) :
     #(univ.filter fun x' : Fin t → G => c = x' i) = Fintype.card G ^ (t - 1) := by
@@ -295,45 +280,45 @@ end BoxIneq
 
 section Supersat
 
-/-- The length `L = t 2^{2^t}` of each of the `t` chains. -/
-def boxL (t : ℕ) : ℕ := t * 2 ^ 2 ^ t
+/-- The length `L = t k^{2^t}` of each of the `t` chains, for `k` colours. -/
+def boxL (k t : ℕ) : ℕ := t * k ^ 2 ^ t
 
-/-- The window `M = t L = t^2 2^{2^t}`. -/
-def boxM (t : ℕ) : ℕ := t * boxL t
+/-- The window `M = t L = t^2 k^{2^t}`. -/
+def boxM (k t : ℕ) : ℕ := t * boxL k t
 
 /-- Position `q` of the window is point `k` of chain `i`. -/
-def boxPos (t : ℕ) : Fin (boxM t) ≃ Fin t × Fin (boxL t) := finProdFinEquiv.symm
+def boxPos (k t : ℕ) : Fin (boxM k t) ≃ Fin t × Fin (boxL k t) := finProdFinEquiv.symm
 
 /-- The positions removed from the top at the grid point `x`: point `k` of chain `i` is
 removed when `k ≥ x i`, so that the set kept on chain `i` is its first `x i` points. -/
-def boxW (t : ℕ) (x : Fin t → Fin (boxL t + 1)) : Fin (boxM t) → Bool :=
-  fun q => decide ((x (boxPos t q).1).val ≤ ((boxPos t q).2).val)
+def boxW (k t : ℕ) (x : Fin t → Fin (boxL k t + 1)) : Fin (boxM k t) → Bool :=
+  fun q => decide ((x (boxPos k t q).1).val ≤ ((boxPos k t q).2).val)
 
 /-- The cube pattern of the box with corners `lo ≤ hi`: on chain `i`, points below `lo i` form
 part of the base, points from `lo i` to `hi i` form generator `i`, and the rest are unused. -/
-def boxPat (t : ℕ) (lo hi : Fin t → Fin (boxL t + 1)) : Fin (boxM t) → Bool ⊕ Fin t :=
-  fun q => if ((boxPos t q).2).val < (lo (boxPos t q).1).val then Sum.inl false
-    else if ((boxPos t q).2).val < (hi (boxPos t q).1).val then Sum.inr (boxPos t q).1
+def boxPat (k t : ℕ) (lo hi : Fin t → Fin (boxL k t + 1)) : Fin (boxM k t) → Bool ⊕ Fin t :=
+  fun q => if ((boxPos k t q).2).val < (lo (boxPos k t q).1).val then Sum.inl false
+    else if ((boxPos k t q).2).val < (hi (boxPos k t q).1).val then Sum.inr (boxPos k t q).1
     else Sum.inl true
 
-lemma boxPat_elim (t : ℕ) (lo hi : Fin t → Fin (boxL t + 1)) (hlh : ∀ i, lo i ≤ hi i)
+lemma boxPat_elim (k t : ℕ) (lo hi : Fin t → Fin (boxL k t + 1)) (hlh : ∀ i, lo i ≤ hi i)
     (y : Fin t → Bool) :
-    (fun q => (boxPat t lo hi q).elim id y) = boxW t fun i => if y i then lo i else hi i := by
+    (fun q => (boxPat k t lo hi q).elim id y) = boxW k t fun i => if y i then lo i else hi i := by
   funext q
-  have h := hlh (boxPos t q).1
+  have h := hlh (boxPos k t q).1
   rw [Fin.le_def] at h
   simp only [boxPat, boxW]
-  by_cases hy : y (boxPos t q).1 = true <;>
-    by_cases h1 : ((boxPos t q).2).val < (lo (boxPos t q).1).val <;>
-    by_cases h2 : ((boxPos t q).2).val < (hi (boxPos t q).1).val <;>
+  by_cases hy : y (boxPos k t q).1 = true <;>
+    by_cases h1 : ((boxPos k t q).2).val < (lo (boxPos k t q).1).val <;>
+    by_cases h2 : ((boxPos k t q).2).val < (hi (boxPos k t q).1).val <;>
     simp [h1, h2, hy] <;> omega
 
-lemma boxPat_proper (t : ℕ) (lo hi : Fin t → Fin (boxL t + 1)) (hlh : ∀ i, lo i < hi i)
-    (i : Fin t) : ∃ q, boxPat t lo hi q = Sum.inr i := by
+lemma boxPat_proper (k t : ℕ) (lo hi : Fin t → Fin (boxL k t + 1)) (hlh : ∀ i, lo i < hi i)
+    (i : Fin t) : ∃ q, boxPat k t lo hi q = Sum.inr i := by
   have h := hlh i
   rw [Fin.lt_def] at h
-  have hk : (lo i).val < boxL t := by have := (hi i).isLt; omega
-  refine ⟨(boxPos t).symm (i, ⟨(lo i).val, hk⟩), ?_⟩
+  have hk : (lo i).val < boxL k t := by have := (hi i).isLt; omega
+  refine ⟨(boxPos k t).symm (i, ⟨(lo i).val, hk⟩), ?_⟩
   simp only [boxPat, Equiv.apply_symm_apply, lt_irrefl, ite_false, h, ite_true]
 
 lemma ite_minmax {α : Type*} [LinearOrder α] (a b c : α) (hc : c = a ∨ c = b) :
@@ -359,31 +344,31 @@ lemma boxPt_mem {G : Type*} {t : ℕ} (x x' : Fin t → G) (ω : Fin t → Bool)
   simp only [boxPt]
   split_ifs <;> simp
 
-variable {n : ℕ}
+variable {n : ℕ} {κ : Type*} [Fintype κ] [DecidableEq κ]
 
 /-- The colour of the grid point `x`, for the ordering `σ`. -/
-def boxCol (t r : ℕ) (χ : Colouring n) (σ : Equiv.Perm (Fin n)) (x : Fin t → Fin (boxL t + 1)) :
-    Bool :=
-  pull χ σ (topMinus (boxM t) r (boxW t x))
+def boxCol (k t r : ℕ) (χ : Finset (Fin n) → κ) (σ : Equiv.Perm (Fin n))
+    (x : Fin t → Fin (boxL k t + 1)) : κ :=
+  pull χ σ (topMinus (boxM k t) r (boxW k t x))
 
 /-- The pattern of the box spanned by a pair of grid points. -/
-def pairPat (t : ℕ) (p : (Fin t → Fin (boxL t + 1)) × (Fin t → Fin (boxL t + 1))) :
-    Fin (boxM t) → Bool ⊕ Fin t :=
-  boxPat t (fun i => min (p.1 i) (p.2 i)) (fun i => max (p.1 i) (p.2 i))
+def pairPat (k t : ℕ) (p : (Fin t → Fin (boxL k t + 1)) × (Fin t → Fin (boxL k t + 1))) :
+    Fin (boxM k t) → Bool ⊕ Fin t :=
+  boxPat k t (fun i => min (p.1 i) (p.2 i)) (fun i => max (p.1 i) (p.2 i))
 
 /-- A box is monochromatic exactly when the hole cube of its pattern is. -/
-lemma mono_iff_cubeMono (t r : ℕ) (χ : Colouring n) (σ : Equiv.Perm (Fin n))
-    (p : (Fin t → Fin (boxL t + 1)) × (Fin t → Fin (boxL t + 1))) :
-    (∀ ω, boxCol t r χ σ (boxPt p.1 p.2 ω) = boxCol t r χ σ p.1) ↔
-      CubeMono (pull χ σ) (patLab (n := n) (boxM t) r (pairPat t p)) := by
-  set lo : Fin t → Fin (boxL t + 1) := fun i => min (p.1 i) (p.2 i)
-  set hi : Fin t → Fin (boxL t + 1) := fun i => max (p.1 i) (p.2 i)
-  set z : (Fin t → Bool) → Fin t → Fin (boxL t + 1) := fun y i => if y i then lo i else hi i
+lemma mono_iff_cubeMono (k t r : ℕ) (χ : Finset (Fin n) → κ) (σ : Equiv.Perm (Fin n))
+    (p : (Fin t → Fin (boxL k t + 1)) × (Fin t → Fin (boxL k t + 1))) :
+    (∀ ω, boxCol k t r χ σ (boxPt p.1 p.2 ω) = boxCol k t r χ σ p.1) ↔
+      CubeMono (pull χ σ) (patLab (n := n) (boxM k t) r (pairPat k t p)) := by
+  set lo : Fin t → Fin (boxL k t + 1) := fun i => min (p.1 i) (p.2 i)
+  set hi : Fin t → Fin (boxL k t + 1) := fun i => max (p.1 i) (p.2 i)
+  set z : (Fin t → Bool) → Fin t → Fin (boxL k t + 1) := fun y i => if y i then lo i else hi i
   have hlh : ∀ i, lo i ≤ hi i := fun i => min_le_max
-  have hcube : ∀ y, pull χ σ (cubeSet (patLab (n := n) (boxM t) r (pairPat t p)) y) =
-      boxCol t r χ σ (z y) := by
+  have hcube : ∀ y, pull χ σ (cubeSet (patLab (n := n) (boxM k t) r (pairPat k t p)) y) =
+      boxCol k t r χ σ (z y) := by
     intro y
-    rw [cubeSet_patLab, pairPat, boxPat_elim t lo hi hlh y]
+    rw [cubeSet_patLab, pairPat, boxPat_elim k t lo hi hlh y]
     rfl
   -- every vertex of the box is some `z y`, and conversely
   have hvert : ∀ ω, ∃ y, boxPt p.1 p.2 ω = z y := by
@@ -414,74 +399,86 @@ lemma mono_iff_cubeMono (t r : ℕ) (χ : Colouring n) (σ : Equiv.Perm (Fin n))
     rw [boxPt_false] at hy'
     rw [hy, hy', ← hcube, ← hcube, h y, h y']
 
-/-- **Supersaturation.** For every colouring and every `r`, some proper pattern on the window
-`Fin (boxM t)` makes its hole cube monochromatic for at least a `2^{-2^t}` fraction of the
-orderings. -/
-theorem exists_good_pattern (t : ℕ) (ht : 1 ≤ t) (r : ℕ) (χ : Colouring n) :
-    ∃ π : Fin (boxM t) → Bool ⊕ Fin t, (∀ i, ∃ q, π q = Sum.inr i) ∧
+/-- **Supersaturation.** For every colouring with `k ≥ 2` colours and every `r`, some proper
+pattern on the window `Fin (boxM k t)` makes its hole cube monochromatic for at least a
+`k^{-2^t}` fraction of the orderings. -/
+theorem exists_good_pattern (hk : 2 ≤ Fintype.card κ) (t : ℕ) (ht : 1 ≤ t) (r : ℕ)
+    (χ : Finset (Fin n) → κ) :
+    ∃ π : Fin (boxM (Fintype.card κ) t) → Bool ⊕ Fin t, (∀ i, ∃ q, π q = Sum.inr i) ∧
       Fintype.card (Equiv.Perm (Fin n)) ≤
-        2 ^ 2 ^ t * Ncount χ (patLab (n := n) (boxM t) r π) := by
-  set K := 2 ^ 2 ^ t with hK
-  set D := (univ : Finset ((Fin t → Fin (boxL t + 1)) × (Fin t → Fin (boxL t + 1)))).filter
+        Fintype.card κ ^ 2 ^ t * Ncount χ (patLab (n := n) (boxM (Fintype.card κ) t) r π) := by
+  set k := Fintype.card κ with hkdef
+  set K := k ^ 2 ^ t with hK
+  set a := k ^ (2 ^ t - 1) with ha
+  have hKa : K = a * k := by
+    rw [hK, ha, ← pow_succ]
+    congr 1
+    have : 0 < 2 ^ t := by positivity
+    omega
+  set N := boxL k t + 1 with hN
+  set D := (univ : Finset ((Fin t → Fin N) × (Fin t → Fin N))).filter
     fun p => ∀ i, p.1 i ≠ p.2 i with hD
-  set cnt : (Fin t → Fin (boxL t + 1)) × (Fin t → Fin (boxL t + 1)) → ℕ :=
-    fun p => Ncount χ (patLab (n := n) (boxM t) r (pairPat t p)) with hcnt
+  set cnt : (Fin t → Fin N) × (Fin t → Fin N) → ℕ :=
+    fun p => Ncount χ (patLab (n := n) (boxM k t) r (pairPat k t p)) with hcnt
   -- for each ordering, many pairs of `D` give a monochromatic cube
-  have hσ : ∀ σ : Equiv.Perm (Fin n), (boxL t + 1) ^ (2 * t) ≤ K *
-      #(D.filter fun p => CubeMono (pull χ σ) (patLab (n := n) (boxM t) r (pairPat t p))) := by
+  have hσ : ∀ σ : Equiv.Perm (Fin n), N ^ (2 * t) ≤ K *
+      #(D.filter fun p => CubeMono (pull χ σ) (patLab (n := n) (boxM k t) r (pairPat k t p))) := by
     intro σ
-    have h1 := card_mono_boxes t (boxCol t r χ σ)
-    simp only [Fintype.card_fin] at h1
-    have h1' : 2 * (boxL t + 1) ^ (2 * t) ≤ K * #(univ.filter fun p : (Fin t → Fin (boxL t + 1)) × (Fin t → Fin (boxL t + 1)) =>
-        ∀ ω, boxCol t r χ σ (boxPt p.1 p.2 ω) = boxCol t r χ σ p.1) := by
-      rw [hK]
-      exact_mod_cast h1
-    have h2 : #(univ.filter fun p : (Fin t → Fin (boxL t + 1)) × (Fin t → Fin (boxL t + 1)) =>
-        ∀ ω, boxCol t r χ σ (boxPt p.1 p.2 ω) = boxCol t r χ σ p.1) ≤
-        #(D.filter fun p => CubeMono (pull χ σ) (patLab (n := n) (boxM t) r (pairPat t p))) +
-          #(univ.filter fun p : (Fin t → Fin (boxL t + 1)) × (Fin t → Fin (boxL t + 1)) => ∃ i, p.1 i = p.2 i) := by
+    set mono := #(univ.filter fun p : (Fin t → Fin N) × (Fin t → Fin N) =>
+        ∀ ω, boxCol k t r χ σ (boxPt p.1 p.2 ω) = boxCol k t r χ σ p.1) with hmono
+    set good := #(D.filter fun p =>
+      CubeMono (pull χ σ) (patLab (n := n) (boxM k t) r (pairPat k t p))) with hgood
+    set deg := #(univ.filter fun p : (Fin t → Fin N) × (Fin t → Fin N) => ∃ i, p.1 i = p.2 i)
+      with hdeg
+    have h1 : N ^ (2 * t) ≤ a * mono := by
+      have h := card_mono_boxes t (boxCol k t r χ σ)
+      simp only [Fintype.card_fin] at h
+      exact_mod_cast h
+    have h2 : mono ≤ good + deg := by
       refine (card_le_card ?_).trans (card_union_le _ _)
       intro p hp
       simp only [mem_filter, mem_univ, true_and] at hp
       simp only [mem_union, hD, mem_filter, mem_univ, true_and]
-      by_cases hdeg : ∃ i, p.1 i = p.2 i
-      · exact Or.inr hdeg
-      · push Not at hdeg
-        exact Or.inl ⟨hdeg, (mono_iff_cubeMono t r χ σ p).1 hp⟩
-    have h3 : #(univ.filter fun p : (Fin t → Fin (boxL t + 1)) × (Fin t → Fin (boxL t + 1)) =>
-        ∃ i, p.1 i = p.2 i) ≤ t * (boxL t + 1) ^ (2 * t - 1) := by
-      have h := card_degenerate (G := Fin (boxL t + 1)) t ht
+      by_cases hdg : ∃ i, p.1 i = p.2 i
+      · exact Or.inr hdg
+      · push Not at hdg
+        exact Or.inl ⟨hdg, (mono_iff_cubeMono k t r χ σ p).1 hp⟩
+    have h3 : deg ≤ t * N ^ (2 * t - 1) := by
+      have h := card_degenerate (G := Fin N) t ht
       rw [Fintype.card_fin] at h
       convert h using 2
       ext p
       simp
-    have h4 : K * (t * (boxL t + 1) ^ (2 * t - 1)) ≤ (boxL t + 1) ^ (2 * t) := by
-      have hpow : (boxL t + 1) ^ (2 * t) = (boxL t + 1) * (boxL t + 1) ^ (2 * t - 1) := by
+    -- `(k - 1) N ≥ t K`, so the degenerate pairs cost at most a factor `1 - 1/k`
+    have h4 : K * (t * N ^ (2 * t - 1)) + N ^ (2 * t) ≤ k * N ^ (2 * t) := by
+      have hpow : N ^ (2 * t) = N * N ^ (2 * t - 1) := by
         rw [← pow_succ']
         congr 1
         omega
-      have hKt : K * t ≤ boxL t + 1 := by
-        simp only [hK, boxL]
-        rw [mul_comm]
-        omega
-      rw [hpow, ← mul_assoc]
-      exact Nat.mul_le_mul_right _ hKt
-    have h5 := Nat.mul_le_mul_left K h2
-    have h6 := Nat.mul_le_mul_left K h3
-    rw [mul_add] at h5
+      have hKt : K * t + N ≤ k * N := by
+        have hN' : N = t * K + 1 := by rw [hN, boxL, hK]
+        rw [hN']
+        nlinarith
+      rw [hpow]
+      nlinarith
+    have h5 : k * N ^ (2 * t) ≤ K * good + K * deg := by
+      calc k * N ^ (2 * t) ≤ k * (a * mono) := Nat.mul_le_mul_left _ h1
+        _ ≤ k * (a * (good + deg)) := Nat.mul_le_mul_left _ (Nat.mul_le_mul_left _ h2)
+        _ = K * good + K * deg := by rw [hKa]; ring
+    have h6 : K * deg ≤ K * (t * N ^ (2 * t - 1)) := Nat.mul_le_mul_left _ h3
     omega
   -- summing over the orderings
   have hsum : ∑ σ : Equiv.Perm (Fin n),
-      #(D.filter fun p => CubeMono (pull χ σ) (patLab (n := n) (boxM t) r (pairPat t p))) =
+      #(D.filter fun p => CubeMono (pull χ σ) (patLab (n := n) (boxM k t) r (pairPat k t p))) =
         ∑ p ∈ D, cnt p := by
     simp only [card_filter, hcnt, Ncount]
     exact sum_comm
-  have htot : Fintype.card (Equiv.Perm (Fin n)) * (boxL t + 1) ^ (2 * t) ≤ K * ∑ p ∈ D, cnt p := by
+  have htot : Fintype.card (Equiv.Perm (Fin n)) * N ^ (2 * t) ≤ K * ∑ p ∈ D, cnt p := by
     rw [← hsum, mul_sum]
-    calc Fintype.card (Equiv.Perm (Fin n)) * (boxL t + 1) ^ (2 * t)
-        = ∑ _σ : Equiv.Perm (Fin n), (boxL t + 1) ^ (2 * t) := by rw [sum_const, card_univ, smul_eq_mul]
+    calc Fintype.card (Equiv.Perm (Fin n)) * N ^ (2 * t)
+        = ∑ _σ : Equiv.Perm (Fin n), N ^ (2 * t) := by rw [sum_const, card_univ, smul_eq_mul]
       _ ≤ _ := sum_le_sum fun σ _ => hσ σ
-  have hpos : 0 < Fintype.card (Equiv.Perm (Fin n)) * (boxL t + 1) ^ (2 * t) := by
+  have hpos : 0 < Fintype.card (Equiv.Perm (Fin n)) * N ^ (2 * t) := by
     have : 0 < Fintype.card (Equiv.Perm (Fin n)) := Fintype.card_pos
     positivity
   have hDne : D.Nonempty := by
@@ -490,24 +487,33 @@ theorem exists_good_pattern (t : ℕ) (ht : 1 ≤ t) (r : ℕ) (χ : Colouring n
     rw [hne, sum_empty, mul_zero] at htot
     omega
   obtain ⟨p₀, hp₀, hmax⟩ := exists_max_image D cnt hDne
-  have hDcard : #D ≤ (boxL t + 1) ^ (2 * t) := by
-    calc #D ≤ #(univ : Finset ((Fin t → Fin (boxL t + 1)) × (Fin t → Fin (boxL t + 1)))) :=
+  have hDcard : #D ≤ N ^ (2 * t) := by
+    calc #D ≤ #(univ : Finset ((Fin t → Fin N) × (Fin t → Fin N))) :=
           card_le_card (filter_subset _ _)
-      _ = (boxL t + 1) ^ (2 * t) := by
+      _ = N ^ (2 * t) := by
           rw [card_univ, Fintype.card_prod, Fintype.card_fun, Fintype.card_fin,
             Fintype.card_fin, ← pow_add]
           congr 1
           omega
-  refine ⟨pairPat t p₀, ?_, ?_⟩
+  refine ⟨pairPat k t p₀, ?_, ?_⟩
   · have hp := (mem_filter.1 hp₀).2
-    exact boxPat_proper t _ _ fun i => min_lt_max.2 (hp i)
-  · have key : Fintype.card (Equiv.Perm (Fin n)) * (boxL t + 1) ^ (2 * t) ≤ (K * cnt p₀) * (boxL t + 1) ^ (2 * t) := by
-      calc Fintype.card (Equiv.Perm (Fin n)) * (boxL t + 1) ^ (2 * t) ≤ K * ∑ p ∈ D, cnt p := htot
+    exact boxPat_proper k t _ _ fun i => min_lt_max.2 (hp i)
+  · have key : Fintype.card (Equiv.Perm (Fin n)) * N ^ (2 * t) ≤ (K * cnt p₀) * N ^ (2 * t) := by
+      calc Fintype.card (Equiv.Perm (Fin n)) * N ^ (2 * t) ≤ K * ∑ p ∈ D, cnt p := htot
         _ ≤ K * ∑ _p ∈ D, cnt p₀ := Nat.mul_le_mul_left _ (sum_le_sum hmax)
         _ = K * (#D * cnt p₀) := by rw [sum_const, smul_eq_mul]
-        _ ≤ K * ((boxL t + 1) ^ (2 * t) * cnt p₀) := Nat.mul_le_mul_left _ (Nat.mul_le_mul_right _ hDcard)
-        _ = (K * cnt p₀) * (boxL t + 1) ^ (2 * t) := by ring
+        _ ≤ K * (N ^ (2 * t) * cnt p₀) := Nat.mul_le_mul_left _ (Nat.mul_le_mul_right _ hDcard)
+        _ = (K * cnt p₀) * N ^ (2 * t) := by ring
     exact Nat.le_of_mul_le_mul_right key (by positivity)
+
+/-- The two-colour case: a `2^{-2^t}` fraction of the orderings, with `M = t^2 2^{2^t}`. -/
+theorem exists_good_pattern_two (t : ℕ) (ht : 1 ≤ t) (r : ℕ) (χ : Colouring n) :
+    ∃ π : Fin (boxM 2 t) → Bool ⊕ Fin t, (∀ i, ∃ q, π q = Sum.inr i) ∧
+      Fintype.card (Equiv.Perm (Fin n)) ≤
+        2 ^ 2 ^ t * Ncount χ (patLab (n := n) (boxM 2 t) r π) := by
+  have h := exists_good_pattern (κ := Bool) (by simp) t ht r χ
+  simp only [Fintype.card_bool] at h
+  exact h
 
 end Supersat
 

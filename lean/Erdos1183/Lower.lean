@@ -7,9 +7,10 @@ import Erdos1183.Box
 * `exists_le_mul_card_filter`: an averaging (double counting) argument over block sizes and
   orderings.
 * `exists_family`: monochromatic block-chain cubes of one ordering give a monochromatic
-  union-closed family of at least half their number.
-* `card_le_bigF`: the combination, `#P ≤ 2 D M^{t+1} F(n)`, where `1/D` is the proportion of
-  orderings supplied by supersaturation (`D = 2^{2^t}` by `exists_good_pattern`).
+  union-closed family of at least a `1/k` fraction of their number (`k` colours).
+* `exists_large_family`: the combination, a family `𝓕` with `#P ≤ k D M^{t+1} #𝓕`, where `1/D`
+  is the proportion of orderings supplied by supersaturation (`D = k^{2^t}` by
+  `exists_good_pattern`); `card_le_bigF` is the two-colour case `#P ≤ 2 D M^{t+1} F(n)`.
 -/
 
 open Finset
@@ -127,7 +128,7 @@ lemma cubeSet_chainLab (j : Fin m) (A : Finset (Fin m)) (x : Fin m → Bool) :
     exact hp ⟨q, hq⟩
 
 /-- A monochromatic block-chain cube gives all its members `lev j B` (`B ⊆ A`) one colour. -/
-lemma colour_lev (χ : Colouring n) (j : Fin m) (A : Finset (Fin m))
+lemma colour_lev {κ : Type*} (χ : Finset (Fin n) → κ) (j : Fin m) (A : Finset (Fin m))
     (hmono : CubeMono (pull χ σ) (chainLab h b j A)) (B : Finset (Fin m)) (hB : B ⊆ A) :
     χ (blocks h b σ (lev j B)) = χ (blocks h b σ (lev j ∅)) := by
   have key := hmono fun k => decide (k ∈ B)
@@ -160,21 +161,26 @@ lemma lev_union (j j' : Fin m) (B B' : Finset (Fin m)) (hjj : j ≤ j') (hB' : �
     · exact Or.inr ⟨h1, h2⟩
 
 /-- **The family.** The monochromatic cubes of one ordering and one block-size vector give a
-monochromatic union-closed family of at least half their number. -/
-lemma exists_family (χ : Colouring n) (P : Finset (Fin m × Finset (Fin m)))
-    (hP : ∀ x ∈ P, ∀ y ∈ P, ∀ a ∈ y.2, a < x.1) :
+monochromatic union-closed family of at least a `1/k` fraction of their number, where `k` is the
+number of colours. -/
+lemma exists_family {κ : Type*} [Fintype κ] [DecidableEq κ] (χ : Finset (Fin n) → κ)
+    (P : Finset (Fin m × Finset (Fin m))) (hP : ∀ x ∈ P, ∀ y ∈ P, ∀ a ∈ y.2, a < x.1) :
     ∃ 𝓕, UnionClosed 𝓕 ∧ Monochromatic χ 𝓕 ∧
-      #(P.filter fun x => CubeMono (pull χ σ) (chainLab h b x.1 x.2)) ≤ 2 * #𝓕 := by
+      #(P.filter fun x => CubeMono (pull χ σ) (chainLab h b x.1 x.2)) ≤
+        Fintype.card κ * #𝓕 := by
   set S := P.filter fun x => CubeMono (pull χ σ) (chainLab h b x.1 x.2)
-  set col : Fin m × Finset (Fin m) → Bool := fun x => χ (blocks h b σ (lev x.1 ∅))
+  set col : Fin m × Finset (Fin m) → κ := fun x => χ (blocks h b σ (lev x.1 ∅))
   -- the majority colour
-  obtain ⟨c, hc⟩ : ∃ c : Bool, #S ≤ 2 * #(S.filter fun x => col x = c) := by
-    have hsplit := card_filter_add_card_filter_not (s := S) (fun x => col x = true)
-    by_cases h' : #(S.filter fun x => ¬ col x = true) ≤ #(S.filter fun x => col x = true)
-    · exact ⟨true, by omega⟩
-    · refine ⟨false, ?_⟩
-      simp only [Bool.not_eq_true] at hsplit h'
-      omega
+  obtain ⟨c, hc⟩ : ∃ c : κ, #S ≤ Fintype.card κ * #(S.filter fun x => col x = c) := by
+    by_cases hS : S = ∅
+    · rw [hS, card_empty]
+      exact ⟨χ ∅, Nat.zero_le _⟩
+    · obtain ⟨x, hx⟩ := nonempty_iff_ne_empty.2 hS
+      have hsum : ∑ c : κ, #S ≤ ∑ c : κ, Fintype.card κ * #(S.filter fun x => col x = c) := by
+        rw [← mul_sum, ← card_eq_sum_card_fiberwise (fun y _ => mem_univ (col y)), sum_const,
+          card_univ, smul_eq_mul]
+      obtain ⟨c, -, hc⟩ := exists_le_of_sum_le ⟨col x, mem_univ _⟩ hsum
+      exact ⟨c, hc⟩
   set Sc := S.filter fun x => col x = c
   have hSc : ∀ x ∈ Sc, x ∈ P ∧ CubeMono (pull χ σ) (chainLab h b x.1 x.2) ∧ col x = c := by
     intro x hx
@@ -255,15 +261,17 @@ section Bound
 variable {n m t M : ℕ}
 
 /-- **Combination.** If `P` is a set of (level, generators) pairs with all generators below all
-levels, then `#P ≤ 2 D M^{t+1} F(n)`. -/
-theorem card_le_bigF (D : ℕ) (ht : 1 ≤ t)
-    (hgood : ∀ r (χ : Colouring n), ∃ π : Fin M → Bool ⊕ Fin t, (∀ i, ∃ q, π q = Sum.inr i) ∧
+levels, and supersaturation holds with proportion `1/D`, then a colouring with `k` colours has a
+monochromatic union-closed family `𝓕` with `#P ≤ k D M^{t+1} #𝓕`. -/
+theorem exists_large_family {κ : Type*} [Fintype κ] [DecidableEq κ] (D : ℕ) (ht : 1 ≤ t)
+    (χ : Finset (Fin n) → κ)
+    (hgood : ∀ r, ∃ π : Fin M → Bool ⊕ Fin t, (∀ i, ∃ q, π q = Sum.inr i) ∧
       Fintype.card (Equiv.Perm (Fin n)) ≤ D * Ncount χ (patLab (n := n) M r π))
     (hmn : m * M < n) (P : Finset (Fin m × Finset (Fin m)))
     (hP : ∀ x ∈ P, ∀ y ∈ P, ∀ a ∈ y.2, a < x.1) (hPt : ∀ x ∈ P, #x.2 = t) :
-    #P ≤ 2 * D * M ^ (t + 1) * bigF n := by
+    ∃ 𝓕, UnionClosed 𝓕 ∧ Monochromatic χ 𝓕 ∧ #P ≤ Fintype.card κ * D * M ^ (t + 1) * #𝓕 := by
   rcases P.eq_empty_or_nonempty with rfl | ⟨x₀, hx₀⟩
-  · simp
+  · exact ⟨∅, by simp [UnionClosed], by simp [Monochromatic], by simp⟩
   have h : m * M ≤ n := hmn.le
   have hm : t + 1 ≤ m := by
     have hj : x₀.1 ∉ x₀.2 := fun h' => lt_irrefl _ (hP x₀ hx₀ x₀ hx₀ _ h')
@@ -271,32 +279,41 @@ theorem card_le_bigF (D : ℕ) (ht : 1 ≤ t)
     rw [card_insert_of_notMem hj, hPt x₀ hx₀, Fintype.card_fin] at this
     exact this
   have hM0 : 0 < M := by
-    obtain ⟨π, hπ, -⟩ := hgood 0 (fun _ => true)
+    obtain ⟨π, hπ, -⟩ := hgood 0
     obtain ⟨q, -⟩ := hπ ⟨0, ht⟩
     exact q.pos
-  -- a colouring attaining `F(n)`
-  obtain ⟨χ, hχ⟩ := (bigF_le_iff (n := n) (bigF n)).1 le_rfl
   have : Nonempty (Fin m → Fin M) := ⟨fun _ => ⟨0, hM0⟩⟩
   obtain ⟨b, σ, hbσ⟩ := exists_le_mul_card_filter P
     (fun x b σ => CubeMono (pull χ σ) (chainLab h b x.1 x.2)) (D) (M ^ (m - (t + 1)))
-    (fun x hx => card_goodSizes h χ D hmn ht (fun r => hgood r χ) x.1 x.2 (hPt x hx)
-      (hP x hx x hx))
+    (fun x hx => card_goodSizes h χ D hmn ht hgood x.1 x.2 (hPt x hx) (hP x hx x hx))
   obtain ⟨𝓕, hU, hMono, h𝓕⟩ := exists_family h b σ χ P hP
-  have h𝓕' := hχ 𝓕 hU hMono
+  refine ⟨𝓕, hU, hMono, ?_⟩
   rw [Fintype.card_fun, Fintype.card_fin, Fintype.card_fin] at hbσ
   have hsplit : M ^ m = M ^ (m - (t + 1)) * M ^ (t + 1) := by
     rw [← pow_add, Nat.sub_add_cancel hm]
   have hpos : 0 < M ^ (m - (t + 1)) := pow_pos hM0 _
   have key : #P * M ^ (m - (t + 1)) ≤
-      (2 * D * M ^ (t + 1) * bigF n) * M ^ (m - (t + 1)) := by
+      (Fintype.card κ * D * M ^ (t + 1) * #𝓕) * M ^ (m - (t + 1)) := by
     calc #P * M ^ (m - (t + 1))
         ≤ D * M ^ m *
           #(P.filter fun x => CubeMono (pull χ σ) (chainLab h b x.1 x.2)) := hbσ
-      _ ≤ D * M ^ m * (2 * bigF n) :=
-          Nat.mul_le_mul_left _ (h𝓕.trans (Nat.mul_le_mul_left _ h𝓕'))
-      _ = (2 * D * M ^ (t + 1) * bigF n) * M ^ (m - (t + 1)) := by
+      _ ≤ D * M ^ m * (Fintype.card κ * #𝓕) := Nat.mul_le_mul_left _ h𝓕
+      _ = (Fintype.card κ * D * M ^ (t + 1) * #𝓕) * M ^ (m - (t + 1)) := by
           rw [hsplit]; ring
   exact Nat.le_of_mul_le_mul_right key hpos
+
+/-- The two-colour case: `#P ≤ 2 D M^{t+1} F(n)`. -/
+theorem card_le_bigF (D : ℕ) (ht : 1 ≤ t)
+    (hgood : ∀ r (χ : Colouring n), ∃ π : Fin M → Bool ⊕ Fin t, (∀ i, ∃ q, π q = Sum.inr i) ∧
+      Fintype.card (Equiv.Perm (Fin n)) ≤ D * Ncount χ (patLab (n := n) M r π))
+    (hmn : m * M < n) (P : Finset (Fin m × Finset (Fin m)))
+    (hP : ∀ x ∈ P, ∀ y ∈ P, ∀ a ∈ y.2, a < x.1) (hPt : ∀ x ∈ P, #x.2 = t) :
+    #P ≤ 2 * D * M ^ (t + 1) * bigF n := by
+  obtain ⟨χ, hχ⟩ := (bigF_le_iff (n := n) (bigF n)).1 le_rfl
+  obtain ⟨𝓕, hU, hMono, h𝓕⟩ :=
+    exists_large_family D ht χ (fun r => hgood r χ) hmn P hP hPt
+  rw [Fintype.card_bool] at h𝓕
+  exact h𝓕.trans (Nat.mul_le_mul_left _ (hχ 𝓕 hU hMono))
 
 lemma card_filter_le_val (m s : ℕ) :
     #(univ.filter fun j : Fin m => s ≤ j.val) = m - s := by
@@ -316,12 +333,12 @@ lemma card_filter_lt_val (m s : ℕ) (hs : s ≤ m) :
 `M = t^2 2^{2^t}` and `K = t! · 2 · 2^{2^t} M^{t+1}`. -/
 theorem pow_le_mul_bigF (t : ℕ) (ht : 1 ≤ t) : ∃ M > 0, ∃ K > 0, ∀ n, 1 ≤ n →
     ((n - 1) / M / 2 + 1 - t) ^ (t + 1) ≤ K * bigF n := by
-  have hM0 : 0 < boxM t := by
+  have hM0 : 0 < boxM 2 t := by
     unfold boxM boxL
     positivity
-  refine ⟨boxM t, hM0, t.factorial * (2 * 2 ^ 2 ^ t * boxM t ^ (t + 1)), by positivity,
+  refine ⟨boxM 2 t, hM0, t.factorial * (2 * 2 ^ 2 ^ t * boxM 2 t ^ (t + 1)), by positivity,
     fun n hn => ?_⟩
-  set M := boxM t with hMdef
+  set M := boxM 2 t with hMdef
   set m := (n - 1) / M with hm
   set s := m / 2 with hs
   have hmn : m * M < n := by
@@ -340,7 +357,7 @@ theorem pow_le_mul_bigF (t : ℕ) (ht : 1 ≤ t) : ∃ M > 0, ∃ K > 0, ∀ n, 
     intro x hx
     simp only [P, mem_product, mem_powersetCard] at hx
     exact hx.2.2
-  have hbound := card_le_bigF (2 ^ 2 ^ t) ht (fun r χ => exists_good_pattern t ht r χ)
+  have hbound := card_le_bigF (2 ^ 2 ^ t) ht (fun r χ => exists_good_pattern_two t ht r χ)
     hmn P hP hPt
   have hcardP : #P = (m - s) * s.choose t := by
     simp only [P, card_product, card_powersetCard, card_filter_le_val,

@@ -48,16 +48,17 @@ def LatticeClosed (𝓕 : Finset (Finset (Fin n))) : Prop :=
   ∀ A ∈ 𝓕, ∀ B ∈ 𝓕, A ∪ B ∈ 𝓕 ∧ A ∩ B ∈ 𝓕
 
 /-- All members of `𝓕` receive the same colour under `χ`. -/
-def Monochromatic (χ : Colouring n) (𝓕 : Finset (Finset (Fin n))) : Prop :=
+def Monochromatic {κ : Type*} (χ : Finset (Fin n) → κ) (𝓕 : Finset (Finset (Fin n))) : Prop :=
   ∀ A ∈ 𝓕, ∀ B ∈ 𝓕, χ A = χ B
 
-/-- The size of the largest monochromatic union-closed family for `χ`. -/
-noncomputable def maxUC (χ : Colouring n) : ℕ :=
+/-- The size of the largest monochromatic union-closed family for a colouring `χ` with any
+set of colours. -/
+noncomputable def maxUC {κ : Type*} (χ : Finset (Fin n) → κ) : ℕ :=
   ((univ : Finset (Finset (Finset (Fin n)))).filter
     (fun 𝓕 => UnionClosed 𝓕 ∧ Monochromatic χ 𝓕)).sup card
 
 /-- The size of the largest monochromatic family closed under unions and intersections. -/
-noncomputable def maxLat (χ : Colouring n) : ℕ :=
+noncomputable def maxLat {κ : Type*} (χ : Finset (Fin n) → κ) : ℕ :=
   ((univ : Finset (Finset (Finset (Fin n)))).filter
     (fun 𝓕 => LatticeClosed 𝓕 ∧ Monochromatic χ 𝓕)).sup card
 
@@ -69,13 +70,13 @@ noncomputable def smallF (n : ℕ) : ℕ := ⨅ χ : Colouring n, maxLat χ
 
 /-! ### Unfolding the definitions -/
 
-lemma maxUC_le_iff (χ : Colouring n) (m : ℕ) :
+lemma maxUC_le_iff {κ : Type*} (χ : Finset (Fin n) → κ) (m : ℕ) :
     maxUC χ ≤ m ↔ ∀ 𝓕, UnionClosed 𝓕 → Monochromatic χ 𝓕 → #𝓕 ≤ m := by
   unfold maxUC
   rw [Finset.sup_le_iff]
   simp only [mem_filter, mem_univ, true_and, and_imp]
 
-lemma le_maxUC_iff (χ : Colouring n) (m : ℕ) :
+lemma le_maxUC_iff {κ : Type*} (χ : Finset (Fin n) → κ) (m : ℕ) :
     m ≤ maxUC χ ↔ ∃ 𝓕, UnionClosed 𝓕 ∧ Monochromatic χ 𝓕 ∧ m ≤ #𝓕 := by
   unfold maxUC
   constructor
@@ -89,7 +90,7 @@ lemma le_maxUC_iff (χ : Colouring n) (m : ℕ) :
   · rintro ⟨𝓕, h1, h2, hm⟩
     exact hm.trans (Finset.le_sup (f := card) (mem_filter.2 ⟨mem_univ _, h1, h2⟩))
 
-lemma le_maxLat_iff (χ : Colouring n) (m : ℕ) :
+lemma le_maxLat_iff {κ : Type*} (χ : Finset (Fin n) → κ) (m : ℕ) :
     m ≤ maxLat χ ↔ ∃ 𝓕, LatticeClosed 𝓕 ∧ Monochromatic χ 𝓕 ∧ m ≤ #𝓕 := by
   unfold maxLat
   constructor

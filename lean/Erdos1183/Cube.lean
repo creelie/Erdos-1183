@@ -25,6 +25,7 @@ open scoped Classical
 section Labels
 
 variable {α : Type*} [Fintype α] [DecidableEq α] {G : Type*} [Fintype G] [DecidableEq G]
+  {κ : Type*}
 
 set_option linter.unusedSectionVars false
 
@@ -34,15 +35,15 @@ def cubeSet (lab : α → G ⊕ Bool) (x : G → Bool) : Finset α :=
   univ.filter fun p => lab p = Sum.inr true ∨ ∃ i, lab p = Sum.inl i ∧ x i = false
 
 /-- The hole cube of `lab` is monochromatic for `χ`. -/
-def CubeMono (χ : Finset α → Bool) (lab : α → G ⊕ Bool) : Prop :=
+def CubeMono (χ : Finset α → κ) (lab : α → G ⊕ Bool) : Prop :=
   ∀ x, χ (cubeSet lab x) = χ (cubeSet lab fun _ => false)
 
 /-- The colouring `S ↦ χ (σ S)`. -/
-def pull (χ : Finset α → Bool) (σ : Equiv.Perm α) : Finset α → Bool :=
+def pull (χ : Finset α → κ) (σ : Equiv.Perm α) : Finset α → κ :=
   fun S => χ (S.map σ.toEmbedding)
 
 /-- The number of permutations making the hole cube of `lab` monochromatic. -/
-noncomputable def Ncount (χ : Finset α → Bool) (lab : α → G ⊕ Bool) : ℕ :=
+noncomputable def Ncount (χ : Finset α → κ) (lab : α → G ⊕ Bool) : ℕ :=
   #(univ.filter fun σ : Equiv.Perm α => CubeMono (pull χ σ) lab)
 
 lemma mem_cubeSet (lab : α → G ⊕ Bool) (x : G → Bool) (p : α) :
@@ -56,7 +57,7 @@ lemma cubeSet_relabel {G' : Type*} [Fintype G'] [DecidableEq G'] (ι : G ↪ G')
   simp only [mem_cubeSet, Function.comp_apply]
   rcases lab p with i | b <;> simp
 
-lemma Ncount_relabel {G' : Type*} [Fintype G'] [DecidableEq G'] (χ : Finset α → Bool)
+lemma Ncount_relabel {G' : Type*} [Fintype G'] [DecidableEq G'] (χ : Finset α → κ)
     (ι : G ↪ G') (lab : α → G ⊕ Bool) : Ncount χ (Sum.map ι id ∘ lab) = Ncount χ lab := by
   have key : ∀ σ, CubeMono (pull χ σ) (Sum.map ι id ∘ lab) ↔ CubeMono (pull χ σ) lab := by
     intro σ
@@ -84,17 +85,17 @@ lemma cubeSet_comp (lab : α → G ⊕ Bool) (τ : Equiv.Perm α) (x : G → Boo
   simp only [cubeSet, Function.comp_apply, mem_filter, mem_univ, true_and, mem_map_equiv,
     Equiv.symm_symm]
 
-lemma pull_cubeSet_comp (χ : Finset α → Bool) (σ τ : Equiv.Perm α) (lab : α → G ⊕ Bool)
+lemma pull_cubeSet_comp (χ : Finset α → κ) (σ τ : Equiv.Perm α) (lab : α → G ⊕ Bool)
     (x : G → Bool) :
     pull χ σ (cubeSet (lab ∘ τ) x) = pull χ (τ.symm.trans σ) (cubeSet lab x) := by
   simp only [pull, cubeSet_comp, map_map]
   rfl
 
-lemma cubeMono_comp_iff (χ : Finset α → Bool) (σ τ : Equiv.Perm α) (lab : α → G ⊕ Bool) :
+lemma cubeMono_comp_iff (χ : Finset α → κ) (σ τ : Equiv.Perm α) (lab : α → G ⊕ Bool) :
     CubeMono (pull χ σ) (lab ∘ τ) ↔ CubeMono (pull χ (τ.symm.trans σ)) lab := by
   simp only [CubeMono, pull_cubeSet_comp]
 
-lemma Ncount_comp (χ : Finset α → Bool) (lab : α → G ⊕ Bool) (τ : Equiv.Perm α) :
+lemma Ncount_comp (χ : Finset α → κ) (lab : α → G ⊕ Bool) (τ : Equiv.Perm α) :
     Ncount χ (lab ∘ τ) = Ncount χ lab := by
   unfold Ncount
   have key : ∀ σ : Equiv.Perm α, Equiv.mulRight τ⁻¹ σ = τ.symm.trans σ := fun σ => by
@@ -115,7 +116,7 @@ lemma exists_perm_of_card_fiber_eq (lab lab' : α → G ⊕ Bool)
     Equiv.sigmaFiberEquiv_apply]
   exact ((e (lab' p)) ((Equiv.sigmaFiberEquiv lab').symm p).2).2.symm
 
-lemma Ncount_eq_of_card_fiber_eq (χ : Finset α → Bool) (lab lab' : α → G ⊕ Bool)
+lemma Ncount_eq_of_card_fiber_eq (χ : Finset α → κ) (lab lab' : α → G ⊕ Bool)
     (h : ∀ ℓ, #(univ.filter fun p => lab p = ℓ) = #(univ.filter fun p => lab' p = ℓ)) :
     Ncount χ lab' = Ncount χ lab := by
   obtain ⟨τ, rfl⟩ := exists_perm_of_card_fiber_eq lab lab' h

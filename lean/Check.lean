@@ -34,3 +34,26 @@ import Erdos1183
 #print axioms Erdos1183.bigF_le_explicit
 #print axioms Erdos1183.half_le_smallF
 #print axioms Erdos1183.smallF_le_bigF
+-- any number of colours
+#print axioms Erdos1183.bigFk_le_bigF
+#print axioms Erdos1183.bigFk_lower_explicit
+#print axioms Erdos1183.bigFk_superpolynomial
+#print axioms Erdos1183.erdos_1183_colours
+-- cardinality colourings, Hilbert cubes and progressions
+#print axioms Erdos1183.hilbert_window
+#print axioms Erdos1183.hilbert_cubes
+#print axioms Erdos1183.ap_family
+#print axioms Erdos1183.ap_lattice
+#print axioms Erdos1183.exists_vdW
+#print axioms Erdos1183.howorka
+-- the lattice function
+#print axioms Erdos1183.sublattice_eq_image
+#print axioms Erdos1183.code_injOn
+#print axioms Erdos1183.card_sublattices_le
+#print axioms Erdos1183.smallF_le_sq
+#print axioms Erdos1183.smallF_le_log
+-- random colourings and a counting criterion
+#print axioms Erdos1183.exists_unionClosed_subfamily
+#print axioms Erdos1183.bigF_lt_of_count
+#print axioms Erdos1183.sum_maxUC_ge
+#print axioms Erdos1183.sum_maxUC_ge_pow

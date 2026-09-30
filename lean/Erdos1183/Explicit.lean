@@ -6,7 +6,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.Base
 
 * `pow_le_pow_mul_choose`: `s^t ≤ t^t C(s, t)` for `t ≤ s`.
 * `bigF_lower_explicit`: `n^{t+1} ≤ 2^{2^t+1} t^t (4 M^2)^{t+1} F(n)` for `n ≥ 1`, where
-  `M = boxM t = t^2 2^{2^t}`; this is `F(n) ≥ c_t n^{t+1}`.
+  `M = boxM 2 t = t^2 2^{2^t}`; this is `F(n) ≥ c_t n^{t+1}`.
 * `pow_le_bigF`: `F(n) ≥ n^t` as soon as `n ≥ 2^{(t+2)^2 2^t}`.
 * `rpow_loglog_le_bigF`: `F(n) ≥ n^{ℓ - 2 log₂(ℓ + 2) - 1}` with `ℓ = log₂ log₂ n`, for `n ≥ 2`.
 * `first_conjecture_explicit`: the first conjecture with this explicit `ω`.
@@ -50,11 +50,11 @@ lemma two_le_two_pow_two_pow (t : ℕ) : 2 ≤ 2 ^ 2 ^ t := by
   calc 2 = 2 ^ 1 := by norm_num
     _ ≤ 2 ^ 2 ^ t := Nat.pow_le_pow_right (by norm_num) Nat.one_le_two_pow
 
-lemma boxM_eq (t : ℕ) : boxM t = t ^ 2 * 2 ^ 2 ^ t := by
+lemma boxM_eq (t : ℕ) : boxM 2 t = t ^ 2 * 2 ^ 2 ^ t := by
   unfold boxM boxL
   ring
 
-lemma succ_le_boxM (t : ℕ) (ht : 1 ≤ t) : t + 1 ≤ boxM t := by
+lemma succ_le_boxM (t : ℕ) (ht : 1 ≤ t) : t + 1 ≤ boxM 2 t := by
   have h := two_le_two_pow_two_pow t
   rw [boxM_eq]
   nlinarith
@@ -64,7 +64,7 @@ lemma succ_le_boxM (t : ℕ) (ht : 1 ≤ t) : t + 1 ≤ boxM t := by
 theorem bigF_lower_explicit (t : ℕ) (ht : 1 ≤ t) (n : ℕ) (hn : 1 ≤ n) :
     n ^ (t + 1) ≤ 2 ^ (2 ^ t + 1) * t ^ t * (4 * (t ^ 2 * 2 ^ 2 ^ t) ^ 2) ^ (t + 1) * bigF n := by
   rw [← boxM_eq]
-  set M := boxM t with hMdef
+  set M := boxM 2 t with hMdef
   have hMt : t + 1 ≤ M := succ_le_boxM t ht
   have hM0 : 0 < M := by omega
   have hF : 1 ≤ bigF n := one_le_bigF n
@@ -111,7 +111,7 @@ theorem bigF_lower_explicit (t : ℕ) (ht : 1 ≤ t) (n : ℕ) (hn : 1 ≤ n) :
       intro x hx
       simp only [P, mem_product, mem_powersetCard] at hx
       exact hx.2.2
-    have hbound := card_le_bigF (2 ^ 2 ^ t) ht (fun r χ => exists_good_pattern t ht r χ)
+    have hbound := card_le_bigF (2 ^ 2 ^ t) ht (fun r χ => exists_good_pattern_two t ht r χ)
       hmn P hP hPt
     have hcardP : #P = (m - s) * s.choose t := by
       simp only [P, card_product, card_powersetCard, card_filter_le_val,

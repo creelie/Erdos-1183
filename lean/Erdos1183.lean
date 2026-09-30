@@ -6,3 +6,8 @@ import Erdos1183.Box
 import Erdos1183.Lower
 import Erdos1183.Main
 import Erdos1183.Explicit
+import Erdos1183.Colours
+import Erdos1183.Hilbert
+import Erdos1183.Howorka
+import Erdos1183.Lattice
+import Erdos1183.Random

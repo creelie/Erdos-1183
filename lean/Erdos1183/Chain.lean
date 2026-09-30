@@ -147,7 +147,7 @@ lemma card_gridLab_true :
 
 /-- If the class sizes of the block-chain labelling match those of a pattern (generators
 matched along `ι`), the two cubes are monochromatic for equally many orderings. -/
-lemma Ncount_chainLab_eq {t r : ℕ} (χ : Colouring n) (π : Fin M → Bool ⊕ Fin t)
+lemma Ncount_chainLab_eq {κ : Type*} {t r : ℕ} (χ : Finset (Fin n) → κ) (π : Fin M → Bool ⊕ Fin t)
     (ι : Fin t ↪ Fin m) (hι : ∀ k, k ∈ A ↔ ∃ i, ι i = k) (hAj : ∀ a ∈ A, a ≤ j)
     (hM : M ≤ n) (hMr : M + r ≤ n)
     (hb : ∀ i, (b (ι i)).val + 1 = #(univ.filter fun q => π q = Sum.inr i))
@@ -189,7 +189,7 @@ end Chain
 
 section Slice
 
-variable {n m M t : ℕ} (h : m * M ≤ n) (χ : Colouring n)
+variable {n m M t : ℕ} (h : m * M ≤ n) {κ : Type*} (χ : Finset (Fin n) → κ)
 
 /-- Block sizes for which the cube of level `j` with generators `A` is monochromatic for at
 least a `1/K` fraction of the orderings. -/
