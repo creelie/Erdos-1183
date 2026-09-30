@@ -3,6 +3,10 @@
 Paper, code and Lean 4 formalisation for
 [Erdős Problem 1183](https://www.erdosproblems.com/1183) (Erdős–Ulam).
 
+**Zenodo:** [10.5281/zenodo.23050880](https://doi.org/10.5281/zenodo.23050880)
+(v1.0.0; [10.5281/zenodo.23050879](https://doi.org/10.5281/zenodo.23050879)
+covers all versions).
+
 **Authors:** Deep Bhattacharjee (ORCID [0000-0003-0466-750X](https://orcid.org/0000-0003-0466-750X)),
 Priyabrata Mandal (ORCID [0000-0001-6472-6239](https://orcid.org/0000-0001-6472-6239)),
 Ushashi Bhattacharya (ORCID [0009-0002-2254-3914](https://orcid.org/0009-0002-2254-3914)).

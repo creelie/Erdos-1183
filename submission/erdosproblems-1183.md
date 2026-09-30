@@ -1,14 +1,14 @@
 # Draft note for erdosproblems.com, Problem 1183
 
 *To be posted by the authors as a comment on the problem page or sent to Thomas
-Bloom. Fill in the DOI once the Zenodo record is published.*
+Bloom.*
 
 ---
 
 **Both questions are answered in the affirmative.**
 
 D. Bhattacharjee, P. Mandal and U. Bhattacharya, *On the Erdős–Ulam problem for
-monochromatic union-closed families* (2026), DOI: 10.5281/zenodo.XXXXXXX.
+monochromatic union-closed families* (2026), DOI: [10.5281/zenodo.23050880](https://doi.org/10.5281/zenodo.23050880).
 
 **First question.** For every t ≥ 1 there is c_t > 0 with F(n) ≥ c_t n^{t+1}
 for all n. Hence F(n) ≥ n^{ω(n)} for some ω(n) → ∞.

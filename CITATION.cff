@@ -19,6 +19,14 @@ authors:
     orcid: "https://orcid.org/0009-0002-2254-3914"
     email: rai.bhattacharya.in@gmail.com
 repository-code: "https://github.com/creelie/erdos-1183"
+doi: 10.5281/zenodo.23050879
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23050879
+    description: "Zenodo record, all versions"
+  - type: doi
+    value: 10.5281/zenodo.23050880
+    description: "Zenodo record, version 1.0.0"
 license: CC-BY-4.0
 date-released: 2026-09-30
 keywords:
