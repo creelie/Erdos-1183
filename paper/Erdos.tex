@@ -1,39 +1,44 @@
 %% Resolving Erdos--Ulam monochromatic union-closed family conjectures
-\documentclass[reqno]{aomart}
+\documentclass[11pt,reqno]{amsart}
 
-\usepackage{cmap}
-\input{glyphtounicode}
-\newcommand{\gtu}[2]{\pdfglyphtounicode{#1big}{#2}\pdfglyphtounicode{#1Big}{#2}%
-  \pdfglyphtounicode{#1bigg}{#2}\pdfglyphtounicode{#1Bigg}{#2}}
-\gtu{parenleft}{0028}\gtu{parenright}{0029}\gtu{bracketleft}{005B}
-\gtu{bracketright}{005D}\gtu{braceleft}{007B}\gtu{braceright}{007D}
-\gtu{floorleft}{230A}\gtu{floorright}{230B}\gtu{ceilingleft}{2308}
-\gtu{ceilingright}{2309}\gtu{angbracketleft}{27E8}\gtu{angbracketright}{27E9}
-\pdfglyphtounicode{vextendsingle}{007C}
-\pdfglyphtounicode{vextenddouble}{2016}
-\newcommand{\gtuop}[2]{\pdfglyphtounicode{#1text}{#2}\pdfglyphtounicode{#1display}{#2}}
-\gtuop{summation}{2211}\gtuop{product}{220F}\gtuop{coproduct}{2210}
-\gtuop{union}{22C3}\gtuop{intersection}{22C2}\gtuop{unionmulti}{228E}
-\gtuop{unionsq}{2294}\gtuop{logicaland}{22C0}\gtuop{logicalor}{22C1}
-\gtuop{integral}{222B}\gtuop{contintegral}{222E}\gtuop{circledot}{2A00}
-\gtuop{circleplus}{2A01}\gtuop{circlemultiply}{2A02}
-\gtu{radical}{221A}\gtu{slash}{002F}\gtu{backslash}{005C}
-\pdfglyphtounicode{Ccedilla}{0028}\pdfglyphtounicode{aring}{0029}
-\pdfgentounicode=1
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage{cmap}
+  \makeatletter\expandafter\let\csname cmap@set@OMX\endcsname\empty\makeatother
+  \input{glyphtounicode}
+  \newcommand{\gtu}[2]{\pdfglyphtounicode{#1big}{#2}%
+    \pdfglyphtounicode{#1Big}{#2}\pdfglyphtounicode{#1bigg}{#2}%
+    \pdfglyphtounicode{#1Bigg}{#2}}
+  \newcommand{\gtuop}[2]{\pdfglyphtounicode{#1text}{#2}%
+    \pdfglyphtounicode{#1display}{#2}}
+  \gtu{parenleft}{0028}\gtu{parenright}{0029}\gtu{bracketleft}{005B}
+  \gtu{bracketright}{005D}\gtu{braceleft}{007B}\gtu{braceright}{007D}
+  \gtu{floorleft}{230A}\gtu{floorright}{230B}\gtu{ceilingleft}{2308}
+  \gtu{ceilingright}{2309}\gtu{angbracketleft}{27E8}\gtu{angbracketright}{27E9}
+  \gtu{radical}{221A}\gtu{slash}{002F}\gtu{backslash}{005C}
+  \pdfglyphtounicode{vextendsingle}{007C}
+  \pdfglyphtounicode{vextenddouble}{2016}
+  \gtuop{summation}{2211}\gtuop{product}{220F}\gtuop{coproduct}{2210}
+  \gtuop{union}{22C3}\gtuop{intersection}{22C2}\gtuop{unionmulti}{228E}
+  \gtuop{unionsq}{2294}\gtuop{logicaland}{22C0}\gtuop{logicalor}{22C1}
+  \gtuop{integral}{222B}\gtuop{contintegral}{222E}\gtuop{circledot}{2A00}
+  \gtuop{circleplus}{2A01}\gtuop{circlemultiply}{2A02}
+  \pdfgentounicode=1
+\fi
 \usepackage[T1]{fontenc}
-\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools}
+\usepackage{amssymb,mathtools}
 \usepackage{enumitem}
-\usepackage{booktabs,array}
 \usepackage{tikz,pgfplots}
 \pgfplotsset{compat=1.18}
 \usetikzlibrary{arrows.meta,positioning,patterns,calc,decorations.pathreplacing,
   shapes.geometric,fit}
+\usepackage{hyperref}
 \hypersetup{colorlinks=true,linkcolor=blue!60!black,citecolor=red!60!black,
-  urlcolor=blue!60!black}
+  urlcolor=blue!60!black,
+  pdftitle={Resolving Erdos-Ulam Monochromatic Union-Closed Family Conjectures},
+  pdfauthor={Deep Bhattacharjee, Priyabrata Mandal, Ushashi Bhattacharya}}
 
 \linespread{1.06}
-\setlength{\headheight}{12pt}
-\addtolength{\topmargin}{-4pt}
 \emergencystretch=2em
 \raggedbottom
 
@@ -59,46 +64,41 @@
 \newcommand{\eps}{\varepsilon}
 \DeclareMathOperator{\vc}{vc}
 \newcommand{\zenododoi}{10.5281/zenodo.23094057}
+\renewcommand{\urladdrname}{{\itshape ORCID}}
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\@setaddresses}{\footnotesize}{\footnotesize\raggedright}{}{}
+\makeatother
 
 \title[Erd\H{o}s--Ulam union-closed family conjectures]{Resolving
 Erd\H{o}s--Ulam Monochromatic Union-Closed Family Conjectures}
 
-\author[Deep Bhattacharjee]{Deep Bhattacharjee\texorpdfstring{\textsuperscript{$\dagger$}}{}}
-\address{Formerly, Electro-Gravitational Space Propulsion Laboratory (EGSPL),
+\author[D. Bhattacharjee]{Deep Bhattacharjee$^{\dagger}$}
+\address[Deep Bhattacharjee]{Formerly, Electro-Gravitational Space Propulsion Laboratory (EGSPL),
   Bhubaneswar, Odisha 751030, India}
 \email{d.bhattacharjee@erl-forschung.de}
 \email{itsdeep@live.com}
-\orcid{\href{https://orcid.org/0000-0003-0466-750X}{0000-0003-0466-750X}}
-\thanks{\textsuperscript{$\dagger$}\,Corresponding author: Deep Bhattacharjee.}
+\urladdr{\href{https://orcid.org/0000-0003-0466-750X}{0000-0003-0466-750X}}
 
-\author{Priyabrata Mandal}
-\address{Department of Mathematics, Bioinformatics and Computer
+\author[P. Mandal]{Priyabrata Mandal}
+\address[Priyabrata Mandal]{Department of Mathematics, Bioinformatics and Computer
   Applications, Maulana Azad National Institute of Technology Bhopal,
   Bhopal 462003, India}
 \email{priyabrata@manit.ac.in}
-\orcid{\href{https://orcid.org/0000-0001-6472-6239}{0000-0001-6472-6239}}
+\urladdr{\href{https://orcid.org/0000-0001-6472-6239}{0000-0001-6472-6239}}
 
-\author{Ushashi Bhattacharya}
-\address{Formerly, National Taiwan University, Taipei 106319, Taiwan}
+\author[U. Bhattacharya]{Ushashi Bhattacharya}
+\address[Ushashi Bhattacharya]{Formerly, National Taiwan University, Taipei 106319, Taiwan}
 \email{rai.bhattacharya.in@gmail.com}
-\orcid{\href{https://orcid.org/0009-0002-2254-3914}{0009-0002-2254-3914}}
+\urladdr{\href{https://orcid.org/0009-0002-2254-3914}{0009-0002-2254-3914}}
+
+\thanks{$^{\dagger}$\,Corresponding author: Deep Bhattacharjee.}
 
 \subjclass[2020]{Primary 11B75, 05D10; Secondary 05D05, 11B25, 68V20}
-\keyword{union-closed families}
-\keyword{Ramsey theory}
-\keyword{Hilbert cubes}
-\keyword{box norm}
-\keyword{van der Waerden's theorem}
-\keyword{Sauer--Shelah lemma}
-\keyword{Lean}
+\keywords{union-closed families, Ramsey theory, Hilbert cubes, box norm,
+van der Waerden's theorem, Sauer--Shelah lemma, Lean}
 \date{}
 
-\copyrightnote{}
-\fancypagestyle{firstpage}{%
-  \fancyhf{}%
-  \cfoot{\footnotesize\thepage}}
-
-\pdfstringdefDisableCommands{\let\unskip\relax}
 \begin{document}
 \sloppy
 
@@ -387,8 +387,8 @@ Vapnik--Chervonenkis dimension \cite{VC71}.
 
 \subsection{Formal verification}
 
-Every theorem, proposition, corollary and lemma of
-Sections~\ref{sec:cubes}--\ref{sec:f} has been formalised and checked in
+All theorems, propositions, corollaries and lemmas of
+Sections~\ref{sec:cubes}--\ref{sec:f} have been formalised and checked in
 the Lean proof assistant \cite{MU21} with the Mathlib library
 \cite{Mathlib20}. The functions $f$, $F$ and $F_k$ are defined in the
 formal development literally as above, the two conjectures are stated in
@@ -457,10 +457,10 @@ adds or removes $X_i$. The vertex $U=T\setminus X_{123}$ is the base.}
 \begin{lemma}
 \label{lem:shape}
 If $Q$ and $Q'$ are $t$-cubes in $2^{[n]}$ of the same shape, then
-\[
-\bigl|\{\sigma\in S_n:\ \sigma(Q)\text{ is monochromatic}\}\bigr|
+\begin{multline*}
+\bigl|\{\sigma\in S_n:\ \sigma(Q)\text{ is monochromatic}\}\bigr|\\
 =\bigl|\{\sigma\in S_n:\ \sigma(Q')\text{ is monochromatic}\}\bigr| .
-\]
+\end{multline*}
 \end{lemma}
 
 \begin{proof}
@@ -660,8 +660,8 @@ with
 r\le u,\qquad (u-r)+a_1+\dots+a_t\le M,\qquad
 \rho_\chi(u;a_1,\dots,a_t)\ \ge\ k^{1-2^{t}}-\frac{t}{L+1}.
 \]
-In particular, for $L=L_k(t)$ and $M=M_k(t)$ one can achieve
-$\rho_\chi(u;a_1,\dots,a_t)\ge k^{-2^{t}}$, and then $u\le r+M-t$ and
+In particular, with $L=L_k(t)$ and $M=M_k(t)$ as in \eqref{eq:Mt}, one
+can achieve $\rho_\chi(u;a_1,\dots,a_t)\ge k^{-2^{t}}$, and then $u\le r+M-t$ and
 $a_i\le M$ for every $i$.
 \end{proposition}
 
@@ -860,10 +860,10 @@ Also $m-s\ge s$, and $\binom st\ge(s/t)^{t}$ because $s\ge t$. Hence
 and \eqref{eq:Pbound} is at least $c_{k,t}\,n^{t+1}$.
 
 For the last assertion let $k=2$, so that $\log_2M=2\log_2t+2^{t}$ and
-\[
-\log_2\frac1{c_{2,t}}=2^{t}+1+t\log_2t+(t+1)(2+2\log_2M)
-=(2t+3)\,2^{t}+(5t+4)\log_2t+2t+3 .
-\]
+\begin{align*}
+\log_2\frac1{c_{2,t}}&=2^{t}+1+t\log_2t+(t+1)(2+2\log_2M)\\
+&=(2t+3)\,2^{t}+(5t+4)\log_2t+2t+3 .
+\end{align*}
 Since $\log_2t\le t-1$ and $2^{t}\ge2t$, the last two terms are at most
 $5t^{2}+t-1\le2t(t+1)^{2}\le(t+1)^{2}2^{t}$, so
 $\log_2(1/c_{2,t})\le(t+2)^{2}2^{t}$. If $\log_2n\ge(t+2)^{2}2^{t}$, then
