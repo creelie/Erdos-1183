@@ -54,7 +54,7 @@ The exact order of `log F(n) / log n`, between `(1 − o(1)) log₂ log₂ n` an
 
 ## Layout
 
-- `paper/`: LaTeX source (`Erdos.tex`, class `aomart`) and PDF.
+- `paper/`: LaTeX source (`Erdos.tex`, class `amsart`) and PDF; it compiles with pdfLaTeX (three runs) or LuaLaTeX.
   - `paper/figures/`: TikZ sources of the eight figures, with PDF and PNG
     renderings; `build.sh name` rebuilds one figure after the paper has been
     compiled, so that its cross-references resolve.
