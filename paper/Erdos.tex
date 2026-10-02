@@ -4,6 +4,7 @@
 \usepackage{iftex}
 \ifPDFTeX
   \usepackage{cmap}
+  \makeatletter\expandafter\let\csname cmap@set@OMX\endcsname\empty\makeatother
   \input{glyphtounicode}
   \newcommand{\gtu}[2]{\pdfglyphtounicode{#1big}{#2}%
     \pdfglyphtounicode{#1Big}{#2}\pdfglyphtounicode{#1bigg}{#2}%
