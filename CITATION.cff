@@ -18,12 +18,12 @@ authors:
     affiliation: "Formerly, National Taiwan University, Taipei, Taiwan"
     orcid: "https://orcid.org/0009-0002-2254-3914"
     email: rai.bhattacharya.in@gmail.com
-version: 2.0.0
-doi: 10.5281/zenodo.23067141
+version: 2.0.1
+doi: 10.5281/zenodo.23094057
 identifiers:
   - type: doi
-    value: 10.5281/zenodo.23067141
-    description: "Zenodo record, version 2.0.0"
+    value: 10.5281/zenodo.23094057
+    description: "Zenodo record, version 2.0.1"
   - type: doi
     value: 10.5281/zenodo.23050879
     description: "Zenodo record, all versions"
