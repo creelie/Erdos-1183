@@ -19,8 +19,8 @@ union and intersection (sublattices).
 ## Results
 
 Every statement below is proved in Lean with no `sorry`; `lean/Check.lean` prints
-the axioms of 46 theorems, and each uses only `propext`, `Classical.choice` and
-`Quot.sound`.
+the axioms of 51 theorems, and each uses only `propext`, `Classical.choice` and
+`Quot.sound` (two finite checks, `certs_ok` and `cover_ok`, use only `propext`).
 
 | Statement | Lean |
 |---|---|
@@ -34,7 +34,9 @@ the axioms of 46 theorems, and each uses only `propext`, `Classical.choice` and
 | `F(n) ≤ (log₂n + log₂log₂n + 3) n^{log₂n + log₂log₂n + 2}` | `bigF_le_loglog_real` |
 | Both conjectures for any number of colours | `erdos_1183_colours` |
 | At most `(m+1)^{2n}` nonempty sublattices of `2^[n]` with at most `m` members | `card_sublattices_le_pow` |
-| `⌈(n+1)/2⌉ ≤ f(n) ≤ min(n² + n + 1, 2n(L+K+3) + L + K + 4)`, `L = ⌊log₂n⌋ + 1`, `K = ⌊log₂L⌋ + 1` | `half_le_smallF`, `smallF_le_sq`, `smallF_le_log` |
+| Every 2-colouring of `2^[11]` has a red and a blue sublattice with 13 members in total | `splits_window` |
+| `⌈(n+1+q)/2⌉ ≤ f(n) ≤ min(n² + n + 1, 2n(L+K+3) + L + K + 4)`, `q = ⌊(n+1)/12⌋`, `L = ⌊log₂n⌋ + 1`, `K = ⌊log₂L⌋ + 1` | `smallF_ge_window`, `smallF_le_sq`, `smallF_le_log` |
+| `f(n) > ⌈(n+1)/2⌉` for odd `n ≥ 11` and for `n ≥ 23` | `half_lt_smallF` |
 | Hilbert's lemma with window `t² k^{2^t}`; many Hilbert cubes on one sequence | `hilbert_window`, `hilbert_cubes` |
 | Progressions of sizes, van der Waerden, Howorka's theorem | `ap_family`, `ap_lattice`, `exists_vdW`, `howorka` |
 | Random colouring and the counting criterion | `sum_maxUC_ge`, `sum_maxUC_ge_pow`, `bigF_lt_of_count` |
@@ -52,12 +54,12 @@ def SecondConjecture : Prop :=
 
 The exact order of `log F(n) / log n`, between `(1 − o(1)) log₂ log₂ n` and
 `(1 + o(1)) log₂ n`, remains open, and so does the exact order of `f(n)`,
-between `(n+1)/2` and `(2 + o(1)) n log₂ n` (Section 9 of the paper).
+between `13n/24` and `(2 + o(1)) n log₂ n` (Section 9 of the paper).
 
 ## Layout
 
 - `paper/`: LaTeX source (`Erdos.tex`, class `amsart`) and PDF; it compiles with pdfLaTeX (three runs) or LuaLaTeX.
-  - `paper/figures/`: TikZ sources of the eight figures, with PDF and PNG
+  - `paper/figures/`: TikZ sources of the nine figures, with PDF and PNG
     renderings; `build.sh name` rebuilds one figure after the paper has been
     compiled, so that its cross-references resolve.
 - `lean/`: Lake project (Lean 4.34.1, Mathlib v4.34.1).
@@ -72,6 +74,8 @@ between `(n+1)/2` and `(2 + o(1)) n log₂ n` (Section 9 of the paper).
   - `Hilbert.lean`, `Howorka.lean`: cardinality colourings, Hilbert cubes, progressions.
   - `Lattice.lean`: the lattice function `f` and the bound `f(n) ≤ n² + n + 1`.
   - `LatticeCount.lean`: counting sublattices point by point and `f(n) ≤ (2 + o(1)) n log₂ n`.
+  - `LatticeCerts.lean`: 294 explicit sublattices of `2^[11]`, checked in the kernel, covering the colourings by size.
+  - `LatticeLower.lean`: windows of twelve levels and `f(n) ≥ ⌈(n + 1 + ⌊(n+1)/12⌋)/2⌉`.
   - `Random.lean`: the random colouring and the counting criterion.
   - `Check.lean`: `#print axioms` for the main theorems.
 - `submission/`: draft note for erdosproblems.com.

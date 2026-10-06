@@ -1,0 +1,90 @@
+% The two cases of the window lemma on 2^{[11]}: adjacent sets, and a cardinality colouring.
+\begin{tikzpicture}[
+    red/.style={circle, draw=red!55!black, fill=red!75!black, line width=0.7pt,
+      inner sep=0pt, minimum size=7.5pt},
+    blue/.style={rectangle, draw=blue!55!black, fill=blue!15, line width=0.9pt,
+      inner sep=0pt, minimum size=6.8pt},
+    lab/.style={font=\footnotesize, inner sep=2pt},
+    edge/.style={gray!55!black, line width=0.6pt}]
+  \def\u{0.5}
+  % ---------------------------------------------------------------- panel (a)
+  \begin{scope}
+    % level guides
+    \foreach \l in {0,...,11} {
+      \draw[gray!25, line width=0.3pt] (-1.6,{\l*\u}) -- (1.6,{\l*\u});
+      \node[font=\scriptsize, gray!60!black, left] at (-1.6,{\l*\u}) {$\l$};
+    }
+    % lower chain: levels 0..4, ending at S cap T
+    \foreach \l/\c in {0/blue,1/red,2/red,3/blue,4/red} {
+      \node[\c] (a\l) at (0,{\l*\u}) {};
+    }
+    \foreach \l [evaluate=\l as \m using int(\l+1)] in {0,...,3} {
+      \draw[edge] (a\l) -- (a\m);
+    }
+    % the two adjacent sets at level 5
+    \node[red]  (S) at (-0.9,{5*\u}) {};
+    \node[blue] (T) at (0.9,{5*\u}) {};
+    % upper chain: levels 6..11, starting at S cup T
+    \foreach \l/\c in {6/blue,7/blue,8/red,9/blue,10/red,11/red} {
+      \node[\c] (a\l) at (0,{\l*\u}) {};
+    }
+    \foreach \l [evaluate=\l as \m using int(\l+1)] in {6,...,10} {
+      \draw[edge] (a\l) -- (a\m);
+    }
+    \draw[red!65!black, line width=1.3pt] (a4) -- (S) -- (a6);
+    \draw[blue!60!black, line width=1.3pt, dashed] (a4) -- (T) -- (a6);
+    \node[lab, below right=1pt] at (a0) {$\emptyset$};
+    \node[lab, below right=0pt and 4pt] at (a4) {$S\cap T$};
+    \node[lab, left=3pt] at (S) {$S$};
+    \node[lab, right=3pt] at (T) {$T$};
+    \node[lab, above right=0pt and 4pt] at (a6) {$S\cup T$};
+    \node[lab, above right=1pt] at (a11) {$[11]$};
+    % braces for the two chains
+    \draw[decorate, decoration={brace, amplitude=4pt}, line width=0.5pt]
+      (1.75,{4*\u+0.1}) -- (1.75,{-0.1}) node[midway, right=5pt, lab] {$\mathcal K_1$};
+    \draw[decorate, decoration={brace, amplitude=4pt}, line width=0.5pt]
+      (1.75,{11*\u+0.1}) -- (1.75,{6*\u-0.1}) node[midway, right=5pt, lab] {$\mathcal K_2$};
+    \node[font=\small] at (0,-0.85) {(a)};
+  \end{scope}
+  % ---------------------------------------------------------------- panel (b)
+  \begin{scope}[xshift=5.7cm]
+    \foreach \l in {0,...,11} {
+      \draw[gray!25, line width=0.3pt] (-0.6,{\l*\u}) -- (4.4,{\l*\u});
+      \node[font=\scriptsize, gray!60!black, left] at (-0.6,{\l*\u}) {$\l$};
+    }
+    % the word g(0)...g(11) = B R B B R R B R B B R B as a column of levels
+    \foreach \l/\c in {0/blue,1/red,2/blue,3/blue,4/red,5/red,6/blue,7/red,8/blue,9/blue,
+        10/red,11/blue} {
+      \node[\c] (w\l) at (0,{\l*\u}) {};
+    }
+    \draw[decorate, decoration={brace, amplitude=4pt}, line width=0.5pt]
+      (-0.25,{1*\u-0.1}) -- (-0.25,{10*\u+0.1});
+    \node[lab, rotate=90] at (-1.25,{5.5*\u}) {a block with five red levels};
+    % a 3-cube with three blocks of size 3 placed on {1}: levels 1, 4, 7, 10
+    \coordinate (o) at (2.3,{1*\u});
+    \coordinate (e1) at (-1.15,{3*\u});
+    \coordinate (e2) at (0.5,{3*\u});
+    \coordinate (e3) at (1.15,{3*\u});
+    \coordinate (v000) at (o);
+    \coordinate (v100) at ($(o)+(e1)$);
+    \coordinate (v010) at ($(o)+(e2)$);
+    \coordinate (v001) at ($(o)+(e3)$);
+    \coordinate (v110) at ($(o)+(e1)+(e2)$);
+    \coordinate (v101) at ($(o)+(e1)+(e3)$);
+    \coordinate (v011) at ($(o)+(e2)+(e3)$);
+    \coordinate (v111) at ($(o)+(e1)+(e2)+(e3)$);
+    \fill[red!7] (v000) -- (v100) -- (v101) -- (v001) -- cycle;
+    \fill[red!12] (v100) -- (v110) -- (v111) -- (v101) -- cycle;
+    \draw[red!50!black, dashed, line width=0.5pt] (v000) -- (v010) -- (v110);
+    \draw[red!50!black, dashed, line width=0.5pt] (v010) -- (v011);
+    \draw[red!60!black, line width=1.0pt]
+      (v000) -- (v100) -- (v110) -- (v111) -- (v011) -- (v001) -- cycle
+      (v100) -- (v101) -- (v111) (v001) -- (v101);
+    \foreach \v in {000,100,010,001,110,101,011,111} {
+      \node[red] at (v\v) {};
+    }
+    \node[lab, below right=1pt] at (v000) {$\{1\}$};
+    \node[lab, above right=1pt] at (v111) {$\{1,\dots,10\}$};
+    \node[font=\small] at (1.9,-0.85) {(b)};
+  \end{scope}
+\end{tikzpicture}

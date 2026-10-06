@@ -62,6 +62,12 @@
 \newcommand{\cY}{\mathcal{Y}}
 \newcommand{\Ex}{\mathbb{E}}
 \newcommand{\eps}{\varepsilon}
+\newcommand{\w}[1]{\textsf{\upshape #1}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\cG}{\mathcal{G}}
+\newcommand{\cK}{\mathcal{K}}
+\newcommand{\cR}{\mathcal{R}}
 \DeclareMathOperator{\vc}{vc}
 \newcommand{\zenododoi}{10.5281/zenodo.23094057}
 \renewcommand{\urladdrname}{{\itshape ORCID}}
@@ -108,8 +114,9 @@ families. Every two-colouring of the subsets of a finite set contains a
 monochromatic union-closed family whose size grows faster than any fixed
 power of the size of the set, while suitable colourings admit no
 monochromatic union-closed family of exponential size. Both results hold
-for any number of colours. For sublattices the forced size is determined
-up to a logarithmic factor. All proofs are checked in Lean.
+for any number of colours. For sublattices the forced size exceeds the
+chain bound and is determined up to a logarithmic factor. All proofs are
+checked in Lean.
 \end{abstract}
 
 \maketitle
@@ -246,24 +253,34 @@ for $F(n)$ would have to say something new about random colourings as
 well. In the other direction, Proposition~\ref{prop:count} reduces an
 upper bound for the random colouring to counting union-closed families.
 
-The two functions of Erd\H{o}s and Ulam have very different sizes. For sublattices the trivial bound \eqref{eq:trivial} is
-correct up to a factor of order $\log n$.
+The two functions of Erd\H{o}s and Ulam have very different sizes. For
+sublattices the trivial bound \eqref{eq:trivial} is correct up to a factor
+of order $\log n$, but for large $n$ it is not sharp.
 
 \begin{theorem}
 \label{thm:f}
-For every $n\ge1$, with $L=\lfloor\log_2n\rfloor+1$ and
-$K=\lfloor\log_2L\rfloor+1$,
+For every $n\ge1$, with $q=\lfloor(n+1)/12\rfloor$,
+$L=\lfloor\log_2n\rfloor+1$ and $K=\lfloor\log_2L\rfloor+1$,
 \[
-\Bigl\lceil\frac{n+1}{2}\Bigr\rceil\ \le\ f(n)\ \le\
+\Bigl\lceil\frac{n+1+q}{2}\Bigr\rceil\ \le\ f(n)\ \le\
 \min\bigl\{\,n^{2}+n+1,\ \ 2n(L+K+3)+L+K+4\,\bigr\}.
 \]
-Thus $f(n)\le(2+o(1))\,n\log_2n$, whereas $F(n)/n^{C}\to\infty$ for
-every constant $C$.
+In particular $f(n)>\lceil(n+1)/2\rceil$ for every odd $n\ge11$ and every
+$n\ge23$, and $13n/24\le f(n)\le(2+o(1))\,n\log_2n$, whereas
+$F(n)/n^{C}\to\infty$ for every constant $C$.
 \end{theorem}
 
-The upper bound rests on a count of sublattices by size: deleting the
-points one at a time shows that $2^{[n]}$ has at most $(m+1)^{2n}$
-nonempty sublattices with at most $m$ members (Lemma~\ref{lem:count}).
+The lower bound comes from chains in which stretches of twelve
+consecutive levels are replaced by small sublattices. In each stretch
+the red and the blue sets of the new family together outnumber the twelve
+sets of the chain: either two sets of the same size have different
+colours and both can be used (Lemma~\ref{lem:adjacent}), or the colour of
+a set depends only on its size, and then a short combinatorial argument on
+words in two letters finds a product of chains that beats the chain in
+one colour (Lemmas~\ref{lem:gadgets} and~\ref{lem:words}). The upper bound
+rests on a count of sublattices by size: deleting the points one at a
+time shows that $2^{[n]}$ has at most $(m+1)^{2n}$ nonempty sublattices
+with at most $m$ members (Lemma~\ref{lem:count}).
 
 \subsection{Colourings by cardinality, Hilbert cubes and progressions}
 
@@ -398,16 +415,21 @@ Vapnik--Chervonenkis dimension \cite{VC71}.
 \subsection{Formal verification}
 
 Every result of this paper is proved in the text, and no step of any
-proof depends on a computer calculation. In addition, all theorems,
+proof depends on a computer calculation. In addition, the theorems,
 propositions, corollaries and lemmas of
 Sections~\ref{sec:cubes}--\ref{sec:f} have been formalised and checked in
 the Lean proof assistant \cite{MU21} with the Mathlib library
-\cite{Mathlib20}. The functions $f$, $F$ and $F_k$ are defined in the
+\cite{Mathlib20}, with the exception of Lemmas~\ref{lem:gadgets}
+and~\ref{lem:words}. The functions $f$, $F$ and $F_k$ are defined in the
 formal development literally as above, the two conjectures are stated in
 the form \eqref{eq:conj} with the term $o(1)$ written out as a function
 tending to zero, and Lean reports that the proof of each formal statement
-uses only the three standard axioms of the system.
-Section~\ref{sec:lean} describes the formalisation.
+uses only the three standard axioms of the system. The formal proofs
+follow the text, with one exception: for colourings that depend only on
+the size of a set, the formal proof of Lemma~\ref{lem:window} replaces
+the argument of those two lemmas by a finite check carried out inside the
+logic of the proof assistant. Section~\ref{sec:lean} describes the
+formalisation.
 
 \subsection{Organisation}
 
@@ -1250,11 +1272,303 @@ progression of length $p$ in $\{0,\dots,n\}$ with $2^{p-1}>m$.
 \section{The lattice function}
 \label{sec:f}
 
-The lower bound in Theorem~\ref{thm:f} is \eqref{eq:trivial}. The upper
-bounds come from a random colouring and two counts of sublattices. The
-first count rests on Birkhoff's description of a sublattice through its
-least member and the least members containing the points; the second
-removes the points one at a time.
+This section proves Theorem~\ref{thm:f}. The lower bound improves the
+chain argument behind \eqref{eq:trivial}; the upper bounds come from a
+random colouring and two counts of sublattices.
+
+\subsection{The lower bound}
+
+We call the two colours red and blue. For a $2$-colouring $\chi$ of
+$2^{W}$, a \emph{red--blue pair} is a pair $(\cR,\cB)$ of sublattices of
+$2^{W}$, either of which may be empty, such that every member of $\cR$ is
+red and every member of $\cB$ is blue. Its \emph{size} is
+$|\cR|+|\cB|$. One of the two sublattices has at least half of these
+members, so a red--blue pair of size $N$ yields a monochromatic
+sublattice with at least $\lceil N/2\rceil$ members. The proof of
+\eqref{eq:trivial} splits a maximal chain into its red and its blue
+members, which is a red--blue pair of size $n+1$. Three simple facts are
+used throughout.
+
+\begin{enumerate}[label=\textup{(L\arabic*)},leftmargin=2.6em]
+\item A family of sets any two of which are comparable under inclusion
+is a sublattice.
+\item If $\cL_1$ and $\cL_2$ are sublattices and $A\subseteq B$ for all
+$A\in\cL_1$ and $B\in\cL_2$, then $\cL_1\cup\cL_2$ is a sublattice, since
+$A\cup B=B$ and $A\cap B=A$ for such $A$ and $B$.
+\item If $\cL_1,\dots,\cL_r$ are sublattices of $2^{W_1},\dots,2^{W_r}$
+for pairwise disjoint sets $W_1,\dots,W_r$, then
+\[
+\cL_1\otimes\dots\otimes\cL_r=\bigl\{A_1\cup\dots\cup A_r:\
+A_i\in\cL_i\text{ for }i\in[r]\bigr\}
+\]
+is a sublattice of $2^{W_1\cup\dots\cup W_r}$ with
+$|\cL_1|\cdots|\cL_r|$ members, because unions and intersections of such
+sets are formed separately inside each $W_i$.
+\end{enumerate}
+
+The improvement over \eqref{eq:trivial} is local: a stretch of twelve
+consecutive levels of a chain can always be traded for a red--blue pair
+with thirteen members.
+
+\begin{lemma}[Windows]
+\label{lem:window}
+Every $2$-colouring of $2^{[11]}$ has a red--blue pair of size at least
+$13$.
+\end{lemma}
+
+The proof distinguishes whether or not the colour of a set is determined
+by its size. Figure~\ref{fig:window} illustrates the two cases.
+
+\begin{lemma}[Adjacent sets]
+\label{lem:adjacent}
+Let $m\ge1$, and let $\chi$ be a $2$-colouring of $2^{[m]}$ under which
+two sets of the same size have different colours. Then $\chi$ has a
+red--blue pair of size $m+2$.
+\end{lemma}
+
+\begin{proof}
+Among all pairs of sets of equal size and different colours choose $S,T$
+with $|S\setminus T|$ as small as possible. Suppose that $|S\setminus
+T|\ge2$, pick $a\in S\setminus T$ and $b\in T\setminus S$, and put
+$U=(S\setminus\{a\})\cup\{b\}$. Then $|U|=|S|$, $|S\setminus U|=1$ and
+$|U\setminus T|=|S\setminus T|-1$. If $\chi(U)\ne\chi(S)$, the pair $S,U$
+contradicts the choice of $S,T$; otherwise $\chi(U)\ne\chi(T)$, and the
+pair $U,T$ does. Hence $|S\setminus T|=1$, and after exchanging the names
+of $S$ and $T$ we may assume that $S$ is red and $T$ is blue.
+
+Put $C=S\cap T$ and $D=S\cup T$, so that $|C|=|S|-1$ and $|D|=|S|+1$.
+Let $\cK_1$ be a maximal chain of subsets of $C$, running from
+$\emptyset$ to $C$, and let $\cK_2$ be a maximal chain of sets between $D$
+and $[m]$. They have $|C|+1$ and $m-|D|+1$ members, so
+$\cK=\cK_1\cup\cK_2$ has $m$ members. Every member of $\cK_1$ is contained
+in $C$ and every member of $\cK_2$ contains $D$. As $C\subset S\subset D$
+and $C\subset T\subset D$, both $\cK\cup\{S\}$ and $\cK\cup\{T\}$ are
+chains, and neither $S$ nor $T$ belongs to $\cK$, whose members have
+fewer than $|S|$ or more than $|S|$ elements. Let $\cR$ consist of the red
+members of $\cK\cup\{S\}$ and $\cB$ of the blue members of
+$\cK\cup\{T\}$. By (L1) both are sublattices, and $|\cR|+|\cB|=|\cK|+2=
+m+2$, since each member of $\cK$ is counted once and $S$ and $T$ are
+counted once each.
+\end{proof}
+
+\begin{figure}[t]
+\centering
+\input{figures/fig-window.tex}
+\caption{The two cases of Lemma~\ref{lem:window}, with red discs and
+blue squares and the levels of $2^{[11]}$ drawn horizontally.
+(a)~Lemma~\ref{lem:adjacent}: a maximal chain through $S\cap T$ and
+$S\cup T$ is shared by the two colours, $S$ is added to the red sets and
+$T$ to the blue sets, and the pair has $13$ members. (b)~The cardinality
+colouring given by the word $\w{BRBBRRBRBBRB}$. Its block
+$\w{RBBRRBRBBR}$ at the levels $1,\dots,10$ has five red letters, while
+the cube $\{\{1\}\cup X_I:\ I\subseteq[3]\}$ with $X_1=\{2,3,4\}$,
+$X_2=\{5,6,7\}$ and $X_3=\{8,9,10\}$ has eight red members, at the levels
+$1$, $4$, $7$ and $10$.}
+\label{fig:window}
+\end{figure}
+
+It remains to treat colourings with $\chi(S)=g(|S|)$, and we record $g$
+as the word $g(0)g(1)\cdots g(11)$ in the letters $\w{R}$ (red) and
+$\w{B}$ (blue). Let $u=u_0u_1\cdots u_\ell$ be such a word and let $c$ be
+a letter. A sublattice $\cG$ of $2^{W}$, where $|W|=\ell$, \emph{beats $u$
+in colour $c$} if $u_{|G|}=c$ for every $G\in\cG$ and $\cG$ has more
+members than there are indices $i$ with $u_i=c$. The same sublattice
+beats, in the other colour, the word obtained from $u$ by exchanging the
+two letters. The map $G\mapsto W\setminus G$ exchanges unions and
+intersections and sends a set of size $i$ to one of size $\ell-i$, so it
+turns $\cG$ into a sublattice that beats the reversed word
+$u_\ell\cdots u_1u_0$ in colour $c$.
+
+For positive integers $a_1,\dots,a_r$ we write $\langle
+a_1,\dots,a_r\rangle$ for a chain $\emptyset\subset Y_1\subset Y_1\cup
+Y_2\subset\dots\subset Y_1\cup\dots\cup Y_r$ built from pairwise disjoint
+sets with $|Y_i|=a_i$. In a product $\langle\cdots\rangle\otimes\dots
+\otimes\langle\cdots\rangle$ the sets used by different factors are
+disjoint as well, as (L3) requires.
+
+\begin{table}[t]
+\centering
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}lllccc@{}}
+\hline
+word & red indices & $\cG$ & sizes of members & $|\cG|$ & red letters\\
+\hline
+\w{RRR} & $0,1,2$ & $\langle1\rangle\otimes\langle1\rangle$
+  & $0,1,1,2$ & $4$ & $3$\\
+\w{RBRBR} & $0,2,4$ & $\langle2\rangle\otimes\langle2\rangle$
+  & $0,2,2,4$ & $4$ & $3$\\
+\w{RBBRBBR} & $0,3,6$ & $\langle3\rangle\otimes\langle3\rangle$
+  & $0,3,3,6$ & $4$ & $3$\\
+\w{RRBBRRBBR} & $0,1,4,5,8$ & $\langle1,3\rangle\otimes\langle4\rangle$
+  & $0,1,4,4,5,8$ & $6$ & $5$\\
+\w{RBRRBRBBR} & $0,2,3,5,8$ & $\langle2,3\rangle\otimes\langle3\rangle$
+  & $0,2,3,5,5,8$ & $6$ & $5$\\
+\w{RRBRBBRRBR} & $0,1,3,6,7,9$ &
+  $\langle3\rangle\otimes\langle3\rangle\otimes\langle3\rangle$
+  & $0,3,3,3,6,6,6,9$ & $8$ & $6$\\
+\w{RBRRBBRRBR} & $0,2,3,6,7,9$ &
+  $\langle3\rangle\otimes\langle3\rangle\otimes\langle3\rangle$
+  & $0,3,3,3,6,6,6,9$ & $8$ & $6$\\
+\w{RBBRRBRBBR} & $0,3,4,6,9$ &
+  $\langle3\rangle\otimes\langle3\rangle\otimes\langle3\rangle$
+  & $0,3,3,3,6,6,6,9$ & $8$ & $5$\\
+\hline
+\end{tabular}
+\caption{Eight words and sublattices that beat them in colour $\w{R}$.
+In each row the ground set $W$ is the union of the sets used by the
+chains, and its size is the length of the word minus one. The last two
+columns give the number of members of $\cG$ and the number of red letters
+of the word.}
+\label{tab:gadgets}
+\end{table}
+
+\begin{lemma}[Eight words]
+\label{lem:gadgets}
+For each row of Table~\ref{tab:gadgets}, the sublattice $\cG$ listed
+there beats the word of that row in colour $\w{R}$.
+\end{lemma}
+
+\begin{proof}
+Each chain $\langle\cdots\rangle$ is a sublattice by (L1), so $\cG$ is a
+sublattice of $2^{W}$ by (L3), and $|\cG|$ is the product of the lengths
+of the chains. The sizes of the members of $\cG$ are the sums of one size
+from each chain, which gives the fourth column. Every size listed there is
+a red index of the word, and $|\cG|$ exceeds the number of red letters in
+each row.
+\end{proof}
+
+\begin{lemma}[Words of length twelve]
+\label{lem:words}
+Every word of length $12$ in the letters $\w{R}$ and $\w{B}$ contains, as
+a block of consecutive letters, one of the eight words of
+Table~\ref{tab:gadgets} or a word obtained from one of them by reversing
+it, by exchanging the two letters, or by both.
+\end{lemma}
+
+\begin{proof}
+Call the eight words and the words obtained from them in this way
+\emph{forbidden}, and suppose that a word $u$ of length $12$ contains no
+forbidden block. A \emph{run} of $u$ is a maximal block of equal letters.
+Let the runs of $u$ have lengths $r_1,\dots,r_k$ from left to right, so
+that $r_1+\dots+r_k=12$, and call the runs other than the first and the
+last \emph{inner}. Since $\w{RRR}$ and $\w{BBB}$ are forbidden, every
+$r_i$ is $1$ or $2$.
+
+Several forbidden words consist of whole runs framed by a single letter on
+each side. For example, if three consecutive inner runs had length $1$,
+then together with the last letter of the run before them and the first
+letter of the run after them they would form $\w{RBRBR}$ or $\w{BRBRB}$.
+In the same way the forbidden words $\w{RBBRBBR}$, $\w{RBRRBRBBR}$,
+$\w{RBRRBBRRBR}$ and $\w{RBBRRBRBBR}$, with their reversals, show that the
+sequence $v=(r_2,\dots,r_{k-1})$ of lengths of inner runs contains none of
+the blocks
+\begin{enumerate}[label=\textup{(\alph*)},leftmargin=2em]
+\item $1,1,1$ and $2,1,2$;
+\item $1,2,1,1,2$ and $2,1,1,2,1$;
+\item $1,2,2,2,1$;
+\item $2,2,1,1,2$ and $2,1,1,2,2$.
+\end{enumerate}
+Two more facts concern the first and the last run.
+\begin{enumerate}[label=\textup{(\alph*)},leftmargin=2em,resume]
+\item No four consecutive runs have length $2$. Such runs contain eight
+letters, so another run precedes or follows them, and one letter of it
+completes $\w{RRBBRRBBR}$ or a word obtained from it by reversing or
+exchanging letters.
+\item It is not the case that $r_1=2$, $(r_2,\dots,r_6)=(1,1,2,2,1)$ and
+$k\ge7$. Otherwise the first nine letters of $u$ and the first letter of
+the seventh run would form $\w{RRBRBBRRBR}$ or $\w{BBRBRRBBRB}$.
+\end{enumerate}
+As $r_1+r_k\le4$, the entries of $v$ add up to at least $8$.
+
+Suppose first that some entries $1$ of $v$ lie between two entries $2$,
+and take a maximal block of such entries. By (a) the block is $1,1$, so
+$v$ contains $2,1,1,2$. By (d) neither of these two entries $2$ has a
+further entry $2$ next to it in $v$, so any entry of $v$ just before or
+just after the block $2,1,1,2$ is a $1$, and by (b) there is no such
+entry. Thus $v=(2,1,1,2)$, whose entries add up to $6$, a contradiction.
+
+Otherwise the entries $2$ of $v$ are consecutive, and $v$ consists of $a$
+entries $1$, then $b$ entries $2$, then $c$ entries $1$, where $a,c\le2$
+by (a) and $b\le3$ by (e). From $a+2b+c\ge8$ we get $b\ge2$. If $b=3$
+and $a,c\ge1$, then $v$ contains $1,2,2,2,1$, contrary to (c). If $b=3$
+and $a=0$, then $c=2$, the entries of $v$ add up to exactly $8$, so
+$r_1=r_k=2$ and the first four runs have length $2$, contrary to (e); the
+case $c=0$ is symmetric. If $b=2$, then $a=c=2$, again $r_1=r_k=2$, and
+$(r_1,\dots,r_8)=(2,1,1,2,2,1,1,2)$, contrary to (f).
+\end{proof}
+
+The length $12$ in Lemma~\ref{lem:words} cannot be lowered: the word
+$\w{RRBRBBRRBBR}$ of length $11$ contains no forbidden block.
+
+\begin{proof}[Proof of Lemma~\ref{lem:window}]
+Let $\chi$ be a $2$-colouring of $2^{[11]}$. If two sets of the same size
+have different colours, Lemma~\ref{lem:adjacent} with $m=11$ gives a
+red--blue pair of size $13$. Otherwise $\chi(S)=g(|S|)$ for a word
+$g=g(0)\cdots g(11)$. By Lemmas~\ref{lem:words} and~\ref{lem:gadgets} and
+the two symmetries noted above, there are integers $0\le a<b\le11$, a
+colour $c$ and a sublattice $\cG$ of $2^{W}$ with $W=\{a+1,\dots,b\}$ that
+beats the block $g(a)g(a+1)\cdots g(b)$ in colour $c$. Write $S_i=[i]$
+for $0\le i\le11$ and consider
+\[
+\cL=\{S_i:\ i<a,\ g(i)=c\}\ \cup\ \{S_a\cup G:\ G\in\cG\}\ \cup\
+\{S_i:\ i>b,\ g(i)=c\}.
+\]
+The map $G\mapsto S_a\cup G$ is injective and preserves unions and
+intersections, so the middle family is a sublattice with $|\cG|$
+members. For $i<a$, $G\in\cG$ and $i'>b$ we have $S_i\subseteq
+S_a\cup G\subseteq S_b\subseteq S_{i'}$, so $\cL$ is a sublattice by (L1)
+and two applications of (L2), and its three parts are disjoint. Every
+member of $\cL$ has colour $c$, because $|S_a\cup G|=a+|G|$. Since $\cG$
+has more members than there are indices $i$ with $a\le i\le b$ and
+$g(i)=c$, the family $\cL$ has more members than there are indices
+$0\le i\le11$ with $g(i)=c$. The sets $S_i$ with $g(i)\ne c$ form a chain
+of the other colour, and together with $\cL$ they give a red--blue pair of
+size at least $13$.
+\end{proof}
+
+Stacking windows along a maximal chain gives the lower bound of
+Theorem~\ref{thm:f}.
+
+\begin{proposition}
+\label{prop:flower}
+Let $n\ge1$ and $q=\lfloor(n+1)/12\rfloor$. Every $2$-colouring of
+$2^{[n]}$ has a red--blue pair of size at least $n+1+q$. Consequently
+$f(n)\ge\lceil(n+1+q)/2\rceil$.
+\end{proposition}
+
+\begin{proof}
+Let $\chi$ be a $2$-colouring of $2^{[n]}$ and write $S_i=[i]$. For
+$0\le j<q$ let $W_j=\{12j+1,\dots,12j+11\}$, a subset of $[n]$ because
+$12q\le n+1$. The map $T\mapsto S_{12j}\cup T$ from $2^{W_j}$ to $2^{[n]}$
+is injective and preserves unions and intersections. Applying
+Lemma~\ref{lem:window} to the colouring $T\mapsto\chi(S_{12j}\cup T)$ of
+$2^{W_j}$ we obtain a red--blue pair $(\cR_j,\cB_j)$ of $\chi$ of size at
+least $13$ whose members $A$ satisfy $S_{12j}\subseteq A\subseteq
+S_{12j+11}$, and hence $12j\le|A|\le12j+11$. Let $\cC$ be the chain of the
+sets $S_i$ with $12q\le i\le n$, which has $n+1-12q$ members. For $j<j'$,
+every member of $\cR_j\cup\cB_j$ is contained in every member of
+$\cR_{j'}\cup\cB_{j'}$ and of $\cC$, and is smaller than each of them. By
+(L1) and repeated use of (L2),
+\begin{align*}
+\cR&=\cR_0\cup\dots\cup\cR_{q-1}\cup\{A\in\cC:\ A\text{ is red}\},\\
+\cB&=\cB_0\cup\dots\cup\cB_{q-1}\cup\{A\in\cC:\ A\text{ is blue}\}
+\end{align*}
+form a red--blue pair. The unions are disjoint, so
+$|\cR|+|\cB|\ge13q+(n+1-12q)=n+1+q$.
+\end{proof}
+
+For odd $n\ge11$ and for $n\ge23$ we have $\lceil(n+1+q)/2\rceil>
+\lceil(n+1)/2\rceil$, and since $q\ge(n-10)/12$ we have
+$(n+1+q)/2\ge(13n+2)/24$. These are the lower bounds stated in
+Theorem~\ref{thm:f}.
+
+\subsection{Counting sublattices}
+
+The upper bounds rest on two counts of sublattices. The first uses
+Birkhoff's description of a sublattice through its least member and the
+least members containing the points; the second removes the points one at
+a time.
 
 Let $\cL\subseteq2^{[n]}$ be a nonempty sublattice, and put
 $B=\bigcap_{A\in\cL}A$ and $T=\bigcup_{A\in\cL}A$, the least and the
@@ -1357,8 +1671,10 @@ each. Hence $N_k\le(m+1)^{2}N_{k-1}$, and $N_n\le(m+1)^{2n}$.
 \end{proof}
 
 \begin{proof}[Proof of Theorem~\ref{thm:f}]
-The number of $2$-colourings under which a fixed family of $N$ distinct
-sets is monochromatic is $2\cdot2^{2^{n}-N}$.
+The lower bounds follow from Proposition~\ref{prop:flower}, as shown
+after its proof. For the upper bounds we use that the number of
+$2$-colourings under which a fixed family of $N$ distinct sets is
+monochromatic is $2\cdot2^{2^{n}-N}$.
 
 For the first bound put $m_1=n^{2}+n+2$. By Lemma~\ref{lem:count}(a),
 the colourings under which some sublattice with at least $m_1$ members is
@@ -1400,24 +1716,25 @@ $2n\log_2n+O(n\log\log n)$. The last assertion of the theorem follows
 from Theorem~\ref{thm:lower} with $t>C$.
 \end{proof}
 
-The first bound is the smaller one for $n\le21$ and the second for
+The first upper bound is the smaller one for $n\le21$ and the second for
 $n\ge22$. Both come from the random colouring, and the remaining gap, a
-factor of order $\log n$ between them and the lower bound
-$\lceil(n+1)/2\rceil$, is the subject of Question~\ref{q:f}.
+factor of order $\log n$ between them and the lower bound of
+Proposition~\ref{prop:flower}, is the subject of Question~\ref{q:f}.
 
 %======================================================================
 \section{Formal verification}
 \label{sec:lean}
 
-The results of Sections~\ref{sec:cubes}--\ref{sec:f} have been
-formalised in Lean~4 \cite{MU21}, version~4.34.1, with the Mathlib
-library \cite{Mathlib20} at the release of the same version number. The
+The results of Sections~\ref{sec:cubes}--\ref{sec:f}, except
+Lemmas~\ref{lem:gadgets} and~\ref{lem:words}, have been formalised in
+Lean~4 \cite{MU21}, version~4.34.1, with the Mathlib library
+\cite{Mathlib20} at the release of the same version number. The
 development contains no unproved steps, and for each statement listed
 below Lean reports that the proof uses only the three standard axioms of
 its logic, namely propositional extensionality, the axiom of choice and
 the soundness of quotient types.\footnote{These axioms are part of the
 foundations on which Mathlib is built. In particular, no statement relies
-on an additional axiom or on evaluating code in place of a proof.}
+on an additional axiom or on compiled code run in place of a proof.}
 
 In the formalisation the ground set is the type of $n$ elements, a
 $k$-colouring is a function from its subsets to a finite type with $k$
@@ -1448,8 +1765,10 @@ Proposition~\ref{prop:count}.
 Proposition~\ref{prop:AP}, Theorem~\ref{thm:vdw}, derived from Mathlib's
 Hales--Jewett theorem as described above, and Theorem~\ref{thm:howorka},
 proved for every number $W$ with the property that defines $W_k(p)$.
-\item Lemmas~\ref{lem:structure}, \ref{lem:remove} and~\ref{lem:count}
-and Theorem~\ref{thm:f}.
+\item Lemmas~\ref{lem:window} and~\ref{lem:adjacent},
+Proposition~\ref{prop:flower}, Lemmas~\ref{lem:structure},
+\ref{lem:remove} and~\ref{lem:count}, and Theorem~\ref{thm:f}, including
+$f(n)>\lceil(n+1)/2\rceil$ for odd $n\ge11$ and for $n\ge23$.
 \end{enumerate}
 
 The formal proofs follow the arguments given here, with one change of
@@ -1459,7 +1778,24 @@ becomes a double counting over the product of the two sets, and the
 random colourings of Sections~\ref{sec:upper} and~\ref{sec:f} are
 replaced by counts of colourings. The box inequality is proved for sums
 over all pairs of points, which is Lemma~\ref{lem:box} multiplied by
-$|G|^{2t}$. Outside the formal development remain only the figures and
+$|G|^{2t}$.
+
+The one place where the formal proof takes a different route is the case
+of Lemma~\ref{lem:window} in which the colour of a set depends only on its
+size. Instead of Lemmas~\ref{lem:gadgets} and~\ref{lem:words}, the formal
+proof uses a list of $294$ explicit sublattices of $2^{[11]}$, each stored
+as a list of subsets of $[11]$ written in binary, together with the sizes
+of its members. Two finite statements are checked by evaluation inside
+the kernel of Lean: that every listed family is closed under union and
+intersection and has the stated sizes, and that for each of the $2^{11}$
+words $g$ with $g(0)$ blue some listed family has all its sizes in one
+colour class of $g$ and more members than that class. The second colour is
+handled by exchanging the two colours. Such a check is a proof in the
+logic of Lean, verified by the same kernel as every other proof, and it
+uses no compiled code and no additional axiom. Lemmas~\ref{lem:gadgets}
+and~\ref{lem:words} themselves are not formalised.
+
+Outside the formal development remain only the figures and
 the elementary asymptotic rewritings of the proved bounds, such as
 $\omega(n)=(1-o(1))\log_2\log_2n$ in Corollary~\ref{cor:conj} and
 $n^{\log_2\log_2n-2-o(1)}$ after Proposition~\ref{prop:random}.
@@ -1501,12 +1837,14 @@ cannot be lowered below $n^{(1-o(1))\log_2\log_2n}$.
 
 \begin{question}
 \label{q:f}
-Is $f(n)=O(n)$? Is $f(n)=\lceil(n+1)/2\rceil$ for every $n$?
+Is $f(n)=O(n)$? If so, does $f(n)/n$ converge, and to what limit?
 \end{question}
 
-The lower bound $\lceil(n+1)/2\rceil$ comes from a single chain, and the
-upper bounds of Theorem~\ref{thm:f} from counting sublattices in a random
-colouring, which leaves a factor of order $\log n$ between them.
+By Theorem~\ref{thm:f}, $f(n)$ exceeds the chain bound
+$\lceil(n+1)/2\rceil$ for all large $n$, and $13/24\le f(n)/n\le
+(2+o(1))\log_2n$. The lower bound comes from chains in which stretches of
+twelve levels are replaced by small sublattices, and the upper bounds
+from counting sublattices in a random colouring.
 
 %======================================================================
 \section*{Data availability}
