@@ -53,6 +53,11 @@ import Erdos1183
 #print axioms Erdos1183.card_sublattices_le_pow
 #print axioms Erdos1183.smallF_le_sq
 #print axioms Erdos1183.smallF_le_log
+#print axioms Erdos1183.certs_ok
+#print axioms Erdos1183.cover_ok
+#print axioms Erdos1183.splits_window
+#print axioms Erdos1183.smallF_ge_window
+#print axioms Erdos1183.half_lt_smallF
 -- random colourings and a counting criterion
 #print axioms Erdos1183.exists_unionClosed_subfamily
 #print axioms Erdos1183.bigF_lt_of_count
