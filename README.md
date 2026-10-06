@@ -19,7 +19,7 @@ union and intersection (sublattices).
 ## Results
 
 Every statement below is proved in Lean with no `sorry`; `lean/Check.lean` prints
-the axioms of 45 theorems, and each uses only `propext`, `Classical.choice` and
+the axioms of 46 theorems, and each uses only `propext`, `Classical.choice` and
 `Quot.sound`.
 
 | Statement | Lean |
@@ -33,7 +33,8 @@ the axioms of 45 theorems, and each uses only `propext`, `Classical.choice` and
 | `F(n) ≤ Σ_{j<d} C(n,j)` whenever `2^d > nd + 2` | `bigF_le_sum_choose` |
 | `F(n) ≤ (log₂n + log₂log₂n + 3) n^{log₂n + log₂log₂n + 2}` | `bigF_le_loglog_real` |
 | Both conjectures for any number of colours | `erdos_1183_colours` |
-| `⌈(n+1)/2⌉ ≤ f(n) ≤ min(n² + n + 1, nL(3L+2) + 2n + 3L + 3)`, `L = ⌊log₂n⌋ + 1` | `half_le_smallF`, `smallF_le_sq`, `smallF_le_log` |
+| At most `(m+1)^{2n}` nonempty sublattices of `2^[n]` with at most `m` members | `card_sublattices_le_pow` |
+| `⌈(n+1)/2⌉ ≤ f(n) ≤ min(n² + n + 1, 2n(L+K+3) + L + K + 4)`, `L = ⌊log₂n⌋ + 1`, `K = ⌊log₂L⌋ + 1` | `half_le_smallF`, `smallF_le_sq`, `smallF_le_log` |
 | Hilbert's lemma with window `t² k^{2^t}`; many Hilbert cubes on one sequence | `hilbert_window`, `hilbert_cubes` |
 | Progressions of sizes, van der Waerden, Howorka's theorem | `ap_family`, `ap_lattice`, `exists_vdW`, `howorka` |
 | Random colouring and the counting criterion | `sum_maxUC_ge`, `sum_maxUC_ge_pow`, `bigF_lt_of_count` |
@@ -50,7 +51,8 @@ def SecondConjecture : Prop :=
 ```
 
 The exact order of `log F(n) / log n`, between `(1 − o(1)) log₂ log₂ n` and
-`(1 + o(1)) log₂ n`, remains open (Section 9 of the paper).
+`(1 + o(1)) log₂ n`, remains open, and so does the exact order of `f(n)`,
+between `(n+1)/2` and `(2 + o(1)) n log₂ n` (Section 9 of the paper).
 
 ## Layout
 
@@ -68,7 +70,8 @@ The exact order of `log F(n) / log n`, between `(1 − o(1)) log₂ log₂ n` an
   - `Main.lean`: `FirstConjecture`, `SecondConjecture`, `erdos_1183`.
   - `Colours.lean`: any number of colours.
   - `Hilbert.lean`, `Howorka.lean`: cardinality colourings, Hilbert cubes, progressions.
-  - `Lattice.lean`: the lattice function `f`.
+  - `Lattice.lean`: the lattice function `f` and the bound `f(n) ≤ n² + n + 1`.
+  - `LatticeCount.lean`: counting sublattices point by point and `f(n) ≤ (2 + o(1)) n log₂ n`.
   - `Random.lean`: the random colouring and the counting criterion.
   - `Check.lean`: `#print axioms` for the main theorems.
 - `submission/`: draft note for erdosproblems.com.

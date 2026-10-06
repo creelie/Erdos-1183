@@ -107,8 +107,9 @@ We prove both Erd\H{o}s--Ulam conjectures on monochromatic union-closed
 families. Every two-colouring of the subsets of a finite set contains a
 monochromatic union-closed family whose size grows faster than any fixed
 power of the size of the set, while suitable colourings admit no
-monochromatic union-closed family of exponential size. Both results hold for any number of colours
-and are verified in Lean.
+monochromatic union-closed family of exponential size. Both results hold
+for any number of colours. For sublattices the forced size is determined
+up to a logarithmic factor. All proofs are checked in Lean.
 \end{abstract}
 
 \maketitle
@@ -142,7 +143,7 @@ colour under a $2$-colouring, and every subchain is a sublattice. Hence
 F(n)\ \ge\ f(n)\ \ge\ \Bigl\lceil\frac{n+1}{2}\Bigr\rceil .
 \end{equation}
 A $2$-colouring is also a $k$-colouring, so $F_k(n)\le F(n)$ for every
-$k\ge2$. Figure~\ref{fig:lattice} shows the smallest interesting case.
+$k\ge2$. Figure~\ref{fig:lattice} shows the two kinds of family for $n=3$.
 
 \begin{figure}[t]
 \centering
@@ -245,20 +246,24 @@ for $F(n)$ would have to say something new about random colourings as
 well. In the other direction, Proposition~\ref{prop:count} reduces an
 upper bound for the random colouring to counting union-closed families.
 
-The two functions of Erd\H{o}s and Ulam turn out to be of quite
-different sizes. For sublattices the trivial bound \eqref{eq:trivial} is
-correct up to a factor of order $(\log n)^{2}$.
+The two functions of Erd\H{o}s and Ulam have very different sizes. For sublattices the trivial bound \eqref{eq:trivial} is
+correct up to a factor of order $\log n$.
 
 \begin{theorem}
 \label{thm:f}
-For every $n\ge1$, with $L=\lfloor\log_2n\rfloor+1$,
+For every $n\ge1$, with $L=\lfloor\log_2n\rfloor+1$ and
+$K=\lfloor\log_2L\rfloor+1$,
 \[
 \Bigl\lceil\frac{n+1}{2}\Bigr\rceil\ \le\ f(n)\ \le\
-\min\bigl\{\,n^{2}+n+1,\ \ nL(3L+2)+2n+3L+3\,\bigr\}.
+\min\bigl\{\,n^{2}+n+1,\ \ 2n(L+K+3)+L+K+4\,\bigr\}.
 \]
-Thus $f(n)\le(3+o(1))\,n(\log_2n)^{2}$, whereas $F(n)/n^{C}\to\infty$ for
+Thus $f(n)\le(2+o(1))\,n\log_2n$, whereas $F(n)/n^{C}\to\infty$ for
 every constant $C$.
 \end{theorem}
+
+The upper bound rests on a count of sublattices by size: deleting the
+points one at a time shows that $2^{[n]}$ has at most $(m+1)^{2n}$
+nonempty sublattices with at most $m$ members (Lemma~\ref{lem:count}).
 
 \subsection{Colourings by cardinality, Hilbert cubes and progressions}
 
@@ -370,8 +375,9 @@ of one family and involves no colouring. Gilmer \cite{Gi22} proved that
 some element lies in a constant proportion of the members, and Alweiss,
 Huang and Sellke \cite{AHS24} improved the constant. The entropy method
 behind these results compares the union of two independent random
-members of a family with a single random member, and we see no analogue
-of it here, where the family is not given in advance.
+members of a given family with a single random member. Here the family
+is not given in advance but depends on the colouring, and the method does
+not apply.
 
 Families of $2^{d}$ sets of the form $\{U\cup X_I\}$ are called
 $d$-dimensional Boolean algebras by Gunderson, R\"odl and Sidorenko
@@ -391,7 +397,9 @@ Vapnik--Chervonenkis dimension \cite{VC71}.
 
 \subsection{Formal verification}
 
-All theorems, propositions, corollaries and lemmas of
+Every result of this paper is proved in the text, and no step of any
+proof depends on a computer calculation. In addition, all theorems,
+propositions, corollaries and lemmas of
 Sections~\ref{sec:cubes}--\ref{sec:f} have been formalised and checked in
 the Lean proof assistant \cite{MU21} with the Mathlib library
 \cite{Mathlib20}. The functions $f$, $F$ and $F_k$ are defined in the
@@ -573,8 +581,9 @@ $C_j\setminus Y_A$. Hence $|\cF|\ge|\cS_c|\ge|\cS|/k$.
 
 The family $\cF$ is not closed under intersection in general: the
 intersection of the two sets above is $C_j\setminus Y_{B\cup B'}$, and
-$B\cup B'$ need not be contained in $A$. This is as it must be, in view of
-Theorem~\ref{thm:f}.
+$B\cup B'$ need not be contained in $A$. By Theorem~\ref{thm:f} this
+cannot be repaired: some colourings have no monochromatic sublattice with
+more than $O(n\log n)$ members.
 
 %======================================================================
 \section{A box inequality and supersaturation}
@@ -1242,8 +1251,10 @@ progression of length $p$ in $\{0,\dots,n\}$ with $2^{p-1}>m$.
 \label{sec:f}
 
 The lower bound in Theorem~\ref{thm:f} is \eqref{eq:trivial}. The upper
-bounds come from a random colouring and a count of sublattices, which in
-turn rests on a description of a sublattice by a small amount of data.
+bounds come from a random colouring and two counts of sublattices. The
+first count rests on Birkhoff's description of a sublattice through its
+least member and the least members containing the points; the second
+removes the points one at a time.
 
 Let $\cL\subseteq2^{[n]}$ be a nonempty sublattice, and put
 $B=\bigcap_{A\in\cL}A$ and $T=\bigcup_{A\in\cL}A$, the least and the
@@ -1252,96 +1263,71 @@ greatest member of $\cL$. For $x\in T\setminus B$ let
 A_x=\bigcap\{A\in\cL:\ x\in A\},
 \]
 the least member of $\cL$ containing $x$, and for $X\subseteq
-T\setminus B$ put $A_X=\bigcup_{x\in X}A_x$. For $x\in T\setminus B$ let
-$[x]=\{y\in T\setminus B:\ A_y=A_x\}$ be the \emph{class} of $x$, and let
-$D_x=\{y\in T\setminus B:\ A_y\subsetneq A_x\}$.
+T\setminus B$ put $A_X=\bigcup_{x\in X}A_x$.
 
 \begin{lemma}
 \label{lem:structure}
-Let $\cL$ be a nonempty sublattice of $2^{[n]}$.
-\begin{enumerate}[label=\textup{(\alph*)},leftmargin=2em]
-\item Every $A\in\cL$ equals $B\cup A_{A\setminus B}$, and $B\cup
-A_X\in\cL$ for every $X\subseteq T\setminus B$. Hence
-$\cL=\{B\cup A_X:\ X\subseteq T\setminus B\}$.
-\item For $x,y\in T\setminus B$ we have $y\in A_x$ if and only if
-$A_y\subseteq A_x$.
-\item For $x\in T\setminus B$ we have $A_x=B\cup[x]\cup A_{D_x}$.
-\end{enumerate}
+Let $\cL$ be a nonempty sublattice of $2^{[n]}$. Every $A\in\cL$ equals
+$B\cup A_{A\setminus B}$, and $B\cup A_X\in\cL$ for every $X\subseteq
+T\setminus B$. Hence $\cL=\{B\cup A_X:\ X\subseteq T\setminus B\}$.
 \end{lemma}
 
 \begin{proof}
-(a) Let $A\in\cL$. Then $B\subseteq A\subseteq T$, and $A_x\subseteq A$
-for every $x\in A\setminus B$, so $B\cup A_{A\setminus B}\subseteq A$;
+Let $A\in\cL$. Then $B\subseteq A\subseteq T$, and $A_x\subseteq A$ for
+every $x\in A\setminus B$, so $B\cup A_{A\setminus B}\subseteq A$;
 conversely every $x\in A$ lies in $B$ or in $A_x$. The set $B\cup A_X$ is
 a union of members of $\cL$, or equals $B$ when $X=\emptyset$.
-
-(b) If $y\in A_x$, then $A_x$ is a member containing $y$, so $A_y\subseteq
-A_x$. Conversely $y\in A_y$.
-
-(c) The right-hand side is contained in $A_x$: we have $B\subseteq A_x$,
-every $y\in[x]$ lies in $A_y=A_x$, and $A_y\subseteq A_x$ for $y\in D_x$.
-Let $z\in A_x\setminus B$. Then $z\in T\setminus B$ and $A_z\subseteq A_x$
-by (b), so either $A_z=A_x$ and $z\in[x]$, or $z\in D_x$ and $z\in
-A_z\subseteq A_{D_x}$.
 \end{proof}
 
-Part (a) is the form that Birkhoff's representation theorem for finite
-distributive lattices \cite{Bi37} takes for sublattices of
-$2^{[n]}$.\footnote{The sets $A_x$ are exactly the members of $\cL$ other
-than $B$ that are not the union of two smaller members: $A_x$ is not such
-a union because each of the two parts would have to contain $x$, and by
-(a) any other member is the union of the sets $A_x$ it contains, all of
-them smaller. Birkhoff's theorem identifies a finite distributive lattice
-with the down-sets of the poset of these elements.} Part (a) already
-shows that $\cL$ is determined by $B$ and the map $x\mapsto A_x$. To count
-large sublattices more efficiently we describe each $A_x$ through a small
-set of points below it.
+Lemma~\ref{lem:structure} is the form that Birkhoff's representation
+theorem for finite distributive lattices \cite{Bi37} takes for
+sublattices of $2^{[n]}$.\footnote{The sets $A_x$ are exactly the members
+of $\cL$ other than $B$ that are not the union of two smaller members:
+$A_x$ is not such a union because each of the two parts would have to
+contain $x$, and by Lemma~\ref{lem:structure} any other member is the
+union of the sets $A_x$ it contains, all of them smaller. Birkhoff's
+theorem identifies a finite distributive lattice with the down-sets of
+the poset of these elements.} It shows that $\cL$ is determined by $B$
+and the map $x\mapsto A_x$. This description uses about $n^{2}$ bits for
+every sublattice, however small. The second count is sensitive to the
+size of the sublattice and comes from deleting the largest point.
 
-\begin{lemma}
-\label{lem:cover}
-Let $\cL$ be a nonempty sublattice and $x\in T\setminus B$, and let
-$R_x\subseteq D_x$ be a set of least size with $A_{R_x}=A_{D_x}$. Then
-$A_x=B\cup[x]\cup A_{R_x}$, no set $A_y$ with $y\in R_x$ is contained in
-$A_{y'}$ for another $y'\in R_x$, and the $2^{|R_x|}$ sets $B\cup A_Y$,
-$Y\subseteq R_x$, are distinct members of $\cL$. In particular
-$|R_x|\le\log_2|\cL|$.
-\end{lemma}
-
-\begin{proof}
-The first statement is Lemma~\ref{lem:structure}(c). If $A_y\subseteq
-A_{y'}$ for distinct $y,y'\in R_x$, then $R_x\setminus\{y\}$ would be a
-smaller set with the same union $A_{R_x}$. The sets $B\cup A_Y$ lie in
-$\cL$ by Lemma~\ref{lem:structure}(a). Let $Y\ne Y'$ be subsets of $R_x$,
-say $y\in Y\setminus Y'$. Then $y\in A_y\subseteq B\cup A_Y$. If $y$ lay
-in $B\cup A_{Y'}$, then, as $y\notin B$, we would have $y\in A_{y'}$ for
-some $y'\in Y'$, so $A_y\subseteq A_{y'}$ by
-Lemma~\ref{lem:structure}(b) with $y'\ne y$, which is impossible. So
-$B\cup A_Y\ne B\cup A_{Y'}$.
-\end{proof}
-
-For each nonempty sublattice fix sets $R_x$ as in Lemma~\ref{lem:cover},
-and for $x\in T\setminus B$ let $r(x)$ be the least element of $[x]$.
-
-\begin{lemma}
-\label{lem:code}
-Let $\cL$ and $\cL'$ be nonempty sublattices of $2^{[n]}$ with the same
-least member $B$, the same greatest member $T$, the same map $r$ on
-$T\setminus B$ and the same sets $R_x$ for $x\in T\setminus B$. Then
-$\cL=\cL'$.
-\end{lemma}
-
-\begin{proof}
-Write $A_x$ and $A'_x$ for the least members containing $x$ in $\cL$ and
-$\cL'$. The class of $x$ is $\{y\in T\setminus B:\ r(y)=r(x)\}$ in both
-lattices. We show $A_x=A'_x$ for $x\in T\setminus B$ by induction on
-$|A_x|$. By Lemma~\ref{lem:cover},
+For $1\le k\le n$ and a family $\cL\subseteq2^{[k]}$ put
 \[
-A_x=B\cup[x]\cup A_{R_x}\qquad\text{and}\qquad
-A'_x=B\cup[x]\cup A'_{R_x}.
+\cL^{-}=\bigl\{A\setminus\{k\}:\ A\in\cL\bigr\}\subseteq2^{[k-1]} .
 \]
-Every $y\in R_x$ satisfies $A_y\subsetneq A_x$, so $|A_y|<|A_x|$ and
-$A_y=A'_y$ by induction. Hence $A_x=A'_x$, and
-Lemma~\ref{lem:structure}(a) gives $\cL=\cL'$.
+If some member of a sublattice $\cL\subseteq2^{[k]}$ contains $k$, let
+$A_k$ be the least such member, and if some member avoids $k$, let $Z_k$
+be the union of all members avoiding $k$, which is the greatest of them.
+
+\begin{lemma}[Removing a point]
+\label{lem:remove}
+Let $1\le k\le n$ and let $\cL\subseteq2^{[k]}$ be a nonempty
+sublattice. Then $\cL^{-}$ is a nonempty sublattice of $2^{[k-1]}$ with
+$|\cL^{-}|\le|\cL|$, the sets $A_k\setminus\{k\}$ and $Z_k$ belong to
+$\cL^{-}$ whenever they are defined, and
+\[
+\cL=\bigl\{C\cup\{k\}:\ C\in\cL^{-},\ A_k\setminus\{k\}\subseteq C\bigr\}
+\ \cup\ \bigl\{C\in\cL^{-}:\ C\subseteq Z_k\bigr\},
+\]
+where the first family is empty if no member of $\cL$ contains $k$ and
+the second is empty if every member contains $k$.
+\end{lemma}
+
+\begin{proof}
+Removing $k$ commutes with union and intersection, so $\cL^{-}$ is a
+sublattice, and it has at most $|\cL|$ members. The set $A_k$ is an
+intersection and $Z_k$ a union of members of $\cL$, so both lie in
+$\cL$; hence $A_k\setminus\{k\}\in\cL^{-}$, and $Z_k=Z_k\setminus\{k\}
+\in\cL^{-}$.
+
+Let $A\in\cL$. If $k\in A$, then $A_k\subseteq A$, so
+$C=A\setminus\{k\}$ contains $A_k\setminus\{k\}$ and $A=C\cup\{k\}$. If
+$k\notin A$, then $A\subseteq Z_k$ and $A=A\setminus\{k\}\in\cL^{-}$.
+Conversely, let $C=A\setminus\{k\}$ with $A\in\cL$. If
+$A_k\setminus\{k\}\subseteq C$, then $A\cup A_k$ is a member of $\cL$, and
+it equals $C\cup\{k\}$. If $C\subseteq Z_k$, then $A\cap Z_k$ is a member
+of $\cL$, and it equals $C$ because $k\notin Z_k$.
 \end{proof}
 
 \begin{lemma}
@@ -1349,23 +1335,25 @@ Lemma~\ref{lem:structure}(a) gives $\cL=\cL'$.
 \begin{enumerate}[label=\textup{(\alph*)},leftmargin=2em]
 \item The number of nonempty sublattices of $2^{[n]}$ is at most
 $2^{n(n+1)}$.
-\item For $w\ge0$, the number of nonempty sublattices $\cL$ of $2^{[n]}$
-with $\lfloor\log_2|\cL|\rfloor=w$ is at most $2^{2n}\,n^{n}\,(n+1)^{wn}$.
+\item For $m\ge1$, the number of nonempty sublattices of $2^{[n]}$ with at
+most $m$ members is at most $(m+1)^{2n}$.
 \end{enumerate}
 \end{lemma}
 
 \begin{proof}
-(a) By Lemma~\ref{lem:structure}(a), $\cL$ is determined by $B$ and the
+(a) By Lemma~\ref{lem:structure}, $\cL$ is determined by $B$ and the
 map $x\mapsto A_x$, extended by $A_x=B$ for $x\notin T\setminus B$. There
 are $2^{n}$ choices for $B$ and $(2^{n})^{n}$ for the map.
 
-(b) By Lemma~\ref{lem:code}, $\cL$ is determined by $B$, $T$, the map
-$r$ and the sets $R_x$, extended in any fixed way to all $x\in[n]$. By
-Lemma~\ref{lem:cover} each $R_x$ has at most $w$ elements. There are at
-most $2^{n}$ choices for each of $B$ and $T$, at most $n^{n}$ for $r$,
-and, since the number of subsets of $[n]$ with at most $w$ elements is
-$\sum_{i\le w}\binom ni\le\sum_{i\le w}n^{i}\le(n+1)^{w}$, at most
-$(n+1)^{wn}$ for the family $(R_x)_{x\in[n]}$.
+(b) For $0\le k\le n$ let $N_k$ be the number of nonempty sublattices of
+$2^{[k]}$ with at most $m$ members. The only nonempty family of subsets
+of the empty set is $\{\emptyset\}$, so $N_0=1$. Let $k\ge1$. By
+Lemma~\ref{lem:remove}, the map $\cL\mapsto\cL^{-}$ sends the
+sublattices counted by $N_k$ to sublattices counted by $N_{k-1}$, and
+$\cL$ is determined by $\cL^{-}$ together with the two sets
+$A_k\setminus\{k\}$ and $Z_k$. Each of these is a member of $\cL^{-}$ or
+is undefined, which leaves at most $|\cL^{-}|+1\le m+1$ possibilities for
+each. Hence $N_k\le(m+1)^{2}N_{k-1}$, and $N_n\le(m+1)^{2n}$.
 \end{proof}
 
 \begin{proof}[Proof of Theorem~\ref{thm:f}]
@@ -1378,42 +1366,44 @@ monochromatic number at most $2^{n(n+1)}\cdot2\cdot2^{2^{n}-m_1}=
 2^{2^{n}-1}$. So some colouring has no such sublattice, and $f(n)\le
 m_1-1=n^{2}+n+1$.
 
-For the second bound let $L=\lfloor\log_2n\rfloor+1$, so that
-$n+1\le2^{L}$, and for $w\ge0$ put
+For the second bound recall $L=\lfloor\log_2n\rfloor+1$ and
+$K=\lfloor\log_2L\rfloor+1$, so that $n+1\le2^{L}$, $L+1\le2^{K}$ and
+$K\le L$. For $w\ge0$ put
 \[
-E(w)=n\bigl(L(w+1)+2\bigr)+w+3 .
+E(w)=2n(w+1)+w+3 .
 \]
-The function $E$ is increasing, and $E(w)\le2^{w}$ for $w\ge3L+2$.
-Indeed, with $P=2^{L}$ we have $n\le P-1$ and $L+1\le P$, so
-\[
-E(3L+2)=n(3L^{2}+3L+2)+3L+5\le P(3L^{2}+3L+5)\le4P^{3}=2^{3L+2},
-\]
-and $E(w+1)=E(w)+nL+1\le2E(w)$. Put $m_2=E(3L+1)=nL(3L+2)+2n+3L+4$.
+The function $E$ is increasing, and $E(w)\le2^{w}$ for $w\ge L+K+3$.
+Indeed,
+\begin{align*}
+E(L+K+3)&=2n(L+K+4)+L+K+6\le4nL+8n+2L+6\\
+&\le8(n+1)(L+1)\le2^{L+K+3},
+\end{align*}
+and $E(w+1)=E(w)+2n+1\le2E(w)$. Put $m_2=E(L+K+2)=2n(L+K+3)+L+K+5$.
 Every sublattice $\cL$ with $|\cL|\ge m_2$ and $\lfloor\log_2|\cL|\rfloor
-=w$ satisfies $|\cL|\ge E(w)$: for $w\le3L+1$ because $E(w)\le m_2$, and
-for $w\ge3L+2$ because $E(w)\le2^{w}\le|\cL|$. By
-Lemma~\ref{lem:count}(b), and using $n\le2^{L}$ and $n+1\le2^{L}$, there
-are at most $2^{2n}n^{n}(n+1)^{wn}\le2^{n(L(w+1)+2)}$ such sublattices for
-each $w$, and each is monochromatic under at most $2^{2^{n}+1-E(w)}$
-colourings. The colourings under which some sublattice with at least
-$m_2$ members is monochromatic therefore number at most
+=w$ satisfies $|\cL|\ge E(w)$: for $w\le L+K+2$ because $E(w)\le m_2$,
+and for $w\ge L+K+3$ because $E(w)\le2^{w}\le|\cL|$. Such a sublattice
+has at most $2^{w+1}-1$ members, so by Lemma~\ref{lem:count}(b) there are
+at most $(2^{w+1})^{2n}=2^{2n(w+1)}$ of them for each $w$, and each is
+monochromatic under at most $2^{2^{n}+1-E(w)}$ colourings. The colourings
+under which some sublattice with at least $m_2$ members is monochromatic
+therefore number at most
 \[
-\sum_{w=0}^{n}2^{n(L(w+1)+2)}\,2^{2^{n}+1-E(w)}
+\sum_{w=0}^{n}2^{2n(w+1)}\,2^{2^{n}+1-E(w)}
 =2^{2^{n}}\sum_{w=0}^{n}2^{-(w+2)}\ <\ 2^{2^{n}-1},
 \]
 the sum running up to $w=n$ because a sublattice has at most $2^{n}$
 members. So some colouring has no such sublattice, and $f(n)\le
-m_2-1=nL(3L+2)+2n+3L+3$.
+m_2-1=2n(L+K+3)+L+K+4$.
 
-As $L\le\log_2n+1$, the second bound is $(3+o(1))\,n(\log_2n)^{2}$. The
-last assertion of the theorem follows from Theorem~\ref{thm:lower} with
-$t>C$.
+As $L\le\log_2n+1$ and $K\le\log_2(\log_2n+1)+1$, the second bound is
+$2n\log_2n+O(n\log\log n)$. The last assertion of the theorem follows
+from Theorem~\ref{thm:lower} with $t>C$.
 \end{proof}
 
-The first bound is the smaller one for $n<210$ and the second for
-$n\ge263$. Both bounds come from the random colouring, and the gap
-between them and the lower bound $\lceil(n+1)/2\rceil$ is the subject of
-Question~\ref{q:f}.
+The first bound is the smaller one for $n\le21$ and the second for
+$n\ge22$. Both come from the random colouring, and the remaining gap, a
+factor of order $\log n$ between them and the lower bound
+$\lceil(n+1)/2\rceil$, is the subject of Question~\ref{q:f}.
 
 %======================================================================
 \section{Formal verification}
@@ -1458,8 +1448,8 @@ Proposition~\ref{prop:count}.
 Proposition~\ref{prop:AP}, Theorem~\ref{thm:vdw}, derived from Mathlib's
 Hales--Jewett theorem as described above, and Theorem~\ref{thm:howorka},
 proved for every number $W$ with the property that defines $W_k(p)$.
-\item Lemmas~\ref{lem:structure}--\ref{lem:count} and
-Theorem~\ref{thm:f}.
+\item Lemmas~\ref{lem:structure}, \ref{lem:remove} and~\ref{lem:count}
+and Theorem~\ref{thm:f}.
 \end{enumerate}
 
 The formal proofs follow the arguments given here, with one change of
@@ -1489,8 +1479,9 @@ $(1+o(1))\log_2n$. Is $F(n)=n^{\Theta(\log\log n)}$, or is
 $F(n)=n^{\Theta(\log n)}$?
 \end{question}
 
-The random colouring is the natural candidate for an upper bound, and by
-Proposition~\ref{prop:random} it cannot give anything below
+Every upper bound for $F(n)$ in this paper comes from the random
+colouring, and by Proposition~\ref{prop:random} that colouring cannot
+give anything below
 $n^{(1-o(1))\log_2\log_2n}$. Proposition~\ref{prop:count} reduces the
 matching upper bound to a count.
 
@@ -1514,9 +1505,8 @@ Is $f(n)=O(n)$? Is $f(n)=\lceil(n+1)/2\rceil$ for every $n$?
 \end{question}
 
 The lower bound $\lceil(n+1)/2\rceil$ comes from a single chain, and the
-upper bounds of Theorem~\ref{thm:f} from counting sublattices in a
-random colouring, which leaves a factor of order $(\log n)^{2}$ between
-them.
+upper bounds of Theorem~\ref{thm:f} from counting sublattices in a random
+colouring, which leaves a factor of order $\log n$ between them.
 
 %======================================================================
 \section*{Data availability}

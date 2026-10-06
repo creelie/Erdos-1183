@@ -50,9 +50,11 @@ for all n ≥ 1), their conjunction, the k-colour versions and every other resul
 of the paper are proved in Lean 4 with Mathlib, with no `sorry` and only the
 standard axioms. The formalisation is included in the Zenodo record.
 
-**Also in the paper.** ⌈(n+1)/2⌉ ≤ f(n) ≤ min(n² + n + 1, nL(3L+2) + 2n + 3L + 3)
-with L = ⌊log₂ n⌋ + 1, so f(n) = O(n (log n)²) while F(n) grows faster than
-every power of n. For colourings by cardinality the argument becomes a statement
+**Also in the paper.** ⌈(n+1)/2⌉ ≤ f(n) ≤ min(n² + n + 1, 2n(L+K+3) + L + K + 4)
+with L = ⌊log₂ n⌋ + 1 and K = ⌊log₂ L⌋ + 1, so f(n) ≤ (2 + o(1)) n log₂ n while
+F(n) grows faster than every power of n. The upper bound comes from deleting
+the points one at a time, which shows that 2^[n] has at most (m+1)^(2n)
+nonempty sublattices with at most m members. For colourings by cardinality the argument becomes a statement
 about monochromatic Hilbert cubes hanging from the partial sums of one bounded
 sequence, and Howorka's result follows from van der Waerden's theorem with the
 explicit bound C(⌊n/(2W)⌋ + p − 1, p − 1), where W = W_k(p). The exact order of

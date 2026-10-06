@@ -48,8 +48,9 @@ import Erdos1183
 #print axioms Erdos1183.howorka
 -- the lattice function
 #print axioms Erdos1183.sublattice_eq_image
-#print axioms Erdos1183.code_injOn
 #print axioms Erdos1183.card_sublattices_le
+#print axioms Erdos1183.decode_eq
+#print axioms Erdos1183.card_sublattices_le_pow
 #print axioms Erdos1183.smallF_le_sq
 #print axioms Erdos1183.smallF_le_log
 -- random colourings and a counting criterion
