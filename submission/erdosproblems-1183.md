@@ -46,15 +46,19 @@ family cannot shatter a d-set, and the Sauer–Shelah lemma gives the bound.
 
 **Formal verification.** Both statements, in the form on the problem page
 (∃ ω → ∞ with n^(ω(n)) ≤ F(n) for all n; ∃ ε → 0 with F(n) < (1 + ε(n))^n
-for all n ≥ 1), their conjunction, the k-colour versions and every other result
-of the paper are proved in Lean 4 with Mathlib, with no `sorry` and only the
+for all n ≥ 1), their conjunction, the k-colour versions and every theorem and
+proposition of the paper are proved in Lean 4 with Mathlib, with no `sorry` and only the
 standard axioms. The formalisation is included in the Zenodo record.
 
-**Also in the paper.** ⌈(n+1)/2⌉ ≤ f(n) ≤ min(n² + n + 1, 2n(L+K+3) + L + K + 4)
-with L = ⌊log₂ n⌋ + 1 and K = ⌊log₂ L⌋ + 1, so f(n) ≤ (2 + o(1)) n log₂ n while
-F(n) grows faster than every power of n. The upper bound comes from deleting
-the points one at a time, which shows that 2^[n] has at most (m+1)^(2n)
-nonempty sublattices with at most m members. For colourings by cardinality the argument becomes a statement
+**Also in the paper.** ⌈(n+1+q)/2⌉ ≤ f(n) ≤ min(n² + n + 1, 2n(L+K+3) + L + K + 4)
+with q = ⌊(n+1)/12⌋, L = ⌊log₂ n⌋ + 1 and K = ⌊log₂ L⌋ + 1, so
+13n/24 ≤ f(n) ≤ (2 + o(1)) n log₂ n while F(n) grows faster than every power
+of n. In particular f(n) > ⌈(n+1)/2⌉ for every odd n ≥ 11 and every n ≥ 23, so
+the chain bound is not the answer. The lower bound replaces stretches of twelve
+levels of a maximal chain by small sublattices: every 2-colouring of the subsets
+of an 11-element set has a red and a blue sublattice with 13 members in total.
+The upper bound comes from deleting the points one at a time, which shows that
+2^[n] has at most (m+1)^(2n) nonempty sublattices with at most m members. For colourings by cardinality the argument becomes a statement
 about monochromatic Hilbert cubes hanging from the partial sums of one bounded
 sequence, and Howorka's result follows from van der Waerden's theorem with the
 explicit bound C(⌊n/(2W)⌋ + p − 1, p − 1), where W = W_k(p). The exact order of
