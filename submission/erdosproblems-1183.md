@@ -11,7 +11,7 @@ estimates of f(n) and F(n) are improved, but their exact orders remain open.**
 
 D. Bhattacharjee, P. Mandal and U. Bhattacharya, *Resolving Erdős–Ulam
 Monochromatic Union-Closed Family Conjectures* (2026),
-DOI: [10.5281/zenodo.23094057](https://doi.org/10.5281/zenodo.23094057).
+DOI: [10.5281/zenodo.23188241](https://doi.org/10.5281/zenodo.23188241).
 
 **First question.** For all k ≥ 2 and t ≥ 1, with M = t² k^(2^t), every
 k-colouring of the subsets of [n] has a monochromatic union-closed family with at

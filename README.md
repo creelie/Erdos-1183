@@ -3,8 +3,8 @@
 Paper and Lean 4 formalisation for
 [Erdős Problem 1183](https://www.erdosproblems.com/1183).
 
-**Zenodo:** [10.5281/zenodo.23094057](https://doi.org/10.5281/zenodo.23094057)
-(v2.0.1; [10.5281/zenodo.23050879](https://doi.org/10.5281/zenodo.23050879)
+**Zenodo:** [10.5281/zenodo.23188241](https://doi.org/10.5281/zenodo.23188241)
+(v2.1.0; [10.5281/zenodo.23050879](https://doi.org/10.5281/zenodo.23050879)
 covers all versions).
 
 **Authors:** Deep Bhattacharjee (ORCID [0000-0003-0466-750X](https://orcid.org/0000-0003-0466-750X)),
