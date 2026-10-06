@@ -155,9 +155,10 @@ blue sets (squares) form a chain.}
 \end{figure}
 
 The question is Problem~1183 in Bloom's collection of Erd\H{o}s problems
-\cite{Bl26}, where it is listed as open. As recorded there, Erd\H{o}s had
-no plausible conjecture for the true order of magnitude of $F(n)$, but
-asked whether
+\cite{Bl26}, where it is listed as open. The problem asks for estimates of
+$f(n)$ and $F(n)$. As recorded there, Erd\H{o}s had no plausible
+conjecture for the true order of magnitude of $f(n)$ and no good guess
+for that of $F(n)$, but asked in particular whether
 \begin{equation}
 \label{eq:conj}
 F(n)\ \ge\ n^{\omega(n)}\ \text{ for some }\omega(n)\to\infty,
@@ -232,9 +233,12 @@ for every $n\ge1$.
 
 Parts (i) and (ii) are the two statements of \eqref{eq:conj}, with the
 term $o(1)$ written out as a function $\eps(n)\to0$, so
-Corollary~\ref{cor:conj} answers both questions of Problem~1183 in the
-affirmative. Since $\log_2(\ell+2)=o(\ell)$, the exponent in (i) is
-$(1-o(1))\log_2\log_2n$. This is also, to first order, the size of the
+Corollary~\ref{cor:conj} answers both of these questions in the
+affirmative. The estimates of $f(n)$ and $F(n)$ that the problem asks for
+in the first place are the bounds of Theorems~\ref{thm:lower},
+\ref{thm:upper} and~\ref{thm:f}, and their exact orders remain open
+(Section~\ref{sec:questions}). Since $\log_2(\ell+2)=o(\ell)$, the
+exponent in (i) is $(1-o(1))\log_2\log_2n$. This is also, to first order, the size of the
 monochromatic union-closed families that we can exhibit in a uniformly
 random colouring (Proposition~\ref{prop:random}), so a better lower bound
 for $F(n)$ would have to say something new about random colourings as
@@ -1474,8 +1478,8 @@ $n^{\log_2\log_2n-2-o(1)}$ after Proposition~\ref{prop:random}.
 \section{Questions}
 \label{sec:questions}
 
-With both conjectures settled, what remains open is the precise size of
-the two functions, above all of $F$.
+With both conjectures settled, what remains open is the first request of
+Problem~1183: the precise size of the two functions, above all of $F$.
 
 \begin{question}
 \label{q:F}

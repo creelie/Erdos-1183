@@ -5,8 +5,9 @@ Bloom.*
 
 ---
 
-**Both questions are answered in the affirmative, for any number of colours, with
-a complete Lean formalisation.**
+**Partial result: the two specific questions about F(n) are answered in the
+affirmative, for any number of colours, with a complete Lean formalisation. The
+estimates of f(n) and F(n) are improved, but their exact orders remain open.**
 
 D. Bhattacharjee, P. Mandal and U. Bhattacharya, *Resolving Erdős–Ulam
 Monochromatic Union-Closed Family Conjectures* (2026),
