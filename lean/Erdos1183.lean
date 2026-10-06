@@ -10,4 +10,5 @@ import Erdos1183.Colours
 import Erdos1183.Hilbert
 import Erdos1183.Howorka
 import Erdos1183.Lattice
+import Erdos1183.LatticeCount
 import Erdos1183.Random
