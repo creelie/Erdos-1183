@@ -19,8 +19,11 @@ authors:
     orcid: "https://orcid.org/0009-0002-2254-3914"
     email: rai.bhattacharya.in@gmail.com
 version: 2.1.1
-doi: 10.5281/zenodo.23188241
+doi: 10.5281/zenodo.23288724
 identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23288724
+    description: "Zenodo record, version 2.1.1"
   - type: doi
     value: 10.5281/zenodo.23188241
     description: "Zenodo record, version 2.1.0"
