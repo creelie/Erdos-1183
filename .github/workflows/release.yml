@@ -1,0 +1,45 @@
+name: release
+
+# Run by hand from the Actions tab (or the API) after the PR is merged:
+# it tags the chosen commit and publishes a GitHub release with the notes in
+# .github/RELEASE_NOTES.md. Zenodo archives the release and mints a DOI if
+# the repository is switched on at https://zenodo.org/account/settings/github/.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, e.g. v2.1.1"
+        required: true
+        default: "v2.1.1"
+      target:
+        description: "Branch or commit to tag"
+        required: true
+        default: "main"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.target }}
+      - name: Check the record
+        run: |
+          for f in paper/Erdos.tex paper/Erdos.pdf .github/RELEASE_NOTES.md; do
+            test -s "$f" || { echo "missing $f"; exit 1; }
+          done
+          python3 -m json.tool .zenodo.json > /dev/null
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+          TARGET: ${{ inputs.target }}
+        run: |
+          gh release create "$TAG" paper/Erdos.pdf \
+            --target "$TARGET" \
+            --title "$TAG: Resolving Erdős–Ulam Monochromatic Union-Closed Family Conjectures" \
+            --notes-file .github/RELEASE_NOTES.md
