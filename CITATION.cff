@@ -18,7 +18,7 @@ authors:
     affiliation: "Formerly, National Taiwan University, Taipei, Taiwan"
     orcid: "https://orcid.org/0009-0002-2254-3914"
     email: rai.bhattacharya.in@gmail.com
-version: 2.1.0
+version: 2.1.1
 doi: 10.5281/zenodo.23188241
 identifiers:
   - type: doi
@@ -28,7 +28,7 @@ identifiers:
     value: 10.5281/zenodo.23050879
     description: "Zenodo record, all versions"
 license: CC-BY-4.0
-date-released: 2026-10-06
+date-released: 2026-10-10
 keywords:
   - Erdős problems
   - Erdős–Ulam conjectures
