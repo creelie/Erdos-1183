@@ -63,3 +63,8 @@ import Erdos1183
 #print axioms Erdos1183.bigF_lt_of_count
 #print axioms Erdos1183.sum_maxUC_ge
 #print axioms Erdos1183.sum_maxUC_ge_pow
+-- the counting criterion fails below 2^{n/4}
+#print axioms Erdos1183.choose_choose_le_ucCount
+#print axioms Erdos1183.two_pow_le_ucCount
+#print axioms Erdos1183.two_pow_le_ucCount_of_pow_four
+#print axioms Erdos1183.count_question_false

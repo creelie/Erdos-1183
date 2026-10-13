@@ -14,3 +14,4 @@ import Erdos1183.LatticeCount
 import Erdos1183.LatticeCerts
 import Erdos1183.LatticeLower
 import Erdos1183.Random
+import Erdos1183.CountFails

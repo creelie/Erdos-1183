@@ -19,7 +19,7 @@ union and intersection (sublattices).
 ## Results
 
 Every statement below is proved in Lean with no `sorry`; `lean/Check.lean` prints
-the axioms of 51 theorems, and each uses only `propext`, `Classical.choice` and
+the axioms of 55 theorems, and each uses only `propext`, `Classical.choice` and
 `Quot.sound` (two finite checks, `certs_ok` and `cover_ok`, use only `propext`).
 
 | Statement | Lean |
@@ -40,6 +40,7 @@ the axioms of 51 theorems, and each uses only `propext`, `Classical.choice` and
 | Hilbert's lemma with window `t² k^{2^t}`; many Hilbert cubes on one sequence | `hilbert_window`, `hilbert_cubes` |
 | Progressions of sizes, van der Waerden, Howorka's theorem | `ap_family`, `ap_lattice`, `exists_vdW`, `howorka` |
 | Random colouring and the counting criterion | `sum_maxUC_ge`, `sum_maxUC_ge_pow`, `bigF_lt_of_count` |
+| `U(n,N) ≥ 2^{N−1}` for `n ≥ 206` and `1 ≤ N ≤ 2^{n/4}`, so the counting criterion gives no bound on `F(n)` below `2^{n/4}`; the answer to Question 9.2 is negative for every `C` | `choose_choose_le_ucCount`, `two_pow_le_ucCount`, `two_pow_le_ucCount_of_pow_four`, `count_question_false` |
 
 The two conjectures are stated in `lean/Erdos1183/Main.lean` in the form of the
 problem page:
@@ -54,7 +55,9 @@ def SecondConjecture : Prop :=
 
 The exact order of `log F(n) / log n`, between `(1 − o(1)) log₂ log₂ n` and
 `(1 + o(1)) log₂ n`, remains open, and so does the exact order of `f(n)`,
-between `13n/24` and `(2 + o(1)) n log₂ n` (Section 9 of the paper).
+between `13n/24` and `(2 + o(1)) n log₂ n` (Section 9 of the paper). Counting
+all union-closed families cannot settle the first: `U(n,N) ≥ 2^{N−1}` for
+every `N ≤ 2^{n/4}` once `n ≥ 206` (Proposition 5.5).
 
 ## Layout
 
@@ -77,6 +80,7 @@ between `13n/24` and `(2 + o(1)) n log₂ n` (Section 9 of the paper).
   - `LatticeCerts.lean`: 294 explicit sublattices of `2^[11]`, checked in the kernel, covering the colourings by size.
   - `LatticeLower.lean`: windows of twelve levels and `f(n) ≥ ⌈(n + 1 + ⌊(n+1)/12⌋)/2⌉`.
   - `Random.lean`: the random colouring and the counting criterion.
+  - `CountFails.lean`: `U(n,N) ≥ 2^{N−1}` for `N ≤ 2^{n/4}`; the counting question has a negative answer.
   - `Check.lean`: `#print axioms` for the main theorems.
 - `submission/`: draft note for erdosproblems.com.
 - `.zenodo.json`, `CITATION.cff`: archival metadata.

@@ -250,7 +250,9 @@ monochromatic union-closed families that we can exhibit in a uniformly
 random colouring (Proposition~\ref{prop:random}), so a better lower bound
 for $F(n)$ would have to say something new about random colourings as
 well. In the other direction, Proposition~\ref{prop:count} reduces an
-upper bound for the random colouring to counting union-closed families.
+upper bound for the random colouring to counting union-closed families,
+and Proposition~\ref{prop:countfails} shows that this count is too large
+to bound $F(n)$ below $2^{n/4}$.
 
 The two functions of Erd\H{o}s and Ulam have very different sizes. For
 sublattices the trivial bound \eqref{eq:trivial} is correct up to a factor
@@ -1087,8 +1089,111 @@ $F(n)\le N-1$.
 
 Proposition~\ref{prop:count} is the first-moment method for a uniformly
 random colouring, and Corollary~\ref{cor:conj}(i) shows where it must
-fail: if $N\le n^{\omega(n)}\le F(n)$, then $U(n,N)\ge2^{N-1}$. We return
-to this in Question~\ref{q:count}.
+fail: if $N\le n^{\omega(n)}\le F(n)$, then $U(n,N)\ge2^{N-1}$. It fails
+much further up. For $m,k\ge0$ write $S_k(m)=\sum_{j<k}\binom mj$.
+
+\begin{proposition}
+\label{prop:countfails}
+\leavevmode
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2em]
+\item If $m\le n$ and $k,g\ge0$, then
+$U\bigl(n,S_k(m)+g\bigr)\ge\binom{\binom mk}{g}$.
+\item If $n\ge206$, $N\ge1$ and $5N\le\binom{n}{\lfloor n/12\rfloor}$, then
+$U(n,N)\ge2^{N-1}$. In particular $U(n,N)\ge2^{N-1}$ whenever
+$n\ge206$ and $1\le N\le2^{n/4}$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(i) Fix $W\subseteq[n]$ with $|W|=m$, let $\cL$ be the family of subsets
+of $W$ with fewer than $k$ elements, so that $|\cL|=S_k(m)$, and let $\cG$
+be a family of $g$ subsets of $W$ with exactly $k$ elements. Put
+$\cF_\cG=\{W\setminus X:\ X\in\cL\cup\cG\}$. The map $X\mapsto
+W\setminus X$ is injective on subsets of $W$ and $\cL\cap\cG=\emptyset$,
+so $|\cF_\cG|=S_k(m)+g$. The family $\cF_\cG$ is union-closed, because
+$(W\setminus X)\cup(W\setminus Y)=W\setminus(X\cap Y)$ and $X\cap Y\in
+\cL\cup\cG$ for $X,Y\in\cL\cup\cG$: this is clear if $X=Y$, and
+otherwise $X\cap Y$ has fewer than $k$ elements, since $X$ and $Y$ have at
+most $k$ elements and, if both have exactly $k$, then $X\cap Y$ is a
+proper subset of $X$. The members of $\cF_\cG$ with $m-k$ elements are the
+sets $W\setminus X$, $X\in\cG$, so $\cG$ is determined by $\cF_\cG$, and
+the $\binom{\binom mk}{g}$ choices of $\cG$ give distinct families.
+
+(ii) We use two inequalities. First,
+\begin{equation}
+\label{eq:powchoose}
+a^{g}\le\binom Mg\qquad\text{whenever }(a+1)g\le M+1,
+\end{equation}
+by induction on $g$, since $\binom M{g+1}(g+1)=\binom Mg(M-g)$ and
+$a(g+1)\le M-g$. Second, if $9k\le m$ and $j<k$, then
+$(m-j)/(j+1)\ge8$, so $8\binom mj\le\binom m{j+1}$, and by induction on
+$j$
+\begin{equation}
+\label{eq:sevenS}
+7S_j(m)\le\binom mj\qquad(j\le k,\ 9k\le m).
+\end{equation}
+
+\emph{One window.} Let $m\le n$ and $S=S_k(m)$, and let $N$ satisfy
+$S\le N$, $2S\le N+1$ and $5(N-S)\le\binom mk+1$. With $g=N-S$, part~(i)
+and \eqref{eq:powchoose} for $a=4$ give $U(n,N)\ge4^{g}\ge2^{N-1}$,
+because $N\le2g+1$.
+
+\emph{One level.} Let $k\ge1$ and $9k\le m\le n$, and let $N$ satisfy
+$2S_k(9k)\le N+1$ and $5(N-S_k(m))\le\binom mk+1$. We show
+$U(n,N)\ge2^{N-1}$ by induction on $m$. For $m=9k$ the window applies,
+since $S_k(9k)\ge1$. For $m+1$, the window at $m+1$ applies if
+$2S_k(m+1)\le N+1$. Otherwise $N\le2S_k(m+1)-2=2S_k(m)+2S_{k-1}(m)-2$ by
+Pascal's rule. By \eqref{eq:sevenS}, $7S_k(m)\le\binom mk$ and
+$56S_{k-1}(m)\le8\binom m{k-1}\le\binom mk$, so
+$5(N-S_k(m))\le5S_k(m)+10S_{k-1}(m)\le\binom mk$, and the case $m$
+applies.
+
+\emph{From one level to the next.} Let $k\ge1$, $n\ge206$ and
+$12(k+1)\le n$, and put $a=9(k+1)$. Then
+$S_{k+1}(a)=S_k(a)+\binom ak\le\frac87\binom ak$ by \eqref{eq:sevenS}.
+Comparing the factors $(a-i)n\le(n-i)a$ gives $\binom ak n^{k}\le
+\binom nk a^{k}$. Moreover $80a^{k}\le7n^{k}$: for $k\ge9$ because
+$n\ge\frac43a$ and $7(4/3)^{k}\ge80$, and for $k\le8$ because
+$80\,(9k+9)^{k}\le7\cdot206^{k}$. Hence $80\binom ak\le7\binom nk$ and
+\begin{equation}
+\label{eq:crosslevel}
+10\,S_{k+1}\bigl(9(k+1)\bigr)\le\binom nk .
+\end{equation}
+
+\emph{All levels.} Let $n\ge206$ and $K=\lfloor n/12\rfloor$. We show by
+induction on $k=1,\dots,K$ that every $N\ge1$ with $5(N-S_k(n))\le
+\binom nk+1$ satisfies $U(n,N)\ge2^{N-1}$. For $k=1$ the window at $m=n$
+applies, as $S_1(n)=1$. For $k+1\le K$, if $2S_{k+1}(9(k+1))\le N+1$ the
+level $k+1$ with $m=n$ applies; otherwise $5N<10S_{k+1}(9(k+1))\le
+\binom nk$ by \eqref{eq:crosslevel}, and the case $k$ applies. For $k=K$
+every $N\ge1$ with $5N\le\binom nK$ qualifies.
+
+Finally let $1\le N\le2^{n/4}$. By \eqref{eq:powchoose} with $a=11$,
+$\binom nK\ge11^{K}$, and $K\ge17$ gives $625\cdot2^{n}\le
+625\cdot2^{12K+11}\le11^{4K}$. Hence $(5N)^{4}\le625\cdot2^{n}\le
+\binom nK^{4}$, that is, $5N\le\binom nK$.
+\end{proof}
+
+\begin{corollary}
+\label{cor:countfails}
+For $n\ge206$, Proposition~\ref{prop:count} gives $F(n)<N$ only for
+$N>2^{n/4}$. The answer to Question~\ref{q:count} is negative for every
+constant $C$: for all large $n$ there is $N\ge n^{C\log_2\log_2n}$ with
+$U(n,N)\ge2^{N-1}$.
+\end{corollary}
+
+\begin{proof}
+The first statement is Proposition~\ref{prop:countfails}(ii). For the
+second take $N=2^{\lfloor n/4\rfloor}$; since $(\log n)^{2}=o(n)$, we have
+$n^{C\log_2\log_2n}\le N$ for all large $n$.
+\end{proof}
+
+The families in the proof of Proposition~\ref{prop:countfails} have all
+their members among the sets with at least $m-k$ elements, and their
+number exceeds $2^{N-1}$ because $\cG$ can be any family of $k$-sets. An
+upper bound for $F(n)$ therefore has to use the structure of
+union-closed families, as Theorem~\ref{thm:upper} does through the
+Vapnik--Chervonenkis dimension, and not only their number.
 
 %======================================================================
 \section{Cardinality colourings, Hilbert cubes and arithmetic progressions}
@@ -1758,8 +1863,11 @@ Sauer--Shelah lemma taken from Mathlib.
 \item Corollary~\ref{cor:conj}: part~(i) with the stated $\omega(n)$ and
 $\omega(n)\to\infty$, parts (ii)--(iv), and the conjunction of the two
 conjectures in the form \eqref{eq:conj} as a single theorem.
-\item Proposition~\ref{prop:random}, Lemma~\ref{lem:subfamily} and
-Proposition~\ref{prop:count}.
+\item Proposition~\ref{prop:random}, Lemma~\ref{lem:subfamily},
+Propositions~\ref{prop:count} and~\ref{prop:countfails}, and
+Corollary~\ref{cor:countfails}, with $U(n,N)$ defined literally as the
+number of union-closed families of $N$ subsets of $[n]$ and the negative
+answer to Question~\ref{q:count} stated for every real constant $C$.
 \item Corollary~\ref{cor:hilbertlemma}, Theorem~\ref{thm:hilbert},
 Proposition~\ref{prop:AP}, Theorem~\ref{thm:vdw}, derived from Mathlib's
 Hales--Jewett theorem as described above, and Theorem~\ref{thm:howorka},
@@ -1817,8 +1925,8 @@ $F(n)=n^{\Theta(\log n)}$?
 Every upper bound for $F(n)$ in this paper comes from the random
 colouring, and by Proposition~\ref{prop:random} that colouring cannot
 give anything below
-$n^{(1-o(1))\log_2\log_2n}$. Proposition~\ref{prop:count} reduces the
-matching upper bound to a count.
+$n^{(1-o(1))\log_2\log_2n}$. Proposition~\ref{prop:count} would reduce
+the matching upper bound to a count.
 
 \begin{question}
 \label{q:count}
@@ -1826,13 +1934,14 @@ Is there a constant $C$ such that $U(n,N)<2^{N-1}$ for all large $n$ and
 all $N\ge n^{C\log_2\log_2n}$?
 \end{question}
 
-A positive answer would give $F(n)<n^{C\log_2\log_2n}$ by
+A positive answer would have given $F(n)<n^{C\log_2\log_2n}$ by
 Proposition~\ref{prop:count}, and together with
-Corollary~\ref{cor:conj}(i) it would determine $\log F(n)/\log n$ up to a
-constant factor, answering Question~\ref{q:F} in favour of
-$n^{\Theta(\log\log n)}$. By Corollary~\ref{cor:conj}(i) the inequality
-fails for $N\le n^{\omega(n)}$, so the threshold in Question~\ref{q:count}
-cannot be lowered below $n^{(1-o(1))\log_2\log_2n}$.
+Corollary~\ref{cor:conj}(i) it would have answered Question~\ref{q:F} in
+favour of $n^{\Theta(\log\log n)}$. The answer is negative
+(Corollary~\ref{cor:countfails}): by Proposition~\ref{prop:countfails},
+$U(n,N)\ge2^{N-1}$ for every $N\le2^{n/4}$ once $n\ge206$. Question~\ref{q:F}
+therefore needs an argument that uses more than the number of
+union-closed families.
 
 \begin{question}
 \label{q:f}
