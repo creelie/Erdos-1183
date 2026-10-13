@@ -179,6 +179,10 @@ reference, and we have not found Howorka's argument in print.
 Section~\ref{sec:card} gives a complete proof, with an explicit bound in
 terms of van der Waerden numbers.} We prove both statements in
 \eqref{eq:conj} for arbitrary colourings, and for any number of colours.
+The second statement was proved earlier by Chojecki~\cite{Ch26}, in the
+form $F(n)\le n^{\log_2n+O(\log\log n)}$, together with
+$f(n)\le(3+o(1))\,n\log_2n$; his lower bounds are the chain
+bound~\eqref{eq:trivial}.
 
 \subsection{Results}
 
@@ -198,7 +202,8 @@ $F(n)\ge n^{t}$ whenever $\log_2n\ge(t+2)^{2}\,2^{t}$.
 \end{theorem}
 
 The upper bound comes from a random colouring and the Sauer--Shelah
-lemma.
+lemma, as in Chojecki's proof of
+$F(n)\le n^{\log_2n+O(\log\log n)}$~\cite{Ch26}.
 
 \begin{theorem}
 \label{thm:upper}
@@ -281,7 +286,9 @@ words in two letters finds a product of chains that beats the chain in
 one colour (Lemmas~\ref{lem:gadgets} and~\ref{lem:words}). The upper bound
 rests on a count of sublattices by size: deleting the points one at a
 time shows that $2^{[n]}$ has at most $(m+1)^{2n}$ nonempty sublattices
-with at most $m$ members (Lemma~\ref{lem:count}).
+with at most $m$ members (Lemma~\ref{lem:count}). Chojecki~\cite{Ch26}
+had obtained $f(n)\le(3+o(1))\,n\log_2n$ by counting posets of bounded
+width.
 
 \subsection{Colourings by cardinality, Hilbert cubes and progressions}
 
@@ -1989,6 +1996,12 @@ Duke Math. J. \textbf{3} (1937), no.~3, 443--454.
 T.~F. Bloom,
 \emph{Erd\H{o}s Problem \#1183},
 \url{https://www.erdosproblems.com/1183}, accessed 6 October 2026.
+
+\bibitem[Ch26]{Ch26}
+P.~Chojecki,
+\emph{Monochromatic union-closed and lattice subfamilies of the Boolean
+lattice}, preprint, 18 March 2026,
+\url{https://www.ulam.ai/research/erdos1183.pdf}.
 
 \bibitem[Gi22]{Gi22}
 J.~Gilmer,

@@ -25,7 +25,7 @@ the axioms of 55 theorems, and each uses only `propext`, `Classical.choice` and
 | Statement | Lean |
 |---|---|
 | First conjecture: `F(n) ≥ n^{ω(n)}` for some `ω(n) → ∞` | `first_conjecture` |
-| Second conjecture: `F(n) < (1 + ε(n))^n` for some `ε(n) → 0` | `second_conjecture` |
+| Second conjecture: `F(n) < (1 + ε(n))^n` for some `ε(n) → 0` (first proved by P. Chojecki, [18 March 2026](https://www.ulam.ai/research/erdos1183.pdf), as `F(n) ≤ n^{log₂ n + O(log log n)}`) | `second_conjecture` |
 | Both together, as stated on erdosproblems.com | `erdos_1183 : FirstConjecture ∧ SecondConjecture` |
 | `n^{t+1} ≤ k^{2^t+1} t^t (4M²)^{t+1} F_k(n)` with `M = t² k^{2^t}` | `bigFk_lower_explicit` |
 | `F(n) ≥ n^t` once `n ≥ 2^{(t+2)² 2^t}` | `pow_le_bigF` |
