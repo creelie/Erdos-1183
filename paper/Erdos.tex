@@ -179,6 +179,10 @@ reference, and we have not found Howorka's argument in print.
 Section~\ref{sec:card} gives a complete proof, with an explicit bound in
 terms of van der Waerden numbers.} We prove both statements in
 \eqref{eq:conj} for arbitrary colourings, and for any number of colours.
+The second statement was proved earlier by Chojecki~\cite{Ch26}, in the
+form $F(n)\le n^{\log_2n+O(\log\log n)}$, together with
+$f(n)\le(3+o(1))\,n\log_2n$; his lower bounds are the chain
+bound~\eqref{eq:trivial}.
 
 \subsection{Results}
 
@@ -198,7 +202,8 @@ $F(n)\ge n^{t}$ whenever $\log_2n\ge(t+2)^{2}\,2^{t}$.
 \end{theorem}
 
 The upper bound comes from a random colouring and the Sauer--Shelah
-lemma.
+lemma, as in Chojecki's proof of
+$F(n)\le n^{\log_2n+O(\log\log n)}$~\cite{Ch26}.
 
 \begin{theorem}
 \label{thm:upper}
@@ -281,7 +286,9 @@ words in two letters finds a product of chains that beats the chain in
 one colour (Lemmas~\ref{lem:gadgets} and~\ref{lem:words}). The upper bound
 rests on a count of sublattices by size: deleting the points one at a
 time shows that $2^{[n]}$ has at most $(m+1)^{2n}$ nonempty sublattices
-with at most $m$ members (Lemma~\ref{lem:count}).
+with at most $m$ members (Lemma~\ref{lem:count}). Chojecki~\cite{Ch26}
+had obtained $f(n)\le(3+o(1))\,n\log_2n$ by counting posets of bounded
+width.
 
 \subsection{Colourings by cardinality, Hilbert cubes and progressions}
 
@@ -1188,6 +1195,13 @@ second take $N=2^{\lfloor n/4\rfloor}$; since $(\log n)^{2}=o(n)$, we have
 $n^{C\log_2\log_2n}\le N$ for all large $n$.
 \end{proof}
 
+The negative answer to Question~\ref{q:count} was first obtained in the
+trureturing repository~\cite{Tr26}, for $n=6r$, from the families made of
+all sets with more than $5r$ elements and one set from each of
+$\lfloor\binom{6r}{r}/4\rfloor$ disjoint quadruples of $5r$-sets.
+Corollary~\ref{cor:countfails} gives the same answer for every $n\ge206$
+and every $N\le2^{n/4}$.
+
 The families in the proof of Proposition~\ref{prop:countfails} have all
 their members among the sets with at least $m-k$ elements, and their
 number exceeds $2^{N-1}$ because $\cG$ can be any family of $k$-sets. An
@@ -1938,7 +1952,7 @@ A positive answer would have given $F(n)<n^{C\log_2\log_2n}$ by
 Proposition~\ref{prop:count}, and together with
 Corollary~\ref{cor:conj}(i) it would have answered Question~\ref{q:F} in
 favour of $n^{\Theta(\log\log n)}$. The answer is negative
-(Corollary~\ref{cor:countfails}): by Proposition~\ref{prop:countfails},
+(\cite{Tr26}, Corollary~\ref{cor:countfails}): by Proposition~\ref{prop:countfails},
 $U(n,N)\ge2^{N-1}$ for every $N\le2^{n/4}$ once $n\ge206$. Question~\ref{q:F}
 therefore needs an argument that uses more than the number of
 union-closed families.
@@ -1982,6 +1996,12 @@ Duke Math. J. \textbf{3} (1937), no.~3, 443--454.
 T.~F. Bloom,
 \emph{Erd\H{o}s Problem \#1183},
 \url{https://www.erdosproblems.com/1183}, accessed 6 October 2026.
+
+\bibitem[Ch26]{Ch26}
+P.~Chojecki,
+\emph{Monochromatic union-closed and lattice subfamilies of the Boolean
+lattice}, preprint, 18 March 2026,
+\url{https://www.ulam.ai/research/erdos1183.pdf}.
 
 \bibitem[Gi22]{Gi22}
 J.~Gilmer,
@@ -2046,6 +2066,13 @@ S.~Shelah,
 theories in infinitary languages},
 Pacific J. Math. \textbf{41} (1972), no.~1, 247--261.
 \href{https://doi.org/10.2140/pjm.1972.41.247}{doi:10.2140/pjm.1972.41.247}
+
+\bibitem[Tr26]{Tr26}
+The Omega Institute,
+\emph{trureturing}, module
+\texttt{UnionClosedCountRefutation}, commit \texttt{c0bb36b},
+9 October 2026,
+\url{https://github.com/the-omega-institute/trureturing}.
 
 \bibitem[VC71]{VC71}
 V.~N. Vapnik and A.~Ya. Chervonenkis,
