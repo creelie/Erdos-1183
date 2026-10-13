@@ -1188,6 +1188,13 @@ second take $N=2^{\lfloor n/4\rfloor}$; since $(\log n)^{2}=o(n)$, we have
 $n^{C\log_2\log_2n}\le N$ for all large $n$.
 \end{proof}
 
+The negative answer to Question~\ref{q:count} was first obtained in the
+trureturing repository~\cite{Tr26}, for $n=6r$, from the families made of
+all sets with more than $5r$ elements and one set from each of
+$\lfloor\binom{6r}{r}/4\rfloor$ disjoint quadruples of $5r$-sets.
+Corollary~\ref{cor:countfails} gives the same answer for every $n\ge206$
+and every $N\le2^{n/4}$.
+
 The families in the proof of Proposition~\ref{prop:countfails} have all
 their members among the sets with at least $m-k$ elements, and their
 number exceeds $2^{N-1}$ because $\cG$ can be any family of $k$-sets. An
@@ -1938,7 +1945,7 @@ A positive answer would have given $F(n)<n^{C\log_2\log_2n}$ by
 Proposition~\ref{prop:count}, and together with
 Corollary~\ref{cor:conj}(i) it would have answered Question~\ref{q:F} in
 favour of $n^{\Theta(\log\log n)}$. The answer is negative
-(Corollary~\ref{cor:countfails}): by Proposition~\ref{prop:countfails},
+(\cite{Tr26}, Corollary~\ref{cor:countfails}): by Proposition~\ref{prop:countfails},
 $U(n,N)\ge2^{N-1}$ for every $N\le2^{n/4}$ once $n\ge206$. Question~\ref{q:F}
 therefore needs an argument that uses more than the number of
 union-closed families.
@@ -2046,6 +2053,13 @@ S.~Shelah,
 theories in infinitary languages},
 Pacific J. Math. \textbf{41} (1972), no.~1, 247--261.
 \href{https://doi.org/10.2140/pjm.1972.41.247}{doi:10.2140/pjm.1972.41.247}
+
+\bibitem[Tr26]{Tr26}
+The Omega Institute,
+\emph{trureturing}, module
+\texttt{UnionClosedCountRefutation}, commit \texttt{c0bb36b},
+9 October 2026,
+\url{https://github.com/the-omega-institute/trureturing}.
 
 \bibitem[VC71]{VC71}
 V.~N. Vapnik and A.~Ya. Chervonenkis,

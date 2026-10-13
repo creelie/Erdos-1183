@@ -40,7 +40,7 @@ the axioms of 55 theorems, and each uses only `propext`, `Classical.choice` and
 | Hilbert's lemma with window `t² k^{2^t}`; many Hilbert cubes on one sequence | `hilbert_window`, `hilbert_cubes` |
 | Progressions of sizes, van der Waerden, Howorka's theorem | `ap_family`, `ap_lattice`, `exists_vdW`, `howorka` |
 | Random colouring and the counting criterion | `sum_maxUC_ge`, `sum_maxUC_ge_pow`, `bigF_lt_of_count` |
-| `U(n,N) ≥ 2^{N−1}` for `n ≥ 206` and `1 ≤ N ≤ 2^{n/4}`, so the counting criterion gives no bound on `F(n)` below `2^{n/4}`; the answer to Question 9.2 is negative for every `C` | `choose_choose_le_ucCount`, `two_pow_le_ucCount`, `two_pow_le_ucCount_of_pow_four`, `count_question_false` |
+| `U(n,N) ≥ 2^{N−1}` for `n ≥ 206` and `1 ≤ N ≤ 2^{n/4}`, so the counting criterion gives no bound on `F(n)` below `2^{n/4}`; the answer to Question 9.2 is negative for every `C` (first shown for `n = 6r` in the [trureturing](https://github.com/the-omega-institute/trureturing) repository, commit `c0bb36b`, 9 October 2026) | `choose_choose_le_ucCount`, `two_pow_le_ucCount`, `two_pow_le_ucCount_of_pow_four`, `count_question_false` |
 
 The two conjectures are stated in `lean/Erdos1183/Main.lean` in the form of the
 problem page:
