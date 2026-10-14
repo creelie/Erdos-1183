@@ -19,8 +19,10 @@ union and intersection (sublattices).
 ## Results
 
 Every statement below is proved in Lean with no `sorry`; `lean/Check.lean` prints
-the axioms of 55 theorems, and each uses only `propext`, `Classical.choice` and
-`Quot.sound` (two finite checks, `certs_ok` and `cover_ok`, use only `propext`).
+the axioms of 58 theorems, and each uses only `propext`, `Classical.choice` and
+`Quot.sound` (four finite checks, `certs_ok`, `cover_ok`, `gadgets_ok` and
+`tree20_ok`, use only `propext`). The one result of the paper that is not proved
+in full in Lean, the bound `f(n) ≥ 11n/20`, is described after the table.
 
 | Statement | Lean |
 |---|---|
@@ -37,6 +39,7 @@ the axioms of 55 theorems, and each uses only `propext`, `Classical.choice` and
 | Every 2-colouring of `2^[11]` has a red and a blue sublattice with 13 members in total | `splits_window` |
 | `⌈(n+1+q)/2⌉ ≤ f(n) ≤ min(n² + n + 1, 2n(L+K+3) + L + K + 4)`, `q = ⌊(n+1)/12⌋`, `L = ⌊log₂n⌋ + 1`, `K = ⌊log₂L⌋ + 1` | `smallF_ge_window`, `smallF_le_sq`, `smallF_le_log` |
 | `f(n) > ⌈(n+1)/2⌉` for odd `n ≥ 11` and for `n ≥ 23` | `half_lt_smallF` |
+| Every 2-colouring of `2^[19]` in which sets of the same size have the same colour has a red and a blue sublattice with 22 members in total | `W20.splits_card19` |
 | Hilbert's lemma with window `t² k^{2^t}`; many Hilbert cubes on one sequence | `hilbert_window`, `hilbert_cubes` |
 | Progressions of sizes, van der Waerden, Howorka's theorem | `ap_family`, `ap_lattice`, `exists_vdW`, `howorka` |
 | Random colouring and the counting criterion | `sum_maxUC_ge`, `sum_maxUC_ge_pow`, `bigF_lt_of_count` |
@@ -53,9 +56,40 @@ def SecondConjecture : Prop :=
   ∃ ε : ℕ → ℝ, Tendsto ε atTop (𝓝 0) ∧ ∀ n : ℕ, 1 ≤ n → (bigF n : ℝ) < (1 + ε n) ^ n
 ```
 
+### Twenty levels: `f(n) ≥ 11n/20` (computer check, partial Lean)
+
+Theorem 7.6 of the paper: write `n + 1 = 20q + r` with `0 ≤ r ≤ 19` and put
+`e = 1` if `r ≥ 12`, else `e = 0`. Every 2-colouring of `2^[n]` has a red and a
+blue sublattice with `n + 1 + 2q + e` members in total, so
+`f(n) ≥ ⌈(n + 1 + 2q + e)/2⌉ ≥ 11n/20`. This improves `13n/24` and is larger
+than the bound of the table for `n = 20`, `n = 22` and every `n ≥ 110`.
+
+The proof stacks windows of twenty levels, and the window (Lemma 7.7: every
+2-colouring of `2^[19]` has a red and a blue sublattice with 22 members in
+total) is reduced by hand to a finite check over `2^16 · 3^4 = 5,308,416`
+patterns. The check is carried out as follows.
+
+- Lean checks only the colourings by size, which are the patterns without mixed
+  levels (`W20.splits_card19`, 826 sublattices and a tree of 6,495 leaves,
+  evaluated in the kernel).
+- The whole lemma, including the patterns with mixed levels, is checked by four
+  independent programs in C, C++, Python and Julia (`checks/window20/`), from
+  an explicit list of 63,272 sublattices of `2^[19]` (`certs_19_22.txt`). The
+  same programs check the twelve-level window from `certs_11.txt`. All four
+  report the same counts.
+- `sh checks/window20/run_checks.sh` runs the four programs on both lists,
+  checks that each program rejects three corrupted lists, and builds the Lean
+  development.
+
+The reduction itself (a mixed level outside `{8, …, 11}` or a pivot whose cubes
+are not coloured by size gives 22 directly) is proved in the paper and is not
+formalised.
+
+### Open
+
 The exact order of `log F(n) / log n`, between `(1 − o(1)) log₂ log₂ n` and
 `(1 + o(1)) log₂ n`, remains open, and so does the exact order of `f(n)`,
-between `13n/24` and `(2 + o(1)) n log₂ n` (Section 9 of the paper). Counting
+between `11n/20` and `(2 + o(1)) n log₂ n` (Section 9 of the paper). Counting
 all union-closed families cannot settle the first: `U(n,N) ≥ 2^{N−1}` for
 every `N ≤ 2^{n/4}` once `n ≥ 206` (Proposition 5.5).
 
@@ -79,9 +113,14 @@ every `N ≤ 2^{n/4}` once `n ≥ 206` (Proposition 5.5).
   - `LatticeCount.lean`: counting sublattices point by point and `f(n) ≤ (2 + o(1)) n log₂ n`.
   - `LatticeCerts.lean`: 294 explicit sublattices of `2^[11]`, checked in the kernel, covering the colourings by size.
   - `LatticeLower.lean`: windows of twelve levels and `f(n) ≥ ⌈(n + 1 + ⌊(n+1)/12⌋)/2⌉`.
+  - `Window20Defs.lean`, `Window20Data.lean`, `Window20Gadgets.lean`, `Window20.lean`: the colourings by size of `2^[19]` (`W20.splits_card19`); the data file is written by `lean/generate/window20/make_data.sh` from `checks/window20/certs_19_22.txt`.
   - `Random.lean`: the random colouring and the counting criterion.
   - `CountFails.lean`: `U(n,N) ≥ 2^{N−1}` for `N ≤ 2^{n/4}`; the counting question has a negative answer.
   - `Check.lean`: `#print axioms` for the main theorems.
+- `checks/window20/`: the lists of sublattices for the windows of twelve and twenty
+  levels, the four checkers (`check_window.c`, `check_window.cpp`,
+  `check_window.py`, `check_window.jl`), the runner `run_checks.sh`, and in
+  `search/` the SAT-based search that produced the lists (needs PySAT).
 - `submission/`: draft note for erdosproblems.com.
 - `.zenodo.json`, `CITATION.cff`: archival metadata.
 
@@ -92,6 +131,9 @@ cd lean
 lake exe cache get          # download prebuilt Mathlib
 lake build
 lake env lean Check.lean    # prints axioms: propext, Classical.choice, Quot.sound
+
+cd ..
+sh checks/window20/run_checks.sh   # four checkers, corrupted lists, Lean build
 
 cd ../paper
 pdflatex Erdos.tex && pdflatex Erdos.tex && pdflatex Erdos.tex
