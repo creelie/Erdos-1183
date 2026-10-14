@@ -179,6 +179,10 @@ reference, and we have not found Howorka's argument in print.
 Section~\ref{sec:card} gives a complete proof, with an explicit bound in
 terms of van der Waerden numbers.} We prove both statements in
 \eqref{eq:conj} for arbitrary colourings, and for any number of colours.
+The second statement was proved earlier by Chojecki~\cite{Ch26}, in the
+form $F(n)\le n^{\log_2n+O(\log\log n)}$, together with
+$f(n)\le(3+o(1))\,n\log_2n$; his lower bounds are the chain
+bound~\eqref{eq:trivial}.
 
 \subsection{Results}
 
@@ -198,7 +202,8 @@ $F(n)\ge n^{t}$ whenever $\log_2n\ge(t+2)^{2}\,2^{t}$.
 \end{theorem}
 
 The upper bound comes from a random colouring and the Sauer--Shelah
-lemma.
+lemma, as in Chojecki's proof of
+$F(n)\le n^{\log_2n+O(\log\log n)}$~\cite{Ch26}.
 
 \begin{theorem}
 \label{thm:upper}
@@ -250,7 +255,9 @@ monochromatic union-closed families that we can exhibit in a uniformly
 random colouring (Proposition~\ref{prop:random}), so a better lower bound
 for $F(n)$ would have to say something new about random colourings as
 well. In the other direction, Proposition~\ref{prop:count} reduces an
-upper bound for the random colouring to counting union-closed families.
+upper bound for the random colouring to counting union-closed families,
+and Proposition~\ref{prop:countfails} shows that this count is too large
+to bound $F(n)$ below $2^{n/4}$.
 
 The two functions of Erd\H{o}s and Ulam have very different sizes. For
 sublattices the trivial bound \eqref{eq:trivial} is correct up to a factor
@@ -279,7 +286,11 @@ words in two letters finds a product of chains that beats the chain in
 one colour (Lemmas~\ref{lem:gadgets} and~\ref{lem:words}). The upper bound
 rests on a count of sublattices by size: deleting the points one at a
 time shows that $2^{[n]}$ has at most $(m+1)^{2n}$ nonempty sublattices
-with at most $m$ members (Lemma~\ref{lem:count}).
+with at most $m$ members (Lemma~\ref{lem:count}). Chojecki~\cite{Ch26}
+had obtained $f(n)\le(3+o(1))\,n\log_2n$ by counting posets of bounded
+width. A window of twenty levels, treated by a finite computation, gains
+two members and raises the lower bound to $f(n)\ge11n/20$
+(Theorem~\ref{thm:f20}).
 
 \subsection{Colourings by cardinality, Hilbert cubes and progressions}
 
@@ -413,13 +424,17 @@ Vapnik--Chervonenkis dimension \cite{VC71}.
 
 \subsection{Formal verification}
 
-Every result of this paper is proved in the text, and no step of any
-proof depends on a computer calculation. In addition, the theorems,
+Every result of this paper except Theorem~\ref{thm:f20} is proved in the
+text, and no step of these proofs depends on a computer calculation. The
+proof of Theorem~\ref{thm:f20} ends in a finite check, which is carried
+out by four independent programs and, for colourings that depend only on
+the size of a set, in Lean. In addition, the theorems,
 propositions, corollaries and lemmas of
 Sections~\ref{sec:cubes}--\ref{sec:f} have been formalised and checked in
 the Lean proof assistant \cite{MU21} with the Mathlib library
 \cite{Mathlib20}, with the exception of Lemmas~\ref{lem:gadgets}
-and~\ref{lem:words}. The functions $f$, $F$ and $F_k$ are defined in the
+and~\ref{lem:words}, Theorem~\ref{thm:f20} and
+Lemma~\ref{lem:window20}. The functions $f$, $F$ and $F_k$ are defined in the
 formal development literally as above, the two conjectures are stated in
 the form \eqref{eq:conj} with the term $o(1)$ written out as a function
 tending to zero, and Lean reports that the proof of each formal statement
@@ -1087,8 +1102,118 @@ $F(n)\le N-1$.
 
 Proposition~\ref{prop:count} is the first-moment method for a uniformly
 random colouring, and Corollary~\ref{cor:conj}(i) shows where it must
-fail: if $N\le n^{\omega(n)}\le F(n)$, then $U(n,N)\ge2^{N-1}$. We return
-to this in Question~\ref{q:count}.
+fail: if $N\le n^{\omega(n)}\le F(n)$, then $U(n,N)\ge2^{N-1}$. It fails
+much further up. For $m,k\ge0$ write $S_k(m)=\sum_{j<k}\binom mj$.
+
+\begin{proposition}
+\label{prop:countfails}
+\leavevmode
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2em]
+\item If $m\le n$ and $k,g\ge0$, then
+$U\bigl(n,S_k(m)+g\bigr)\ge\binom{\binom mk}{g}$.
+\item If $n\ge206$, $N\ge1$ and $5N\le\binom{n}{\lfloor n/12\rfloor}$, then
+$U(n,N)\ge2^{N-1}$. In particular $U(n,N)\ge2^{N-1}$ whenever
+$n\ge206$ and $1\le N\le2^{n/4}$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(i) Fix $W\subseteq[n]$ with $|W|=m$, let $\cL$ be the family of subsets
+of $W$ with fewer than $k$ elements, so that $|\cL|=S_k(m)$, and let $\cG$
+be a family of $g$ subsets of $W$ with exactly $k$ elements. Put
+$\cF_\cG=\{W\setminus X:\ X\in\cL\cup\cG\}$. The map $X\mapsto
+W\setminus X$ is injective on subsets of $W$ and $\cL\cap\cG=\emptyset$,
+so $|\cF_\cG|=S_k(m)+g$. The family $\cF_\cG$ is union-closed, because
+$(W\setminus X)\cup(W\setminus Y)=W\setminus(X\cap Y)$ and $X\cap Y\in
+\cL\cup\cG$ for $X,Y\in\cL\cup\cG$: this is clear if $X=Y$, and
+otherwise $X\cap Y$ has fewer than $k$ elements, since $X$ and $Y$ have at
+most $k$ elements and, if both have exactly $k$, then $X\cap Y$ is a
+proper subset of $X$. The members of $\cF_\cG$ with $m-k$ elements are the
+sets $W\setminus X$, $X\in\cG$, so $\cG$ is determined by $\cF_\cG$, and
+the $\binom{\binom mk}{g}$ choices of $\cG$ give distinct families.
+
+(ii) We use two inequalities. First,
+\begin{equation}
+\label{eq:powchoose}
+a^{g}\le\binom Mg\qquad\text{whenever }(a+1)g\le M+1,
+\end{equation}
+by induction on $g$, since $\binom M{g+1}(g+1)=\binom Mg(M-g)$ and
+$a(g+1)\le M-g$. Second, if $9k\le m$ and $j<k$, then
+$(m-j)/(j+1)\ge8$, so $8\binom mj\le\binom m{j+1}$, and by induction on
+$j$
+\begin{equation}
+\label{eq:sevenS}
+7S_j(m)\le\binom mj\qquad(j\le k,\ 9k\le m).
+\end{equation}
+
+\emph{One window.} Let $m\le n$ and $S=S_k(m)$, and let $N$ satisfy
+$S\le N$, $2S\le N+1$ and $5(N-S)\le\binom mk+1$. With $g=N-S$, part~(i)
+and \eqref{eq:powchoose} for $a=4$ give $U(n,N)\ge4^{g}\ge2^{N-1}$,
+because $N\le2g+1$.
+
+\emph{One level.} Let $k\ge1$ and $9k\le m\le n$, and let $N$ satisfy
+$2S_k(9k)\le N+1$ and $5(N-S_k(m))\le\binom mk+1$. We show
+$U(n,N)\ge2^{N-1}$ by induction on $m$. For $m=9k$ the window applies,
+since $S_k(9k)\ge1$. For $m+1$, the window at $m+1$ applies if
+$2S_k(m+1)\le N+1$. Otherwise $N\le2S_k(m+1)-2=2S_k(m)+2S_{k-1}(m)-2$ by
+Pascal's rule. By \eqref{eq:sevenS}, $7S_k(m)\le\binom mk$ and
+$56S_{k-1}(m)\le8\binom m{k-1}\le\binom mk$, so
+$5(N-S_k(m))\le5S_k(m)+10S_{k-1}(m)\le\binom mk$, and the case $m$
+applies.
+
+\emph{From one level to the next.} Let $k\ge1$, $n\ge206$ and
+$12(k+1)\le n$, and put $a=9(k+1)$. Then
+$S_{k+1}(a)=S_k(a)+\binom ak\le\frac87\binom ak$ by \eqref{eq:sevenS}.
+Comparing the factors $(a-i)n\le(n-i)a$ gives $\binom ak n^{k}\le
+\binom nk a^{k}$. Moreover $80a^{k}\le7n^{k}$: for $k\ge9$ because
+$n\ge\frac43a$ and $7(4/3)^{k}\ge80$, and for $k\le8$ because
+$80\,(9k+9)^{k}\le7\cdot206^{k}$. Hence $80\binom ak\le7\binom nk$ and
+\begin{equation}
+\label{eq:crosslevel}
+10\,S_{k+1}\bigl(9(k+1)\bigr)\le\binom nk .
+\end{equation}
+
+\emph{All levels.} Let $n\ge206$ and $K=\lfloor n/12\rfloor$. We show by
+induction on $k=1,\dots,K$ that every $N\ge1$ with $5(N-S_k(n))\le
+\binom nk+1$ satisfies $U(n,N)\ge2^{N-1}$. For $k=1$ the window at $m=n$
+applies, as $S_1(n)=1$. For $k+1\le K$, if $2S_{k+1}(9(k+1))\le N+1$ the
+level $k+1$ with $m=n$ applies; otherwise $5N<10S_{k+1}(9(k+1))\le
+\binom nk$ by \eqref{eq:crosslevel}, and the case $k$ applies. For $k=K$
+every $N\ge1$ with $5N\le\binom nK$ qualifies.
+
+Finally let $1\le N\le2^{n/4}$. By \eqref{eq:powchoose} with $a=11$,
+$\binom nK\ge11^{K}$, and $K\ge17$ gives $625\cdot2^{n}\le
+625\cdot2^{12K+11}\le11^{4K}$. Hence $(5N)^{4}\le625\cdot2^{n}\le
+\binom nK^{4}$, that is, $5N\le\binom nK$.
+\end{proof}
+
+\begin{corollary}
+\label{cor:countfails}
+For $n\ge206$, Proposition~\ref{prop:count} gives $F(n)<N$ only for
+$N>2^{n/4}$. The answer to Question~\ref{q:count} is negative for every
+constant $C$: for all large $n$ there is $N\ge n^{C\log_2\log_2n}$ with
+$U(n,N)\ge2^{N-1}$.
+\end{corollary}
+
+\begin{proof}
+The first statement is Proposition~\ref{prop:countfails}(ii). For the
+second take $N=2^{\lfloor n/4\rfloor}$; since $(\log n)^{2}=o(n)$, we have
+$n^{C\log_2\log_2n}\le N$ for all large $n$.
+\end{proof}
+
+The negative answer to Question~\ref{q:count} was first obtained in the
+trureturing repository~\cite{Tr26}, for $n=6r$, from the families made of
+all sets with more than $5r$ elements and one set from each of
+$\lfloor\binom{6r}{r}/4\rfloor$ disjoint quadruples of $5r$-sets.
+Corollary~\ref{cor:countfails} gives the same answer for every $n\ge206$
+and every $N\le2^{n/4}$.
+
+The families in the proof of Proposition~\ref{prop:countfails} have all
+their members among the sets with at least $m-k$ elements, and their
+number exceeds $2^{N-1}$ because $\cG$ can be any family of $k$-sets. An
+upper bound for $F(n)$ therefore has to use the structure of
+union-closed families, as Theorem~\ref{thm:upper} does through the
+Vapnik--Chervonenkis dimension, and not only their number.
 
 %======================================================================
 \section{Cardinality colourings, Hilbert cubes and arithmetic progressions}
@@ -1562,6 +1687,154 @@ For odd $n\ge11$ and for $n\ge23$ we have $\lceil(n+1+q)/2\rceil>
 $(n+1+q)/2\ge(13n+2)/24$. These are the lower bounds stated in
 Theorem~\ref{thm:f}.
 
+\subsection{Twenty levels}
+
+A window of twenty levels gains two members, and this raises the constant
+$13/24$ of Theorem~\ref{thm:f} to $11/20$.
+
+\begin{theorem}
+\label{thm:f20}
+Let $n\ge1$, write $n+1=20q+r$ with $0\le r\le19$, and put $e=1$ if
+$r\ge12$ and $e=0$ otherwise. Every $2$-colouring of $2^{[n]}$ has a
+red--blue pair of size at least $n+1+2q+e$. Consequently
+\[
+f(n)\ \ge\ \Bigl\lceil\frac{n+1+2q+e}{2}\Bigr\rceil\ \ge\ \frac{11n}{20}.
+\]
+\end{theorem}
+
+This bound is never smaller than the lower bound of Theorem~\ref{thm:f},
+and it is larger for $n=20$, for $n=22$ and for every $n\ge110$. Its proof
+rests on the following lemma, whose proof ends in a finite computation.
+It is the only result of this paper that depends on a computer
+calculation.
+
+\begin{lemma}[Twenty levels]
+\label{lem:window20}
+Every $2$-colouring of $2^{[19]}$ has a red--blue pair of size at least
+$22$.
+\end{lemma}
+
+For $m\ge0$ let $p(m)$ be the largest $N$ such that every $2$-colouring
+of $2^{[m]}$ has a red--blue pair of size $N$. A maximal chain gives
+$p(m)\ge m+1$, and Proposition~\ref{prop:flower} gives $p(m)\ge m+2$ for
+$m\ge11$. For a $2$-colouring of $2^{[19]}$ we call the family of sets of
+size $j$ the \emph{level} $j$, and we call a level \emph{mixed} if it
+contains a red and a blue set and \emph{pure} otherwise.
+
+\begin{proof}[Proof of Lemma~\ref{lem:window20}]
+Let $\chi$ be a $2$-colouring of $2^{[19]}$.
+
+\emph{Pivots.} Let the level $k$ be mixed. The first paragraph of the
+proof of Lemma~\ref{lem:adjacent} gives a red set $S$ and a blue set $T$
+of size $k$ with $|S\setminus T|=1$. We fix such a \emph{pivot} $(S,T)$
+for every mixed level and put $U=S\cap T$ and $W=S\cup T$. Let
+$(\cR_1,\cB_1)$ be a largest red--blue pair of the restriction of $\chi$
+to $2^{U}$, and $(\cR_2,\cB_2)$ a largest red--blue pair of its
+restriction to the sets that contain $W$; the map $Y\mapsto W\cup Y$
+identifies $2^{[19]\setminus W}$ with these sets and preserves unions and
+intersections, so $|\cR_2|+|\cB_2|\ge p(18-k)$, and similarly
+$|\cR_1|+|\cB_1|\ge p(k-1)$. Every member of $\cR_1\cup\cB_1$ is
+contained in $S$ and in $T$, and $S$ and $T$ are contained in every member
+of $\cR_2\cup\cB_2$, so by (L2) the families $\cR_1\cup\{S\}\cup\cR_2$ and
+$\cB_1\cup\{T\}\cup\cB_2$ form a red--blue pair of size
+\begin{equation}
+\label{eq:pivot}
+|\cR_1|+|\cB_1|+|\cR_2|+|\cB_2|+2\ \ge\ p(k-1)+p(18-k)+2.
+\end{equation}
+If $k\le7$, then $18-k\ge11$ and \eqref{eq:pivot} is at least
+$k+(20-k)+2=22$; if $k\ge12$, then $k-1\ge11$ and it is at least
+$(k+1)+(19-k)+2=22$. The levels $0$ and $19$ have one member each and are
+pure. We may therefore assume that every mixed level lies in
+$\{8,9,10,11\}$.
+
+\emph{Cubes.} Let $(S,T)$ be the pivot of a mixed level $k$. If two
+subsets of $U$ of the same size have different colours,
+Lemma~\ref{lem:adjacent} applied to $2^{U}$ gives
+$|\cR_1|+|\cB_1|\ge k+1$, and \eqref{eq:pivot} is at least
+$(k+1)+(19-k)+2=22$. If two sets of the same size that contain $W$ have
+different colours, the same lemma gives $|\cR_2|+|\cB_2|\ge20-k$, and
+\eqref{eq:pivot} is at least $k+(20-k)+2=22$. We may therefore assume
+that at the pivot of every mixed level $k$ the colour of a subset of $U$
+and the colour of a set that contains $W$ depend only on its size. We
+call these colours the \emph{lower} colour of a level $j<k$ and the
+\emph{upper} colour of a level $j>k$ at the pivot of $k$. At a pure level
+both are the colour of that level.
+
+\emph{Families of one colour.} Let $c$ be a colour. Each of the following
+families is a sublattice whose members all have colour $c$, because
+permutations of $[19]$ preserve sizes, unions and intersections.
+\begin{enumerate}[label=\textup{(\alph*)},leftmargin=2em]
+\item The members of colour $c$ of a maximal chain, chosen to pass
+through a set of colour $c$ at a mixed level if there is one. They
+contain one set from every pure level of colour $c$, and one more set if
+some level is mixed.
+\item A sublattice all of whose members have sizes at pure levels of
+colour $c$.
+\item The image $\pi(\cL)$ of a sublattice $\cL$ with one member $A$ at a
+mixed level and all other members at pure levels of colour $c$, where
+$\pi$ is a permutation of $[19]$ that takes $A$ to a set of colour $c$.
+\item The image $\pi(\cL)$ of a sublattice $\cL$ in which $[k]$ is the
+only member of size $k$, for a mixed level $k$ with pivot $(S,T)$, where
+$\pi$ is a permutation of $[19]$ with $\pi([k-1])=U$, $\pi([k+1])=W$, and
+$\pi([k])=S$ if $c$ is red and $\pi([k])=T$ if $c$ is blue, provided that
+every other member $X$ of $\cL$ lies at a pure level of colour $c$, or
+satisfies $X\subseteq[k-1]$ and has lower colour $c$ at the pivot of $k$,
+or satisfies $X\supseteq[k+1]$ and has upper colour $c$ there.
+\end{enumerate}
+In (d) the image $\pi(X)$ of a member $X\subseteq[k-1]$ is a subset of
+$U$, and that of a member $X\supseteq[k+1]$ contains $W$, so it has the
+lower, respectively upper, colour of its level.
+
+\emph{The check.} Which families of the kinds (a)--(d) are available
+depends only on the colours of the pure levels, on the set of mixed
+levels, and on the lower and upper colours of the mixed levels at the
+pivots of the other mixed levels. The pure levels outside
+$\{8,\dots,11\}$ and the levels $8,\dots,11$, each red, blue or mixed,
+give $2^{16}\cdot3^{4}=5{,}308{,}416$ choices of the first two data. For
+each of them and each choice of the lower and upper colours, a computer
+check finds a red and a blue family of the kinds (a)--(d) with at least
+$22$ members together. The sublattices $\cL$ in (b)--(d) are taken from
+an explicit list of $63{,}272$ sublattices of $2^{[19]}$, of which
+$62{,}899$ serve in (b) and (c) and $373$ in (d). Each sublattice in (b)
+and (c) is used at every position: if $B$ and $C$ are its least and its
+largest member and $\phi$ is the increasing bijection from $C\setminus B$
+onto $[\,|C\setminus B|\,]$, it is used together with its images under
+the maps
+\[
+X\ \longmapsto\ [d]\cup\{d+\phi(x):\ x\in X\setminus B\},\qquad
+0\le d\le19-|C\setminus B|,
+\]
+which are injective on the sets between $B$ and $C$, preserve unions and
+intersections, and change every size by $d-|B|$. The list and four
+independent programs that carry out the check, written in C, C++, Python
+and Julia, are part of the archive listed under Data availability. Each
+program verifies that
+every listed family is a sublattice, runs through all the choices above,
+and finds no choice with fewer than $22$ members, and the four report the
+same counts. For colourings that depend only on the size of a set, which
+are the colourings without mixed levels, the check has also been carried
+out in Lean (Section~\ref{sec:lean}).
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:f20}]
+Let $\chi$ be a $2$-colouring of $2^{[n]}$ and write $S_i=[i]$. For
+$0\le j<q$ let $W_j=\{20j+1,\dots,20j+19\}$, and if $e=1$ let
+$W_q=\{20q+1,\dots,20q+11\}$; these are subsets of $[n]$ because
+$20q+12e\le n+1$. As in the proof of Proposition~\ref{prop:flower},
+Lemma~\ref{lem:window20} applied to the colourings
+$T\mapsto\chi(S_{20j}\cup T)$ of $2^{W_j}$ for $j<q$, and
+Lemma~\ref{lem:window} applied to $T\mapsto\chi(S_{20q}\cup T)$ on
+$2^{W_q}$ if $e=1$, give red--blue pairs of sizes at least $22$ and $13$
+whose members $A$ satisfy $S_{20j}\subseteq A\subseteq S_{20j+19}$ and
+$S_{20q}\subseteq A\subseteq S_{20q+11}$ respectively. Together with the
+red and the blue sets $S_i$ with $20q+12e\le i\le n$ they form, by (L1)
+and repeated use of (L2), a red--blue pair of size at least
+\[
+22q+13e+(n+1-20q-12e)\ =\ n+1+2q+e .
+\]
+Finally $10(n+1+2q+e)-11n=11-r+10e\ge0$, because $r\le11$ when $e=0$.
+\end{proof}
+
 \subsection{Counting sublattices}
 
 The upper bounds rest on two counts of sublattices. The first uses
@@ -1718,14 +1991,15 @@ from Theorem~\ref{thm:lower} with $t>C$.
 The first upper bound is the smaller one for $n\le21$ and the second for
 $n\ge22$. Both come from the random colouring, and the remaining gap, a
 factor of order $\log n$ between them and the lower bound of
-Proposition~\ref{prop:flower}, is the subject of Question~\ref{q:f}.
+Theorem~\ref{thm:f20}, is the subject of Question~\ref{q:f}.
 
 %======================================================================
 \section{Formal verification}
 \label{sec:lean}
 
 The results of Sections~\ref{sec:cubes}--\ref{sec:f}, except
-Lemmas~\ref{lem:gadgets} and~\ref{lem:words}, have been formalised in
+Lemmas~\ref{lem:gadgets} and~\ref{lem:words}, Theorem~\ref{thm:f20} and
+Lemma~\ref{lem:window20}, have been formalised in
 Lean~4 \cite{MU21}, version~4.34.1, with the Mathlib library
 \cite{Mathlib20} at the release of the same version number. The
 development contains no unproved steps, and for each statement listed
@@ -1758,8 +2032,11 @@ Sauer--Shelah lemma taken from Mathlib.
 \item Corollary~\ref{cor:conj}: part~(i) with the stated $\omega(n)$ and
 $\omega(n)\to\infty$, parts (ii)--(iv), and the conjunction of the two
 conjectures in the form \eqref{eq:conj} as a single theorem.
-\item Proposition~\ref{prop:random}, Lemma~\ref{lem:subfamily} and
-Proposition~\ref{prop:count}.
+\item Proposition~\ref{prop:random}, Lemma~\ref{lem:subfamily},
+Propositions~\ref{prop:count} and~\ref{prop:countfails}, and
+Corollary~\ref{cor:countfails}, with $U(n,N)$ defined literally as the
+number of union-closed families of $N$ subsets of $[n]$ and the negative
+answer to Question~\ref{q:count} stated for every real constant $C$.
 \item Corollary~\ref{cor:hilbertlemma}, Theorem~\ref{thm:hilbert},
 Proposition~\ref{prop:AP}, Theorem~\ref{thm:vdw}, derived from Mathlib's
 Hales--Jewett theorem as described above, and Theorem~\ref{thm:howorka},
@@ -1768,6 +2045,8 @@ proved for every number $W$ with the property that defines $W_k(p)$.
 Proposition~\ref{prop:flower}, Lemmas~\ref{lem:structure},
 \ref{lem:remove} and~\ref{lem:count}, and Theorem~\ref{thm:f}, including
 $f(n)>\lceil(n+1)/2\rceil$ for odd $n\ge11$ and for $n\ge23$.
+\item Lemma~\ref{lem:window20} for colourings in which sets of the same
+size have the same colour.
 \end{enumerate}
 
 The formal proofs follow the arguments given here, with one change of
@@ -1794,6 +2073,26 @@ logic of Lean, verified by the same kernel as every other proof, and it
 uses no compiled code and no additional axiom. Lemmas~\ref{lem:gadgets}
 and~\ref{lem:words} themselves are not formalised.
 
+Lemma~\ref{lem:window20} is formalised in the same way for colourings
+that depend only on the size of a set, that is for words
+$g(0)g(1)\cdots g(19)$. The formal proof uses a list of $826$ explicit
+sublattices of cubes $2^{[t]}$ with $t\le19$, stored as above, and a
+binary tree with $6{,}495$ leaves whose nodes are the beginnings
+$g(0)\cdots g(L-1)$ of the words with $g(0)$ blue. A listed sublattice of
+$2^{[t]}$ is placed above $[d]$ by the map $X\mapsto[d]\cup(d+X)$ and
+completed by the sets $[i]$ of its colour with $i<d$ or $i>d+t$; when all
+its sizes have one colour, this gives a sublattice of that colour with
+more members than the chain of that colour by the number of its members
+minus the number of indices $d\le i\le d+t$ of that colour. Each leaf
+names one placed sublattice for each colour, and these two gains add up
+to at least $2$ for every word with that beginning. Two finite statements
+are checked by evaluation in the kernel: that every listed family is a
+sublattice with the stated sizes, and that the tree covers every word and
+satisfies the inequality at each leaf. The case of
+Lemma~\ref{lem:window20} with mixed levels and the reductions in its
+proof are not formalised; that case is covered by the four programs
+described in the proof.
+
 Outside the formal development remain only the figures and
 the elementary asymptotic rewritings of the proved bounds, such as
 $\omega(n)=(1-o(1))\log_2\log_2n$ in Corollary~\ref{cor:conj} and
@@ -1817,8 +2116,8 @@ $F(n)=n^{\Theta(\log n)}$?
 Every upper bound for $F(n)$ in this paper comes from the random
 colouring, and by Proposition~\ref{prop:random} that colouring cannot
 give anything below
-$n^{(1-o(1))\log_2\log_2n}$. Proposition~\ref{prop:count} reduces the
-matching upper bound to a count.
+$n^{(1-o(1))\log_2\log_2n}$. Proposition~\ref{prop:count} would reduce
+the matching upper bound to a count.
 
 \begin{question}
 \label{q:count}
@@ -1826,30 +2125,32 @@ Is there a constant $C$ such that $U(n,N)<2^{N-1}$ for all large $n$ and
 all $N\ge n^{C\log_2\log_2n}$?
 \end{question}
 
-A positive answer would give $F(n)<n^{C\log_2\log_2n}$ by
+A positive answer would have given $F(n)<n^{C\log_2\log_2n}$ by
 Proposition~\ref{prop:count}, and together with
-Corollary~\ref{cor:conj}(i) it would determine $\log F(n)/\log n$ up to a
-constant factor, answering Question~\ref{q:F} in favour of
-$n^{\Theta(\log\log n)}$. By Corollary~\ref{cor:conj}(i) the inequality
-fails for $N\le n^{\omega(n)}$, so the threshold in Question~\ref{q:count}
-cannot be lowered below $n^{(1-o(1))\log_2\log_2n}$.
+Corollary~\ref{cor:conj}(i) it would have answered Question~\ref{q:F} in
+favour of $n^{\Theta(\log\log n)}$. The answer is negative
+(\cite{Tr26}, Corollary~\ref{cor:countfails}): by Proposition~\ref{prop:countfails},
+$U(n,N)\ge2^{N-1}$ for every $N\le2^{n/4}$ once $n\ge206$. Question~\ref{q:F}
+therefore needs an argument that uses more than the number of
+union-closed families.
 
 \begin{question}
 \label{q:f}
 Is $f(n)=O(n)$? If so, does $f(n)/n$ converge, and to what limit?
 \end{question}
 
-By Theorem~\ref{thm:f}, $f(n)$ exceeds the chain bound
-$\lceil(n+1)/2\rceil$ for all large $n$, and $13/24\le f(n)/n\le
+By Theorems~\ref{thm:f} and~\ref{thm:f20}, $f(n)$ exceeds the chain
+bound $\lceil(n+1)/2\rceil$ for all large $n$, and $11/20\le f(n)/n\le
 (2+o(1))\log_2n$. The lower bound comes from chains in which stretches of
-twelve levels are replaced by small sublattices, and the upper bounds
-from counting sublattices in a random colouring.
+twelve or twenty levels are replaced by small sublattices, and the upper
+bounds from counting sublattices in a random colouring.
 
 %======================================================================
 \section*{Data availability}
 
-The Lean formalisation of the results of this paper and the sources of
-the paper are available at
+The Lean formalisation of the results of this paper, the programs and
+the list of sublattices that check Lemma~\ref{lem:window20}, and the
+sources of the paper are available at
 \href{https://doi.org/\zenododoi}{https://doi.org/\zenododoi}. Claude
 (Anthropic) assisted with the coding.
 
@@ -1873,6 +2174,12 @@ Duke Math. J. \textbf{3} (1937), no.~3, 443--454.
 T.~F. Bloom,
 \emph{Erd\H{o}s Problem \#1183},
 \url{https://www.erdosproblems.com/1183}, accessed 6 October 2026.
+
+\bibitem[Ch26]{Ch26}
+P.~Chojecki,
+\emph{Monochromatic union-closed and lattice subfamilies of the Boolean
+lattice}, preprint, 18 March 2026,
+\url{https://www.ulam.ai/research/erdos1183.pdf}.
 
 \bibitem[Gi22]{Gi22}
 J.~Gilmer,
@@ -1937,6 +2244,13 @@ S.~Shelah,
 theories in infinitary languages},
 Pacific J. Math. \textbf{41} (1972), no.~1, 247--261.
 \href{https://doi.org/10.2140/pjm.1972.41.247}{doi:10.2140/pjm.1972.41.247}
+
+\bibitem[Tr26]{Tr26}
+The Omega Institute,
+\emph{trureturing}, module
+\texttt{UnionClosedCountRefutation}, commit \texttt{c0bb36b},
+9 October 2026,
+\url{https://github.com/the-omega-institute/trureturing}.
 
 \bibitem[VC71]{VC71}
 V.~N. Vapnik and A.~Ya. Chervonenkis,

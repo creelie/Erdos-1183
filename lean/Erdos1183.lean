@@ -13,4 +13,9 @@ import Erdos1183.Lattice
 import Erdos1183.LatticeCount
 import Erdos1183.LatticeCerts
 import Erdos1183.LatticeLower
+import Erdos1183.Window20Defs
+import Erdos1183.Window20Data
+import Erdos1183.Window20Gadgets
+import Erdos1183.Window20
 import Erdos1183.Random
+import Erdos1183.CountFails
